@@ -3,10 +3,13 @@
 PORT = '/dev/ttyUSB0'
 
 import serial
+from time import sleep
 
 def send(port, cmd):
 
     port.write((cmd + '\n').encode())
+    sleep(.01)
+
 
 def main():
 
@@ -19,7 +22,8 @@ def main():
     send(port, '!E0')
 
     while True:
-        print(port.read())
+        c = ord(port.read())
+        print('%0X' % c)
 
 if __name__ == '__main__':
 
