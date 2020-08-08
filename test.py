@@ -4,14 +4,23 @@ PORT = '/dev/ttyUSB0'
 
 import serial
 
-port = serial.Serial(port=PORT, baudrate=12000000, rtscts=True)
+def send(port, cmd):
 
-port.write('R\n'.encode())
+    port.write((cmd + '\n').encode())
 
-port.write('E+\n'.encode())
+def main():
 
-port.write('!E0\n'.encode())
+    port = serial.Serial(port=PORT, baudrate=12000000, rtscts=True)
 
-while True:
-    print(port.read())
+    send(port, 'R')
 
+    send(port, 'E+')
+
+    send(port, '!E0')
+
+    while True:
+        print(port.read())
+
+if __name__ == '__main__':
+
+    main()
