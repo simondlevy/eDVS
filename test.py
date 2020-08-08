@@ -15,15 +15,18 @@ def main():
 
     port = serial.Serial(port=PORT, baudrate=12000000, rtscts=True)
 
+    # Reset board
     send(port, 'R')
 
+    # Enable event sending
     send(port, 'E+')
 
+    # Use two-byte event format
     send(port, '!E0')
 
     while True:
-        c = ord(port.read())
-        print('%0X' % c)
+        b = ord(port.read())
+        print('%0X' % b)
 
 if __name__ == '__main__':
 
