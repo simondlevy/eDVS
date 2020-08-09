@@ -24,9 +24,19 @@ def main():
     # Use two-byte event format
     send(port, '!E0')
 
+    x      = None
+    second = False
+
     while True:
-        b = ord(port.read())
-        print('%0X' % b)
+
+        v = ord(port.read()) & 0b01111111
+
+        if second:
+            print(x, v)
+        else:
+            x = v
+
+        second = not second
 
 if __name__ == '__main__':
 
