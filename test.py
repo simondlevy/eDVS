@@ -13,7 +13,7 @@ def send(port, cmd):
     port.write((cmd + '\n').encode())
     sleep(.01)
 
-def read_sensor():
+def read_sensor(image):
 
     port = serial.Serial(port=PORT, baudrate=12000000, rtscts=True)
 
@@ -34,7 +34,8 @@ def read_sensor():
         v = ord(port.read()) & 0b01111111
 
         if second:
-            print(x, v)
+            y = v
+            image[x,y] = 1.0
         else:
             x = v
 
@@ -42,14 +43,13 @@ def read_sensor():
 
 def main():
 
-    #thread = Thread(target=read_sensor, args = (plotter,))
-    thread = Thread(target=read_sensor)
+    image = np.zeros((128,128))
+
+    thread = Thread(target=read_sensor, args = (image,))
     thread.daemon = True
     thread.start()
 
     while(True):
-
-        image = np.zeros((128,128))
 
         # Display the resulting image
         cv2.imshow('image', cv2.resize(image, ((512,512))))
