@@ -29,18 +29,25 @@ def read_sensor(events, times, flags):
     # Use two-byte event format
     send(port, '!E0')
 
+    # Every second byte represents a completed event
     x      = None
     second = False
 
     while flags[0]:
 
+        # Read a byte from the sensor
         b = ord(port.read())
+
+        # Value is in rightmost seven bits
         v = b & 0b01111111
 
+        # Second byte; record event
         if second:
             y = v
             events[x,y] = 2 * (b>>7) - 1 # Convert event polarity from 0,1 to -1,+1
             times[x,y] = time()
+
+        # First byte; store X
         else:
             x = v
 
@@ -67,11 +74,10 @@ def main():
 
         # Convert events to color image
         image = np.zeros((128,128,3))
-
         image[events==+1,2] = 1.0
         image[events==-1,1] = 1.0
 
-        # Display the resulting image
+        # Display the color image at twice original size
         cv2.imshow('image', cv2.resize(image, ((512,512))))
         if cv2.waitKey(1) == 27:
             break
