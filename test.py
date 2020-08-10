@@ -34,11 +34,12 @@ def read_sensor(events, times, flags):
 
     while flags[0]:
 
-        v = ord(port.read()) & 0b01111111
+        b = ord(port.read())
+        v = b & 0b01111111
 
         if second:
             y = v
-            events[x,y] = 1
+            events[x,y] = 2 * (b>>7) - 1 # Convert event polarity from 0,1 to -1,+1
             times[x,y] = time()
         else:
             x = v
@@ -67,7 +68,8 @@ def main():
         # Convert events to color image
         image = np.zeros((128,128,3))
 
-        image[events==1,2] = 1.0
+        image[events==+1,2] = 1.0
+        image[events==-1,1] = 1.0
 
         # Display the resulting image
         cv2.imshow('image', cv2.resize(image, ((512,512))))
