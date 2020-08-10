@@ -2,6 +2,9 @@
 
 PORT = '/dev/ttyUSB0'
 
+# Events older than this time in seconds get zeroed-out
+INTERVAL = 0.10
+
 import serial
 from time import time, sleep
 import cv2
@@ -59,7 +62,7 @@ def main():
     while(True):
 
         # Zero out pixels with events older than a certain time before now
-        image[(time() - times) > .10] = 0
+        image[(time() - times) > INTERVAL] = 0
 
         # Display the resulting image
         cv2.imshow('image', cv2.resize(image, ((512,512))))
