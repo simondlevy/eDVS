@@ -13,7 +13,7 @@ def send(port, cmd):
     port.write((cmd + '\n').encode())
     sleep(.01)
 
-def read_sensor(image, flags):
+def read_sensor(image, times, flags):
 
     port = serial.Serial(port=PORT, baudrate=12000000, rtscts=True)
 
@@ -36,6 +36,7 @@ def read_sensor(image, flags):
         if second:
             y = v
             image[x,y] = 1.0
+            times[x,y] = time()
         else:
             x = v
 
@@ -47,13 +48,18 @@ def main():
 
     image = np.zeros((128,128))
 
+    times = np.zeros((128,128))
+
     flags = [True]
 
-    thread = Thread(target=read_sensor, args = (image,flags))
+    thread = Thread(target=read_sensor, args = (image,times,flags))
     thread.daemon = True
     thread.start()
 
     while(True):
+
+        # Zero out pixels with events older than a certain time before now
+        image[(time() - times) > .10] = 0
 
         # Display the resulting image
         cv2.imshow('image', cv2.resize(image, ((512,512))))
