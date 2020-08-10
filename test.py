@@ -38,7 +38,7 @@ def read_sensor(events, times, flags):
 
         if second:
             y = v
-            events[x,y] = 1.0
+            events[x,y] = 1
             times[x,y] = time()
         else:
             x = v
@@ -49,7 +49,7 @@ def read_sensor(events, times, flags):
 
 def main():
 
-    events = np.zeros((128,128))
+    events = np.zeros((128,128)).astype('int8')
 
     times = np.zeros((128,128))
 
@@ -64,8 +64,13 @@ def main():
         # Zero out pixels with events older than a certain time before now
         events[(time() - times) > INTERVAL] = 0
 
+        # Convert events to color image
+        image = np.zeros((128,128,3))
+
+        image[events==1,2] = 1.0
+
         # Display the resulting image
-        cv2.imshow('image', cv2.resize(events, ((512,512))))
+        cv2.imshow('image', cv2.resize(image, ((512,512))))
         if cv2.waitKey(1) == 27:
             break
 
