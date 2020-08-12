@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+'''
+Simple test of the Mini eDVS using OpenCV
+
+Copyright (C) 2020 Simon D. Levy
+
+MIT License
+'''
 
 PORT = '/dev/ttyUSB0'
 
