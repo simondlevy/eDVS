@@ -16,6 +16,9 @@ INTERVAL = 0.10
 # Frame rate for saving movie
 VIDEO_FPS = 100
 
+# Scale-up factor for display
+SCALEUP = 4
+
 import serial
 from time import time, sleep
 import cv2
@@ -44,6 +47,7 @@ def read_sensor(events, times, flags):
     x      = None
     second = False
 
+    # Flag will be set on main thread when user quits
     while flags[0]:
 
         # Read a byte from the sensor
@@ -79,7 +83,7 @@ def main():
     thread.start()
 
     # Create a video file to save the movie
-    out = cv2.VideoWriter('movie.avi', cv2.VideoWriter_fourcc('M','J','P','G'), VIDEO_FPS, (512,512))
+    out = cv2.VideoWriter('movie.avi', cv2.VideoWriter_fourcc('M','J','P','G'), VIDEO_FPS, (128*SCALEUP,128*SCALEUP))
 
     while(True):
 
@@ -90,7 +94,7 @@ def main():
         image = np.zeros((128,128,3)).astype('uint8')
         image[events==+1,2] = 255
         image[events==-1,1] = 255
-        image = cv2.resize(image, (512,512))
+        image = cv2.resize(image, (128*SCALEUP,128*SCALEUP))
 
         # Write the color image to the video file
         out.write(image)
