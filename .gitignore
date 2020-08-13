@@ -1,5 +1,6 @@
 *.avi
 *.swp
 *.egg-info/
+__pycache__/
 build/
 dist/
