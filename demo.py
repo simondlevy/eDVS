@@ -7,6 +7,12 @@ Copyright (C) 2020 Simon D. Levy
 MIT License
 '''
 
+from edvs import eDVS
+from threading import Thread
+from time import time
+import cv2
+import numpy as np
+
 # Change this to match your com port (e.g., 'COM5')
 PORT = '/dev/ttyUSB0'
 
@@ -18,78 +24,6 @@ VIDEO_FPS = 100
 
 # Scale-up factor for display
 SCALEUP = 4
-
-import serial
-from time import time, sleep
-import cv2
-import numpy as np
-from threading import Thread
-
-class eDVS:
-
-    def __init__(self, port):
-
-        self.port = serial.Serial(port=port, baudrate=12000000, rtscts=True)
-
-        # +/- polarity
-        self.events = np.zeros((128,128)).astype('int8')
-
-        # We'll use clock time (instead of event time) for speed
-        self.times = np.zeros((128,128))
-
-        self.done = False
-
-    def start(self):
-
-        # Reset board
-        self._send('R')
-
-        # Enable event sending
-        self._send('E+')
-
-        # Use two-byte event format
-        self._send('!E0')
-
-        # Every other byte represents a completed event
-        x    = None
-        gotx = False
-
-        # Flag will be set on main thread when user quits
-        while not self.done:
-
-            # Read a byte from the sensor
-            b = ord(self.port.read())
-
-            # Value is in rightmost seven bits
-            v = b & 0b01111111
-
-            # Isolate first bit
-            f = b>>7
-
-            # Correct for misaligned bytes
-            if f==0 and not gotx:
-                gotx = not gotx
-
-            # Second byte; record event
-            if gotx:
-                y = v
-                self.events[x,y] = 2*f-1 # Convert event polarity from 0,1 to -1,+1
-                self.times[x,y] = time()
-
-            # First byte; store X
-            else:
-                x = v
-
-            gotx = not gotx
-
-    def stop(self):
-
-        self.done = True
-
-    def _send(self, cmd):
-
-        self.port.write((cmd + '\n').encode())
-        sleep(.01)
 
 def main():
 
