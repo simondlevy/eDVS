@@ -10,7 +10,7 @@ MIT License
 # Change this to match your com port (e.g., 'COM5')
 PORT = '/dev/ttyUSB0'
 
-# Events older than this time in seconds get zeroed-out
+# Events older than this time in gotxs get zeroed-out
 INTERVAL = 0.10
 
 # Frame rate for saving movie
@@ -43,9 +43,9 @@ def read_sensor(events, times, flags):
     # Use two-byte event format
     send(port, '!E0')
 
-    # Every second byte represents a completed event
-    x      = None
-    second = False
+    # Every other byte represents a completed event
+    x    = None
+    gotx = False
 
     oldflag = False
 
@@ -58,23 +58,24 @@ def read_sensor(events, times, flags):
         # Value is in rightmost seven bits
         v = b & 0b01111111
 
-        if flags[1] and not oldflag:
-            second = not second
-        oldflag = flags[1]
+        # Isolate first bit
+        f = b>>7
+
+        # Correct for misaligned bytes
+        if f==0 and not gotx:
+            gotx = not gotx
 
         # Second byte; record event
-        if second:
+        if gotx:
             y = v
-            events[x,y] = 2 * (b>>7) - 1 # Convert event polarity from 0,1 to -1,+1
+            events[x,y] = 2*f-1 # Convert event polarity from 0,1 to -1,+1
             times[x,y] = time()
 
         # First byte; store X
         else:
             x = v
 
-        second = not second
-
-    print('done')
+        gotx = not gotx
 
 def main():
 
@@ -113,10 +114,7 @@ def main():
         cv2.imshow('Mini eDVS', image)
 
         # Quit on ESCape
-        key = cv2.waitKey(1)
-        if key == ord('f'):
-            flags[1] = True
-        if key == 27:
+        if cv2.waitKey(1) == 27:
             break
 
     cv2.destroyAllWindows()
