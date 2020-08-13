@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-Simple test of the Mini eDVS using OpenCV
+Simple demo of the IniVation eDVS using OpenCV
 
 Copyright (C) 2020 Simon D. Levy
 
@@ -25,6 +25,25 @@ import cv2
 import numpy as np
 from threading import Thread
 
+class eDVS:
+
+    def __init__(self, port):
+
+        self.port = serial.Serial(port=port, baudrate=12000000, rtscts=True)
+
+        # Reset board
+        send(self.port, 'R')
+
+        # Enable event sending
+        send(self.port, 'E+')
+
+        # Use two-byte event format
+        send(self.port, '!E0')
+
+        # Every other byte represents a completed event
+        self.x    = None
+        self.gotx = False
+
 def send(port, cmd):
 
     port.write((cmd + '\n').encode())
@@ -46,8 +65,6 @@ def read_sensor(events, times, flags):
     # Every other byte represents a completed event
     x    = None
     gotx = False
-
-    oldflag = False
 
     # Flag will be set on main thread when user quits
     while flags[0]:
