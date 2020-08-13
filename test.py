@@ -7,10 +7,14 @@ Copyright (C) 2020 Simon D. Levy
 MIT License
 '''
 
+# Change this to match your com port (e.g., 'COM5')
 PORT = '/dev/ttyUSB0'
 
 # Events older than this time in seconds get zeroed-out
 INTERVAL = 0.10
+
+# Frame rate for saving movie
+VIDEO_FPS = 100
 
 import serial
 from time import time, sleep
@@ -75,7 +79,7 @@ def main():
     thread.start()
 
     # Create a video file to save the movie
-    out = cv2.VideoWriter('movie.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (512,512))
+    out = cv2.VideoWriter('movie.avi', cv2.VideoWriter_fourcc('M','J','P','G'), VIDEO_FPS, (512,512))
 
     while(True):
 
