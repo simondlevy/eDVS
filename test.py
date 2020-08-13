@@ -47,6 +47,8 @@ def read_sensor(events, times, flags):
     x      = None
     second = False
 
+    oldflag = False
+
     # Flag will be set on main thread when user quits
     while flags[0]:
 
@@ -55,6 +57,10 @@ def read_sensor(events, times, flags):
 
         # Value is in rightmost seven bits
         v = b & 0b01111111
+
+        if flags[1] and not oldflag:
+            second = not second
+        oldflag = flags[1]
 
         # Second byte; record event
         if second:
@@ -72,12 +78,16 @@ def read_sensor(events, times, flags):
 
 def main():
 
+    # +/- polarity
     events = np.zeros((128,128)).astype('int8')
 
+    # We'll use clock time (instead of event time) for speed
     times = np.zeros((128,128))
 
-    flags = [True]
+    # This will be set to False when user quits
+    flags = [True, False]
 
+    # Start sensor on its own thread
     thread = Thread(target=read_sensor, args = (events,times,flags))
     thread.daemon = True
     thread.start()
@@ -101,7 +111,12 @@ def main():
 
         # Display the large color image
         cv2.imshow('Mini eDVS', image)
-        if cv2.waitKey(1) == 27:
+
+        # Quit on ESCape
+        key = cv2.waitKey(1)
+        if key == ord('f'):
+            flags[1] = True
+        if key == 27:
             break
 
     cv2.destroyAllWindows()
