@@ -74,18 +74,25 @@ def main():
     thread.daemon = True
     thread.start()
 
+    # Create a video file to save the movie
+    out = cv2.VideoWriter('movie.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (512,512))
+
     while(True):
 
         # Zero out pixels with events older than a certain time before now
         events[(time() - times) > INTERVAL] = 0
 
-        # Convert events to color image
-        image = np.zeros((128,128,3))
-        image[events==+1,2] = 1.0
-        image[events==-1,1] = 1.0
+        # Convert events to large color image
+        image = np.zeros((128,128,3)).astype('uint8')
+        image[events==+1,2] = 255
+        image[events==-1,1] = 255
+        image = cv2.resize(image, (512,512))
 
-        # Display the color image at twice original size
-        cv2.imshow('image', cv2.resize(image, ((512,512))))
+        # Write the color image to the video file
+        out.write(image)
+
+        # Display the large color image
+        cv2.imshow('Mini eDVS', image)
         if cv2.waitKey(1) == 27:
             break
 
