@@ -8,7 +8,7 @@ MIT License
 '''
 
 import serial
-from time import time, sleep
+import time
 import numpy as np
 
 class eDVS:
@@ -60,7 +60,7 @@ class eDVS:
             if gotx:
                 y = v
                 self.events[x,y] = 2*f-1 # Convert event polarity from 0,1 to -1,+1
-                self.times[x,y] = time()
+                self.times[x,y] = time.time()
 
             # First byte; store X
             else:
@@ -75,4 +75,4 @@ class eDVS:
     def _send(self, cmd):
 
         self.port.write((cmd + '\n').encode())
-        sleep(.01)
+        time.sleep(.01)

@@ -1,2 +1,5 @@
 *.avi
 *.swp
+*.egg-info/
+build/
+dist/
