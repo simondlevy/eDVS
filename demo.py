@@ -31,82 +31,72 @@ class eDVS:
 
         self.port = serial.Serial(port=port, baudrate=12000000, rtscts=True)
 
+        # +/- polarity
+        self.events = np.zeros((128,128)).astype('int8')
+
+        # We'll use clock time (instead of event time) for speed
+        self.times = np.zeros((128,128))
+
+        self.done = False
+
+    def start(self):
+
         # Reset board
-        send(self.port, 'R')
+        self._send('R')
 
         # Enable event sending
-        send(self.port, 'E+')
+        self._send('E+')
 
         # Use two-byte event format
-        send(self.port, '!E0')
+        self._send('!E0')
 
         # Every other byte represents a completed event
-        self.x    = None
-        self.gotx = False
+        x    = None
+        gotx = False
 
-def send(port, cmd):
+        # Flag will be set on main thread when user quits
+        while not self.done:
 
-    port.write((cmd + '\n').encode())
-    sleep(.01)
+            # Read a byte from the sensor
+            b = ord(self.port.read())
 
-def read_sensor(events, times, flags):
+            # Value is in rightmost seven bits
+            v = b & 0b01111111
 
-    port = serial.Serial(port=PORT, baudrate=12000000, rtscts=True)
+            # Isolate first bit
+            f = b>>7
 
-    # Reset board
-    send(port, 'R')
+            # Correct for misaligned bytes
+            if f==0 and not gotx:
+                gotx = not gotx
 
-    # Enable event sending
-    send(port, 'E+')
+            # Second byte; record event
+            if gotx:
+                y = v
+                self.events[x,y] = 2*f-1 # Convert event polarity from 0,1 to -1,+1
+                self.times[x,y] = time()
 
-    # Use two-byte event format
-    send(port, '!E0')
+            # First byte; store X
+            else:
+                x = v
 
-    # Every other byte represents a completed event
-    x    = None
-    gotx = False
-
-    # Flag will be set on main thread when user quits
-    while flags[0]:
-
-        # Read a byte from the sensor
-        b = ord(port.read())
-
-        # Value is in rightmost seven bits
-        v = b & 0b01111111
-
-        # Isolate first bit
-        f = b>>7
-
-        # Correct for misaligned bytes
-        if f==0 and not gotx:
             gotx = not gotx
 
-        # Second byte; record event
-        if gotx:
-            y = v
-            events[x,y] = 2*f-1 # Convert event polarity from 0,1 to -1,+1
-            times[x,y] = time()
+    def stop(self):
 
-        # First byte; store X
-        else:
-            x = v
+        self.done = True
 
-        gotx = not gotx
+    def _send(self, cmd):
+
+        self.port.write((cmd + '\n').encode())
+        sleep(.01)
 
 def main():
 
-    # +/- polarity
-    events = np.zeros((128,128)).astype('int8')
-
-    # We'll use clock time (instead of event time) for speed
-    times = np.zeros((128,128))
-
-    # This will be set to False when user quits
-    flags = [True, False]
+    edvs = eDVS(PORT)
 
     # Start sensor on its own thread
-    thread = Thread(target=read_sensor, args = (events,times,flags))
+    thread = Thread(target=edvs.start)
     thread.daemon = True
     thread.start()
 
@@ -116,12 +106,12 @@ def main():
     while(True):
 
         # Zero out pixels with events older than a certain time before now
-        events[(time() - times) > INTERVAL] = 0
+        edvs.events[(time() - edvs.times) > INTERVAL] = 0
 
         # Convert events to large color image
         image = np.zeros((128,128,3)).astype('uint8')
-        image[events==+1,2] = 255
-        image[events==-1,1] = 255
+        image[edvs.events==+1,2] = 255
+        image[edvs.events==-1,1] = 255
         image = cv2.resize(image, (128*SCALEUP,128*SCALEUP))
 
         # Write the color image to the video file
@@ -136,7 +126,7 @@ def main():
 
     cv2.destroyAllWindows()
 
-    flags[0] = False
+    edvs.stop()
 
     thread.join()
 
