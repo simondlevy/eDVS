@@ -14,6 +14,11 @@ import numpy as np
 class eDVS:
 
     def __init__(self, port):
+        '''
+        Creates an eDVS object.
+        params:
+            port - port ID ('COM5', '/dev/ttyUSB0', etc.)
+        '''
 
         self.port = serial.Serial(port=port, baudrate=12000000, rtscts=True)
 
@@ -26,6 +31,9 @@ class eDVS:
         self.done = False
 
     def start(self):
+        '''
+        Initiates communication with the eDVS.
+        '''
 
         # Reset board
         self._send('R')
@@ -69,6 +77,9 @@ class eDVS:
             gotx = not gotx
 
     def stop(self):
+        '''
+        Terminates communication with the eDVS.
+        '''
 
         self.done = True
 
