@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 PORT = '/dev/ttyUSB1'
-BAUD = 230400
+BAUD = 2000000
 
 import serial
 
@@ -13,7 +13,7 @@ while True:
 
     try:
 
-        port.write(chr(65+c).encode()) #chr(65+c).encode()) # 65 = 'A'
+        port.write(chr(65+c).encode()) # 65 = 'A'
 
         c =  (c+1) % 26
 
