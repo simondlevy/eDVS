@@ -13,12 +13,17 @@ from time import time
 import cv2
 import numpy as np
 import argparse
+import serial
 
-def grab(flags):
+def grab(flags, portname, baudrate):
+
+    port = serial.Serial(portname, baudrate)
 
     while flags[0]:
 
-        print(flags[0])
+        print(port.read())
+
+    port.close()
 
 def main():
 
@@ -35,8 +40,8 @@ def main():
 
     # Start sensor on its own thread
     #thread = Thread(target=edvs.start)
-    flags = [False]
-    thread = Thread(target=grab, args=(flags,))
+    flags = [True]
+    thread = Thread(target=grab, args=(flags,args.port,args.baud))
     thread.daemon = True
     thread.start()
 
