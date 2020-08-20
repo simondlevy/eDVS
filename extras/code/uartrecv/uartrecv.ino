@@ -1,7 +1,7 @@
 static const uint8_t SERIAL1_RX = 32;
 static const uint8_t SERIAL1_TX = 33; // unused
 
-static const uint32_t BAUD = 2000000;
+static const uint32_t BAUD = 4000000;
 
 static uint32_t start;
 static uint32_t count;

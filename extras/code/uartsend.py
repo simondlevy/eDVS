@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 PORT = '/dev/ttyUSB1'
-BAUD = 2000000
+BAUD = 4000000
 
 import serial
 
