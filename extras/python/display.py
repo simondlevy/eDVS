@@ -22,6 +22,7 @@ def main():
     parser.add_argument("-i", "--interval", default=0.10, type=float, help="Fade-out interval for events")
     parser.add_argument("-f", "--fps", default=100, type=int, help="Dispaly frames per second")
     parser.add_argument("-s", "--scaleup", default=4, type=int, help="Scale-up factor")
+    parser.add_argument("-m", "--movie", default=None, help="Movie file name")
     args = parser.parse_args()
 
     edvs = eDVS(args.port, args.baud)
@@ -31,8 +32,9 @@ def main():
     thread.daemon = True
     thread.start()
 
-    # Create a video file to save the movie
-    out = cv2.VideoWriter('movie.avi', cv2.VideoWriter_fourcc('M','J','P','G'), args.fps, (128*args.scaleup,128*args.scaleup))
+    # Create a video file to save the movie if indicated
+    out = cv2.VideoWriter(args.movie, cv2.VideoWriter_fourcc('M','J','P','G'), args.fps, (128*args.scaleup,128*args.scaleup)) \
+            if args.movie is not None  else None
 
     while(True):
 
@@ -45,8 +47,9 @@ def main():
         image[edvs.events==-1,1] = 255
         image = cv2.resize(image, (128*args.scaleup,128*args.scaleup))
 
-        # Write the color image to the video file
-        out.write(image)
+        # Write the movie to the video file if indicated
+        if out is not None:
+            out.write(image)
 
         # Display the large color image
         cv2.imshow('Mini eDVS', image)
