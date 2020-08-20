@@ -15,13 +15,31 @@ import numpy as np
 import argparse
 import serial
 
-def grab(flags, portname, baudrate):
+def grab(flags, portname, baudrate, events, times):
 
     port = serial.Serial(portname, baudrate)
 
+    x    = None
+    gotx = False
+
     while flags[0]:
 
-        print('%02X' % ord(port.read(1)))
+        v = ord(port.read(1))
+
+        f = 1
+
+        # Second byte; record event
+        if gotx:
+            y = v
+            events[x,y] = 2*f-1 # Convert event polarity from 0,1 to -1,+1
+            times[x,y] = time()
+
+        # First byte; store X
+        else:
+            x = v
+
+        gotx = not gotx
+
 
     port.close()
 
@@ -36,12 +54,13 @@ def main():
     parser.add_argument("-m", "--movie", default=None, help="Movie file name")
     args = parser.parse_args()
 
-    #edvs = eDVS(args.port, args.baud)
+    events = np.zeros((128,128)).astype('int8')
+    times = np.zeros((128,128))
 
     # Start sensor on its own thread
     #thread = Thread(target=edvs.start)
     flags = [True]
-    thread = Thread(target=grab, args=(flags,args.port,args.baud))
+    thread = Thread(target=grab, args=(flags,args.port,args.baud,events,times))
     thread.daemon = True
     thread.start()
 
@@ -52,12 +71,12 @@ def main():
     while(True):
 
         # Zero out pixels with events older than a certain time before now
-        #edvs.events[(time() - edvs.times) > args.interval] = 0
+        events[(time() - times) > args.interval] = 0
 
         # Convert events to large color image
         image = np.zeros((128,128,3)).astype('uint8')
-        #image[edvs.events==+1,2] = 255
-        #image[edvs.events==-1,1] = 255
+        image[events==+1,2] = 255
+        image[events==-1,1] = 255
         image = cv2.resize(image, (128*args.scaleup,128*args.scaleup))
 
         # Write the movie to the video file if indicated
