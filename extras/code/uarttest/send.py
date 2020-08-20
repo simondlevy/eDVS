@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+'''
+Test UART at maximum ESP32 Baud rate
+
+Copyright (C) 2020 Simon D. Levy
+
+MIT License
+'''
 
 PORT = '/dev/ttyUSB1'
 BAUD = 4000000
