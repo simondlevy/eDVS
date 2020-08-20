@@ -13,14 +13,14 @@ import numpy as np
 
 class eDVS:
 
-    def __init__(self, port):
+    def __init__(self, port, baudrate=12000000):
         '''
         Creates an eDVS object.
         params:
             port - port ID ('COM5', '/dev/ttyUSB0', etc.)
         '''
 
-        self.port = serial.Serial(port=port, baudrate=12000000, rtscts=True)
+        self.port = serial.Serial(port=port, baudrate=baudrate, rtscts=True)
 
         # +/- polarity
         self.events = np.zeros((128,128)).astype('int8')
