@@ -16,7 +16,7 @@ import numpy as np
 # Change this to match your com port (e.g., 'COM5')
 PORT = '/dev/ttyUSB0'
 
-# Events older than this time in gotxs get zeroed-out
+# Events older than this time in seconds get zeroed-out
 INTERVAL = 0.10
 
 # Frame rate for saving movie
