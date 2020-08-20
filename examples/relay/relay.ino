@@ -19,8 +19,8 @@ void loop(void)
 
     x = (x+1) % 128;
 
-    //Serial.write(y);
-    //Serial.write(x);
+    Serial.write(y);
+    Serial.write(x);
 
-    Serial.write(0x99);
+    //Serial.write(0x99);
 }
