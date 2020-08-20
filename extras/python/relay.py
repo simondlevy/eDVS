@@ -14,6 +14,12 @@ import cv2
 import numpy as np
 import argparse
 
+def grab(flags):
+
+    while flags[0]:
+
+        print(flags[0])
+
 def main():
 
     parser = argparse.ArgumentParser()
@@ -25,10 +31,12 @@ def main():
     parser.add_argument("-m", "--movie", default=None, help="Movie file name")
     args = parser.parse_args()
 
-    edvs = eDVS(args.port, args.baud)
+    #edvs = eDVS(args.port, args.baud)
 
     # Start sensor on its own thread
-    thread = Thread(target=edvs.start)
+    #thread = Thread(target=edvs.start)
+    flags = [False]
+    thread = Thread(target=grab, args=(flags,))
     thread.daemon = True
     thread.start()
 
@@ -39,12 +47,12 @@ def main():
     while(True):
 
         # Zero out pixels with events older than a certain time before now
-        edvs.events[(time() - edvs.times) > args.interval] = 0
+        #edvs.events[(time() - edvs.times) > args.interval] = 0
 
         # Convert events to large color image
         image = np.zeros((128,128,3)).astype('uint8')
-        image[edvs.events==+1,2] = 255
-        image[edvs.events==-1,1] = 255
+        #image[edvs.events==+1,2] = 255
+        #image[edvs.events==-1,1] = 255
         image = cv2.resize(image, (128*args.scaleup,128*args.scaleup))
 
         # Write the movie to the video file if indicated
@@ -61,6 +69,8 @@ def main():
     cv2.destroyAllWindows()
 
     #edvs.stop()
+
+    flags[0] = False
 
     thread.join()
 
