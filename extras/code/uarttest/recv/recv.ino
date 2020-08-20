@@ -9,7 +9,7 @@ MIT License
 static const uint8_t SERIAL1_RX = 32;
 static const uint8_t SERIAL1_TX = 33; // unused
 
-static const uint32_t BAUD = 4000000;
+static const uint32_t BAUD = 115200;
 
 static uint32_t start;
 static uint32_t prev;
@@ -39,12 +39,10 @@ void loop(void)
     uint32_t time = (millis()-start) / 1000;
 
     if (time > prev) {
-        if (bufidx > 0) {
-            for (uint8_t k=0; k<BUFSIZE; ++k) {
-                Serial.print(buf[k]);
-            }
-            Serial.println();
+        for (uint8_t k=0; k<bufidx; ++k) {
+            Serial.print(buf[k]);
         }
+        Serial.println();
         prev = time;
     }
 }

@@ -8,7 +8,7 @@ MIT License
 '''
 
 PORT = '/dev/ttyUSB1'
-BAUD = 4000000
+BAUD = 115200
 
 import serial
 
