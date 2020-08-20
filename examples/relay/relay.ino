@@ -18,4 +18,7 @@ void loop(void)
     static uint8_t y;
 
     x = (x+1) % 128;
+
+    Serial.write(y);
+    Serial.write(x);
 }

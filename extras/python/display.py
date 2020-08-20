@@ -12,22 +12,19 @@ from threading import Thread
 from time import time
 import cv2
 import numpy as np
-
-# Change this to match your com port (e.g., 'COM5')
-PORT = '/dev/ttyUSB0'
-
-# Events older than this time in seconds get zeroed-out
-INTERVAL = 0.10
-
-# Frame rate for saving movie
-VIDEO_FPS = 100
-
-# Scale-up factor for display
-SCALEUP = 4
+import argparse
 
 def main():
 
-    edvs = eDVS(PORT)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--port", required=True, help="Port (/dev/ttyUSB0, COM5, etc.")
+    parser.add_argument("-b", "--baud", default=12000000, type=int, help="Baud rate")
+    parser.add_argument("-i", "--interval", default=0.10, type=float, help="Fade-out interval for events")
+    parser.add_argument("-f", "--fps", default=100, type=int, help="Dispaly frames per second")
+    parser.add_argument("-s", "--scaleup", default=4, type=int, help="Scale-up factor")
+    args = parser.parse_args()
+
+    edvs = eDVS(args.port, args.baud)
 
     # Start sensor on its own thread
     thread = Thread(target=edvs.start)
@@ -35,18 +32,18 @@ def main():
     thread.start()
 
     # Create a video file to save the movie
-    out = cv2.VideoWriter('movie.avi', cv2.VideoWriter_fourcc('M','J','P','G'), VIDEO_FPS, (128*SCALEUP,128*SCALEUP))
+    out = cv2.VideoWriter('movie.avi', cv2.VideoWriter_fourcc('M','J','P','G'), args.fps, (128*args.scaleup,128*args.scaleup))
 
     while(True):
 
         # Zero out pixels with events older than a certain time before now
-        edvs.events[(time() - edvs.times) > INTERVAL] = 0
+        edvs.events[(time() - edvs.times) > args.interval] = 0
 
         # Convert events to large color image
         image = np.zeros((128,128,3)).astype('uint8')
         image[edvs.events==+1,2] = 255
         image[edvs.events==-1,1] = 255
-        image = cv2.resize(image, (128*SCALEUP,128*SCALEUP))
+        image = cv2.resize(image, (128*args.scaleup,128*args.scaleup))
 
         # Write the color image to the video file
         out.write(image)
