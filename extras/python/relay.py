@@ -21,7 +21,7 @@ def grab(flags, portname, baudrate):
 
     while flags[0]:
 
-        print(port.read())
+        print('%02X' % ord(port.read(1)))
 
     port.close()
 

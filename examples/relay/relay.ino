@@ -9,7 +9,7 @@ MIT License
 void setup(void)
 {
     Serial.begin(115200);
-
+    delay(1000);
 }
 
 void loop(void)
@@ -19,6 +19,8 @@ void loop(void)
 
     x = (x+1) % 128;
 
-    Serial.write(y);
-    Serial.write(x);
+    //Serial.write(y);
+    //Serial.write(x);
+
+    Serial.write(0x99);
 }
