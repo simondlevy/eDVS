@@ -60,7 +60,7 @@ def main():
 
     cv2.destroyAllWindows()
 
-    #edvs.stop()
+    edvs.stop()
 
     thread.join()
 
