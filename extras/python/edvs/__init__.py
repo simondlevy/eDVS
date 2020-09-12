@@ -82,6 +82,8 @@ class eDVS:
         '''
 
         self.done = True
+        self._send('E-')
+        self.port.close()
 
     def _send(self, cmd):
 
