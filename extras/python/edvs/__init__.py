@@ -20,7 +20,7 @@ class eDVS:
             port - port ID ('COM5', '/dev/ttyUSB0', etc.)
         '''
 
-        self.port = serial.Serial(port=port, baudrate=baudrate, rtscts=True)
+        self.port = serial.Serial(port=port, baudrate=baudrate)
 
         # +/- polarity
         self.events = np.zeros((128,128)).astype('int8')
