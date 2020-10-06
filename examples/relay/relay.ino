@@ -1,5 +1,5 @@
 /*
-Relay program for eDVS
+UART Relay program for eDVS
 
 Copyright (C) 2020 Simon D. Levy
 
@@ -9,18 +9,16 @@ MIT License
 void setup(void)
 {
     Serial.begin(115200);
-    delay(1000);
+    Serial1.begin(2000000);
 }
 
 void loop(void)
 {
-    static uint8_t x;
-    static uint8_t y;
+    while (Serial.available()) {
+        Serial1.write(Serial.read());
+    }
 
-    x = (x+1) % 128;
-
-    Serial.write(y);
-    Serial.write(x);
-
-    //Serial.write(0x99);
+    while (Serial1.available()) {
+        Serial.print((char)Serial1.read());
+    }
 }
