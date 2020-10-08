@@ -7,73 +7,70 @@ MIT License
 */
 
 #include "eDVS.h"
-#include <strings.h>
 
-eDVS::eDVS(void)
+eDVS::eDVS(HardwareSerial * serial)
 {
+    _serial = serial;
     bzero(_events, 128*128);
     bzero(_times , 128*128*2);
     _done = false;
 }
 
-/*
-    def start(self):
-        '''
-        Initiates communication with the eDVS.
-        '''
+void eDVS::start(void)
+{
+    // Reset board
+    send("R");
 
-        # Reset board
-        self._send('R')
+    // Enable event sending
+    send("E+");
 
-        # Enable event sending
-        self._send('E+')
+    // Use two-byte event format
+    send("!E0");
 
-        # Use two-byte event format
-        self._send('!E0')
+    // Every other byte represents a completed event
+    _x    = 0;
+    _gotx = false;
+}
 
-        # Every other byte represents a completed event
-        x    = None
-        gotx = False
+void eDVS::stop(void)
+{
+    _done = true;
+    send("E-");
+}
 
-        # Flag will be set on main thread when user quits
-        while not self.done:
+void eDVS::update(uint8_t b) 
+{
+    // Value is in rightmost seven bits
+    uint8_t v = b & 0b01111111;
 
-            # Read a byte from the sensor
-            b = ord(self.port.read())
+    // Isolate first bit
+    uint8_t f = b>>7;
 
-            # Value is in rightmost seven bits
-            v = b & 0b01111111
+    // Correct for misaligned bytes
+    if (f==0 && !_gotx) {
+        _gotx = !_gotx;
+    }
 
-            # Isolate first bit
-            f = b>>7
+    // Second byte; record event
+    if (_gotx) {
+        uint8_t y = v;
+        _events[_x][y] = 2*f-1; // Convert event polarity from 0,1 to -1,+1;
+        _times[_x][y] = millis();
+    }
 
-            # Correct for misaligned bytes
-            if f==0 and not gotx:
-                gotx = not gotx
+    // First byte; store X
+    else {
+        _x = v;
+    }
 
-            # Second byte; record event
-            if gotx:
-                y = v
-                self.events[x,y] = 2*f-1 # Convert event polarity from 0,1 to -1,+1
-                self.times[x,y] = time.time()
+    _gotx = !_gotx;
+}
 
-            # First byte; store X
-            else:
-                x = v
-
-            gotx = not gotx
-
-    def stop(self):
-        '''
-        Terminates communication with the eDVS.
-        '''
-
-        self.done = True
-        self._send('E-')
-        self.port.close()
-
-    def _send(self, cmd):
-
-        self.port.write((cmd + '\n').encode())
-        time.sleep(.01)
-*/
+void eDVS::send(const char * cmd)
+{
+    for (char * p=(char *)cmd; *p; p++) {
+        _serial->write(*p);
+    }
+    _serial->write('\n');
+    delay(10);
+}
