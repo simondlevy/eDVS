@@ -7,18 +7,16 @@ MIT License
 */
 
 #include "eDVS.h"
+#include <strings.h>
 
 eDVS::eDVS(void)
 {
-    done = false;
+    bzero(_events, 128*128);
+    bzero(_times , 128*128*2);
+    _done = false;
 }
 
-    /*
-        # We'll use clock time (instead of event time) for speed
-        self.times = np.zeros((128,128))
-
-        self.done = False
-
+/*
     def start(self):
         '''
         Initiates communication with the eDVS.
