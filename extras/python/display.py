@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-Simple demo of the IniVation eDVS using OpenCV
+Simple demo of the iniVation eDVS using OpenCV
 
 Copyright (C) 2020 Simon D. Levy
 
