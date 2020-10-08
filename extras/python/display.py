@@ -41,6 +41,8 @@ def main():
         # Zero out pixels with events older than a certain time before now
         edvs.events[(time() - edvs.times) > args.interval] = 0
 
+        print(edvs.get())
+
         # Convert events to large color image
         image = np.zeros((128,128,3)).astype('uint8')
         image[edvs.events==+1,2] = 255

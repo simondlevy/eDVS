@@ -13,12 +13,17 @@ import numpy as np
 
 class eDVS:
 
+    QSIZE = 1000
+
     def __init__(self, port, baudrate=12000000):
         '''
         Creates an eDVS object.
         params:
             port - port ID ('COM5', '/dev/ttyUSB0', etc.)
         '''
+
+        self.queue = [None] * self.QSIZE
+        self.qpos = 0
 
         self.port = serial.Serial(port=port, baudrate=baudrate)
 
@@ -66,15 +71,24 @@ class eDVS:
 
             # Second byte; record event
             if gotx:
+                t = time.time()
                 y = v
                 self.events[x,y] = 2*f-1 # Convert event polarity from 0,1 to -1,+1
-                self.times[x,y] = time.time()
+                self.times[x,y] = t
+                self.queue[self.qpos] = (x,y,t)
+                self._advance()
 
             # First byte; store X
             else:
                 x = v
 
             gotx = not gotx
+
+    def get(self):
+
+        e = self.queue[self.qpos]
+        self._advance()
+        return e
 
     def stop(self):
         '''
@@ -89,3 +103,8 @@ class eDVS:
 
         self.port.write((cmd + '\n').encode())
         time.sleep(.01)
+                
+
+    def _advance(self):
+        
+        self.qpos = (self.qpos+1) % self.QSIZE
