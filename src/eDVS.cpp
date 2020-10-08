@@ -16,8 +16,11 @@ eDVS::eDVS(HardwareSerial * serial)
     _done = false;
 }
 
-void eDVS::start(void)
+void eDVS::begin(uint32_t baud)
 {
+    // Begin serial communication
+    _serial->begin(baud);
+
     // Reset board
     send("R");
 

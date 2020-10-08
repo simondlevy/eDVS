@@ -28,7 +28,7 @@ class eDVS {
 
         eDVS(HardwareSerial * serial);
 
-        void start(void);
+        void begin(uint32_t baud);
 
         void stop(void);
 
