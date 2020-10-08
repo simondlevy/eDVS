@@ -73,9 +73,10 @@ class eDVS:
             if gotx:
                 t = time.time()
                 y = v
-                self.events[x,y] = 2*f-1 # Convert event polarity from 0,1 to -1,+1
+                p = 2*f-1 # Convert event polarity from 0,1 to -1,+1
+                self.events[x,y] = p
                 self.times[x,y] = t
-                self.queue[self.qpos] = (x,y,t)
+                self.queue[self.qpos] = (x,y,p,t)
                 self._advance()
 
             # First byte; store X
