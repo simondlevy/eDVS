@@ -41,13 +41,15 @@ def main():
         # Zero out pixels with events older than a certain time before now
         edvs.events[(time() - edvs.times) > args.interval] = 0
 
-        print(edvs.get())
-
         # Convert events to large color image
         image = np.zeros((128,128,3)).astype('uint8')
         image[edvs.events==+1,2] = 255
         image[edvs.events==-1,1] = 255
         image = cv2.resize(image, (128*args.scaleup,128*args.scaleup))
+
+        while edvs.hasNext():
+            print(edvs.next())
+        print()
 
         # Write the movie to the video file if indicated
         if out is not None:

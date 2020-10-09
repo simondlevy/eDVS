@@ -85,9 +85,14 @@ class eDVS:
 
             gotx = not gotx
 
-    def get(self):
+    def hasNext(self):
+
+        return self.queue[self.qpos] is not None
+
+    def next(self):
 
         e = self.queue[self.qpos]
+        self.queue[self.qpos] = None
         self._advance()
         return e
 
