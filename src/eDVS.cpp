@@ -11,8 +11,6 @@ MIT License
 eDVS::eDVS(HardwareSerial * serial)
 {
     _serial = serial;
-    bzero(_events, 128*128);
-    bzero(_times , 128*128*2);
     _done = false;
 }
 
@@ -57,8 +55,8 @@ void eDVS::update(uint8_t b)
     // Second byte; record event
     if (_gotx) {
         uint8_t y = v;
-        _events[_x][y] = 2*f-1; // Convert event polarity from 0,1 to -1,+1;
-        _times[_x][y] = millis();
+        int8_t p = 2*f-1; // Convert event polarity from 0,1 to -1,+1;
+        uint32_t t = micros();
     }
 
     // First byte; store X
@@ -67,6 +65,11 @@ void eDVS::update(uint8_t b)
     }
 
     _gotx = !_gotx;
+}
+
+bool eDVS::hasNext(void) 
+{
+    return false;
 }
 
 void eDVS::send(const char * cmd)

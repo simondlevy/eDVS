@@ -14,10 +14,10 @@ class eDVS {
 
     private:
 
+        static const uint16_t QSIZE = 16000;
+
         HardwareSerial * _serial;
 
-        int8_t   _events[128][128];
-        uint16_t _times[128][128];
         bool _done;
         bool _gotx;
         uint8_t _x;
@@ -29,6 +29,8 @@ class eDVS {
         eDVS(HardwareSerial * serial);
 
         void begin(uint32_t baud);
+
+        bool hasNext(void);
 
         void stop(void);
 
