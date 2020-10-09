@@ -36,7 +36,7 @@ def main():
     out = cv2.VideoWriter(args.movie, cv2.VideoWriter_fourcc('M','J','P','G'), args.fps, (128*args.scaleup,128*args.scaleup)) \
             if args.movie is not None  else None
 
-    # We'll use clock time (instead of event time) for speed
+    # Track time so we can stop displaying old events
     times = np.zeros((128,128))
 
     # Start with an empty image
