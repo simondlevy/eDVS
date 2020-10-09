@@ -39,10 +39,12 @@ def main():
     # We'll use clock time (instead of event time) for speed
     times = np.zeros((128,128))
 
+    # Start with an empty image
     image = np.zeros((128,128,3)).astype('uint8')
 
     while(True):
 
+        # Get events from DVS, storing times and pixels
         while edvs.hasNext():
             x,y, p, t = edvs.next()
             image[x,y] = (0,255,0) if p == -1 else (0,0,255)
@@ -51,6 +53,7 @@ def main():
         # Zero out pixels with events older than a certain time before now
         image[(time() -times) > args.interval] = 0
 
+        # Scale up the image for visibility
         bigimage = cv2.resize(image, (128*args.scaleup,128*args.scaleup))
 
         # Write the movie to the video file if indicated

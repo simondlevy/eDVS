@@ -9,7 +9,6 @@ MIT License
 
 import serial
 import time
-import numpy as np
 
 class eDVS:
 
@@ -22,16 +21,11 @@ class eDVS:
             port - port ID ('COM5', '/dev/ttyUSB0', etc.)
         '''
 
+        # Circular event queue
         self.queue = [None] * self.QSIZE
         self.qpos = 0
 
         self.port = serial.Serial(port=port, baudrate=baudrate)
-
-        # +/- polarity
-        self.events = np.zeros((128,128)).astype('int8')
-
-        # We'll use clock time (instead of event time) for speed
-        self.times = np.zeros((128,128))
 
         self.done = False
 
@@ -74,8 +68,6 @@ class eDVS:
                 t = time.time()
                 y = v
                 p = 2*f-1 # Convert event polarity from 0,1 to -1,+1
-                self.events[x,y] = p
-                self.times[x,y] = t
                 self.queue[self.qpos] = (x,y,p,t)
                 self._advance()
 
