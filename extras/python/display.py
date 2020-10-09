@@ -36,27 +36,29 @@ def main():
     out = cv2.VideoWriter(args.movie, cv2.VideoWriter_fourcc('M','J','P','G'), args.fps, (128*args.scaleup,128*args.scaleup)) \
             if args.movie is not None  else None
 
+    # We'll use clock time (instead of event time) for speed
+    times = np.zeros((128,128))
+
+    image = np.zeros((128,128,3)).astype('uint8')
+
     while(True):
 
-        # Zero out pixels with events older than a certain time before now
-        edvs.events[(time() - edvs.times) > args.interval] = 0
-
-        # Convert events to large color image
-        image = np.zeros((128,128,3)).astype('uint8')
-        image[edvs.events==+1,2] = 255
-        image[edvs.events==-1,1] = 255
-        image = cv2.resize(image, (128*args.scaleup,128*args.scaleup))
-
         while edvs.hasNext():
-            print(edvs.next())
-        print()
+            x,y, p, t = edvs.next()
+            image[x,y] = (0,255,0) if p == -1 else (0,0,255)
+            times[x,y] = t
+
+        # Zero out pixels with events older than a certain time before now
+        image[(time() -times) > args.interval] = 0
+
+        bigimage = cv2.resize(image, (128*args.scaleup,128*args.scaleup))
 
         # Write the movie to the video file if indicated
         if out is not None:
-            out.write(image)
+            out.write(bigimage)
 
         # Display the large color image
-        cv2.imshow('Mini eDVS', image)
+        cv2.imshow('Mini eDVS', bigimage)
 
         # Quit on ESCape
         if cv2.waitKey(1) == 27:
