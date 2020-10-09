@@ -12,9 +12,35 @@ MIT License
 
 class eDVS {
 
+    public:
+
+        typedef struct {
+
+            uint8_t  x;
+            uint8_t  y;
+            int8_t   p;
+            uint32_t t;
+
+        } event_t;
+
+        eDVS(HardwareSerial * serial);
+
+        void begin(uint32_t baud);
+
+        bool hasNext(void);
+
+        void next(event_t & event);
+
+        void stop(void);
+
+        void update(uint8_t b);
+
     private:
 
-        static const uint16_t QSIZE = 16000;
+        static const uint16_t QSIZE = 1000;
+
+        event_t _queue[QSIZE];
+        uint16_t _qpos;
 
         HardwareSerial * _serial;
 
@@ -24,15 +50,5 @@ class eDVS {
 
         void send(const char * cmd);
 
-    public:
-
-        eDVS(HardwareSerial * serial);
-
-        void begin(uint32_t baud);
-
-        bool hasNext(void);
-
-        void stop(void);
-
-        void update(uint8_t b);
+        void advance(void);
 };

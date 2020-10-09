@@ -10,22 +10,25 @@ MIT License
 
 static eDVS edvs(&Serial1);
 
-static uint32_t count;
-
 void serialEvent1(void)
 {
-    count++;
+    while (Serial1.available()) {
+        edvs.update(Serial1.read());
+    }
 }
 
 void setup(void)
 {
-    count = 0;
     Serial.begin(115200);
     edvs.begin(2000000);
 }
 
 void loop(void)
 {
-    Serial.println(count);
+    while (edvs.hasNext()) {
+        eDVS::event_t e;
+        edvs.next(e);
+        Serial.printf("x=%3d y=%3d p=%+d t=%d\n", e.x, e.y, e.p, e.t);
+    }
     delay(1);
 }
