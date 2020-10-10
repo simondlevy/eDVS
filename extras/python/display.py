@@ -18,7 +18,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", required=True, help="Port (/dev/ttyUSB0, COM5, etc.")
     parser.add_argument("-b", "--baud", default=12000000, type=int, help="Baud rate")
-    parser.add_argument("-i", "--interval", default=0.10, type=float, help="Fade-out interval for events")
+    parser.add_argument("-i", "--interval", default=0.02, type=float, help="Fade-out interval for events")
     parser.add_argument("-f", "--fps", default=100, type=int, help="Dispaly frames per second")
     parser.add_argument("-s", "--scaleup", default=4, type=int, help="Scale-up factor")
     parser.add_argument("-m", "--movie", default=None, help="Movie file name")
@@ -41,6 +41,9 @@ def main():
     # Start with an empty image
     image = np.zeros((128,128,3)).astype('uint8')
 
+    # Compute number of iterations before events should disappear, based on 1msec display assumption
+    ageout = int(args.interval * 1000)
+
     while(True):
 
         # Get events from DVS
@@ -49,10 +52,11 @@ def main():
             image[x,y] = (0,255,0) if p == -1 else (0,0,255)
             counts[x,y] = 1
 
-        # Zero out pixels with events older than a certain time before now
-        image[counts==10] = 0
-        counts[counts==10] = 0
+        # Zero out events older than a certain time before now
+        image[counts==ageout] = 0
+        counts[counts==ageout] = 0
 
+        # Increase age for events
         counts[counts>0] += 1
 
         # Scale up the image for visibility
