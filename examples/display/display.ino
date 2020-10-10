@@ -7,7 +7,10 @@ MIT License
 */
 
 #include "eDVS.h"
+#include "SparseMatrix.hpp"
 #include <OLED_GFX.h>
+
+static const uint32_t DT_US = 100000;
 
 // OLED Pins
 static const uint8_t CS  = 10;
@@ -16,22 +19,21 @@ static const uint8_t RST = 8;
 
 OLED_GFX oled(CS, DC, RST);
 
-class SparseMatrix {
+static eDVS edvs(&Serial1);
 
-    private:
+class PixelMatrix : public SparseMatrix {
 
-        typedef struct {
+    public:
 
-            uint8_t x;
-            uint8_t y;
-        } coords;
-
-        uint32_t a[128][128];
-
-        uint8_t t[128*128];
+        virtual void fun(uint8_t x, uint8_t y) override
+        {
+            if ((micros()-get(x, y)) > DT_US) {
+                oled.Draw_Pixel(x,y);
+            }
+        }
 };
 
-static eDVS edvs(&Serial1);
+PixelMatrix pixels;
 
 void serialEvent1(void)
 {
@@ -49,19 +51,25 @@ void setup(void)
     oled.begin();
 
     oled.Clear_Screen();
-
 }
 
 void loop(void)
 {
-
+    // Get events from DVS, storing times and pixels
     while (edvs.hasNext()) {
 
         eDVS::event_t e;
         edvs.next(e);
-        oled.Draw_Pixel(e.x,e.y);
         oled.Set_Color(e.p == -1 ? OLED_GFX::GREEN : OLED_GFX::RED);
+        oled.Draw_Pixel(e.x,e.y);
+        pixels.put(e.x, e.y, e.t);
     }
 
-    delay(1);
+    delay(25);
+
+    // Zero out pixels with events older than a certain time before now
+    oled.Set_Color(OLED_GFX::BLACK);
+    pixels.forall();
+
+    delay(25);
 }
