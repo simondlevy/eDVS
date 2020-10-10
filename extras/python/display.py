@@ -9,7 +9,6 @@ MIT License
 
 from edvs import eDVS
 from threading import Thread
-from time import time
 import cv2
 import numpy as np
 import argparse
@@ -37,21 +36,24 @@ def main():
             if args.movie is not None  else None
 
     # Track time so we can stop displaying old events
-    times = np.zeros((128,128))
+    counts = np.zeros((128,128)).astype('uint8')
 
     # Start with an empty image
     image = np.zeros((128,128,3)).astype('uint8')
 
     while(True):
 
-        # Get events from DVS, storing times and pixels
+        # Get events from DVS
         while edvs.hasNext():
-            x,y, p, t = edvs.next()
+            x,y, p = edvs.next()
             image[x,y] = (0,255,0) if p == -1 else (0,0,255)
-            times[x,y] = t
+            counts[x,y] = 1
 
         # Zero out pixels with events older than a certain time before now
-        image[(time() -times) > args.interval] = 0
+        image[counts==10] = 0
+        counts[counts==10] = 0
+
+        counts[counts>0] += 1
 
         # Scale up the image for visibility
         bigimage = cv2.resize(image, (128*args.scaleup,128*args.scaleup))

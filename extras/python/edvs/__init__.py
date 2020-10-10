@@ -65,10 +65,9 @@ class eDVS:
 
             # Second byte; record event
             if gotx:
-                t = time.time()
                 y = v
                 p = 2*f-1 # Convert event polarity from 0,1 to -1,+1
-                self.queue[self.qpos] = (x,y,p,t)
+                self.queue[self.qpos] = (x,y,p)
                 self._advance()
 
             # First byte; store X
