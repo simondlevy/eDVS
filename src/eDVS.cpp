@@ -16,7 +16,6 @@ eDVS::eDVS(HardwareSerial * serial)
         _queue[k].x = 0;
         _queue[k].y = 0;
         _queue[k].p = 0;
-        _queue[k].t = 0;
     }
     _qpos = 0;
 
@@ -62,7 +61,6 @@ void eDVS::update(uint8_t b)
         _queue[_qpos].x = _x; 
         _queue[_qpos].y = v; 
         _queue[_qpos].p = 2*f-1; // Convert event polarity from 0,1 to -1,+1
-        _queue[_qpos].t = micros(); 
         advance();
     }
 

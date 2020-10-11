@@ -19,7 +19,6 @@ class eDVS {
             uint8_t  x;
             uint8_t  y;
             int8_t   p;
-            uint32_t t;
 
         } event_t;
 
