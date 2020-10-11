@@ -22,7 +22,7 @@ OLED_GFX oled(CS, DC, RST);
 
 static eDVS edvs(&Serial1);
 
-class PixelMatrix : public SparseMatrix {
+class AgeMatrix : public SparseMatrix {
 
     public:
 
@@ -34,7 +34,7 @@ class PixelMatrix : public SparseMatrix {
         }
 };
 
-PixelMatrix pixels;
+AgeMatrix ages;
 
 void serialEvent1(void)
 {
@@ -63,14 +63,14 @@ void loop(void)
         edvs.next(e);
         oled.Set_Color(e.p == -1 ? OLED_GFX::GREEN : OLED_GFX::RED);
         oled.Draw_Pixel(e.y,e.x);
-        pixels.put(e.x, e.y, millis());
+        ages.put(e.x, e.y, millis());
     }
 
     delay(25);
 
     // Zero out pixels with events older than a certain time before now
     oled.Set_Color(OLED_GFX::BLACK);
-    pixels.forall();
+    ages.forall();
 
     delay(25);
 }
