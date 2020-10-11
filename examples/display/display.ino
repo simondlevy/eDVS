@@ -10,7 +10,8 @@ MIT License
 #include "SparseMatrix.hpp"
 #include <OLED_GFX.h>
 
-static const uint32_t DT_US = 100000;
+// Milliseconds before event "ages out" from display
+static const uint32_t AGEOUT = 100;
 
 // OLED Pins
 static const uint8_t CS  = 10;
@@ -27,7 +28,7 @@ class PixelMatrix : public SparseMatrix {
 
         virtual void fun(uint8_t x, uint8_t y) override
         {
-            if ((micros()-get(x, y)) > DT_US) {
+            if ((millis()-get(x, y)) > AGEOUT) {
                 oled.Draw_Pixel(y,x);
             }
         }
@@ -62,7 +63,7 @@ void loop(void)
         edvs.next(e);
         oled.Set_Color(e.p == -1 ? OLED_GFX::GREEN : OLED_GFX::RED);
         oled.Draw_Pixel(e.y,e.x);
-        pixels.put(e.x, e.y, micros());
+        pixels.put(e.x, e.y, millis());
     }
 
     delay(25);
