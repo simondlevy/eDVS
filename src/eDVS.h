@@ -30,6 +30,10 @@ class eDVS {
 
         void next(event_t & event);
 
+        bool hasNextNext(void);
+
+        void nextNext(event_t & event);
+
         void update(uint8_t b);
 
     private:

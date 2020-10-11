@@ -7,34 +7,26 @@ MIT License
 */
 
 #include "eDVS.h"
-#include "SparseMatrix.hpp"
 #include <OLED_GFX.h>
-
-// Milliseconds before event "ages out" from display
-static const uint32_t AGEOUT = 100;
 
 // OLED Pins
 static const uint8_t CS  = 10;
 static const uint8_t DC  = 9;
 static const uint8_t RST = 8;
 
+typedef struct {
+    uint8_t x;
+    uint8_t y;
+    uint32_t t;
+} event_t;
+
+static const uint16_t QSIZE = 1000;
+static event_t queue[QSIZE];
+static uint16_t qpos;
+
 OLED_GFX oled(CS, DC, RST);
 
 static eDVS edvs(&Serial1);
-
-class AgeMatrix : public SparseMatrix {
-
-    public:
-
-        virtual void fun(uint8_t x, uint8_t y) override
-        {
-            if ((millis()-get(x, y)) > AGEOUT) {
-                oled.Draw_Pixel(y,x);
-            }
-        }
-};
-
-AgeMatrix ages;
 
 void serialEvent1(void)
 {
@@ -52,25 +44,31 @@ void setup(void)
     oled.begin();
 
     oled.Clear_Screen();
+
+    qpos = 0;
 }
 
 void loop(void)
 {
     // Get events from DVS, storing times and pixels
-    while (edvs.hasNext()) {
+    if (edvs.hasNext()) {
 
         eDVS::event_t e;
         edvs.next(e);
         oled.Set_Color(e.p == -1 ? OLED_GFX::GREEN : OLED_GFX::RED);
         oled.Draw_Pixel(e.y,e.x);
-        ages.put(e.x, e.y, millis());
+
+        queue[qpos].x = e.x;
+        queue[qpos].y = e.y;
+        queue[qpos].t = millis();
+        qpos = (qpos + 1) % QSIZE;
+
     }
 
-    delay(25);
-
-    // Zero out pixels with events older than a certain time before now
-    oled.Set_Color(OLED_GFX::BLACK);
-    ages.forall();
-
-    delay(25);
+    event_t e2 = queue[(qpos+1)%QSIZE];
+    if (e2.t > 0 /*&& (millis() - e2.t) > 1*/) {
+        oled.Set_Color(OLED_GFX::BLACK);
+        oled.Draw_Pixel(e2.y,e2.x);
+        e2.t = 0;
+    }
 }

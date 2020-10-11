@@ -75,6 +75,7 @@ class eDVS:
 
             gotx = not gotx
 
+
     def hasNext(self):
 
         return self.queue[self.qpos] is not None
@@ -100,7 +101,6 @@ class eDVS:
         self.port.write((cmd + '\n').encode())
         time.sleep(.01)
                 
-
     def _advance(self):
         
         self.qpos = (self.qpos+1) % self.QSIZE
