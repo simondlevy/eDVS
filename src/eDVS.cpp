@@ -44,12 +44,6 @@ void eDVS::begin(uint32_t baud)
     _gotx = false;
 }
 
-void eDVS::stop(void)
-{
-    _done = true;
-    send("E-");
-}
-
 void eDVS::update(uint8_t b) 
 {
     // Value is in rightmost seven bits

@@ -31,8 +31,6 @@ class eDVS {
 
         void next(event_t & event);
 
-        void stop(void);
-
         void update(uint8_t b);
 
     private:
