@@ -28,7 +28,7 @@ class PixelMatrix : public SparseMatrix {
         virtual void fun(uint8_t x, uint8_t y) override
         {
             if ((micros()-get(x, y)) > DT_US) {
-                oled.Draw_Pixel(x,y);
+                oled.Draw_Pixel(y,x);
             }
         }
 };
@@ -61,7 +61,7 @@ void loop(void)
         eDVS::event_t e;
         edvs.next(e);
         oled.Set_Color(e.p == -1 ? OLED_GFX::GREEN : OLED_GFX::RED);
-        oled.Draw_Pixel(e.x,e.y);
+        oled.Draw_Pixel(e.y,e.x);
         pixels.put(e.x, e.y, e.t);
     }
 
