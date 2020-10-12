@@ -26,6 +26,10 @@ def main():
 
     edvs = eDVS(args.port, args.baud)
 
+    # Display firmware version
+    print(edvs.version())
+    exit(0)
+
     # Start sensor on its own thread
     thread = Thread(target=edvs.start)
     thread.daemon = True

@@ -96,6 +96,18 @@ class eDVS:
         self._send('E-')
         self.port.close()
 
+    def version(self):
+
+        self._send('?V')
+        self.port.read(4)
+        result = ''
+        while True:
+            c = self.port.read().decode('utf-8')
+            if c == '\n':
+                break
+            result += c
+        return result
+
     def _send(self, cmd):
 
         self.port.write((cmd + '\n').encode())
