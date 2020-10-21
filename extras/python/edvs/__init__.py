@@ -108,6 +108,26 @@ class eDVS:
             result += c
         return result
 
+    def ledOn(self):
+
+        self._led('+')
+
+    def ledOff(self):
+
+        self._led('-')
+
+    def ledBlink(self):
+
+        self._led('.')
+
+    def ledAlarm(self, msec):
+
+        self._led('a=%d'%msec)
+
+    def _led(self, cmd):
+
+        self._send('!L' + cmd)
+
     def _send(self, cmd):
 
         self.port.write((cmd + '\n').encode())

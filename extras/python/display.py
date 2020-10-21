@@ -24,6 +24,7 @@ def main():
     parser.add_argument("-m", "--movie", default=None, help="Movie file name")
     args = parser.parse_args()
 
+    # Connect to sensor
     edvs = eDVS(args.port, args.baud)
 
     # Display firmware version
