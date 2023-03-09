@@ -23,7 +23,7 @@ static uint16_t qpos;
 
 OLED_GFX oled(CS, DC, RST);
 
-static eDVS edvs(&Serial1);
+static eDVS edvs(Serial1);
 
 void serialEvent1(void)
 {

@@ -22,9 +22,9 @@ class eDVS {
 
         } event_t;
 
-        eDVS(HardwareSerial * serial)
+        eDVS(HardwareSerial & serial)
         {
-            _serial = serial;
+            _serial = &serial;
 
             for (uint16_t k=0; k<QSIZE; ++k) {
                 _queue[k].x = 0;
