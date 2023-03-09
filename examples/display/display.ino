@@ -1,12 +1,14 @@
 /*
 OLED display program for eDVS
 
+Additional library needed: https://github.com/simondlevy/WaveshareOLED
+
 Copyright (C) 2020 Simon D. Levy
 
 MIT License
 */
 
-#include "eDVS.h"
+#include "edvs.h"
 #include <OLED_GFX.h>
 
 // OLED Pins

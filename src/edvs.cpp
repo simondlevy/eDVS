@@ -6,7 +6,7 @@ Copyright (C) 2020 Simon D. Levy
 MIT License
 */
 
-#include "eDVS.h"
+#include "edvs.h"
 
 eDVS::eDVS(HardwareSerial * serial)
 {
