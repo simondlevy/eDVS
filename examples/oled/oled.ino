@@ -36,7 +36,7 @@ void setup(void)
 {
     Serial.begin(115200);
 
-    edvs.begin(2000000);
+    Serial1.begin(2000000);
 
     oled.begin();
 

@@ -38,11 +38,8 @@ class eDVS {
             _x = 0;
         }
 
-        void begin(uint32_t baud)
+        void begin(void)
         {
-            // Begin serial communication
-            _serial->begin(baud);
-
             // Reset board
             send("R");
 
