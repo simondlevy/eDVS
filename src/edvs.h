@@ -22,10 +22,8 @@ class eDVS {
 
         } event_t;
 
-        eDVS(HardwareSerial & serial)
+        eDVS(void)
         {
-            _serial = &serial;
-
             for (uint16_t k=0; k<QSIZE; ++k) {
                 _queue[k].x = 0;
                 _queue[k].y = 0;
@@ -38,16 +36,16 @@ class eDVS {
             _x = 0;
         }
 
-        void begin(void)
+        void begin(HardwareSerial & serial)
         {
             // Reset board
-            send("R");
+            send(serial, "R");
 
             // Enable event sending
-            send("E+");
+            send(serial, "E+");
 
             // Use two-byte event format
-            send("!E0");
+            send(serial, "!E0");
 
             // Every other byte represents a completed event
             _x    = 0;
@@ -102,18 +100,16 @@ class eDVS {
         event_t _queue[QSIZE];
         uint16_t _qpos;
 
-        HardwareSerial * _serial;
-
         bool _done;
         bool _gotx;
         uint8_t _x;
 
-        void send(const char * cmd)
+        void send(HardwareSerial & serial, const char * cmd)
         {
             for (auto * p=(char *)cmd; *p; p++) {
-                _serial->write(*p);
+                serial.write(*p);
             }
-            _serial->write('\n');
+            serial.write('\n');
             delay(10);
         }
 

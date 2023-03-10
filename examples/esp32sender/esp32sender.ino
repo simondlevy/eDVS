@@ -16,7 +16,7 @@ static const uint8_t ESP_RECEIVER_ADDRESS[] = {0xAC, 0x0B, 0xFB, 0x6F, 0x6C, 0x0
 static const uint8_t RX_PIN = 4;
 static const uint8_t TX_PIN = 14;
 
-static eDVS edvs(Serial1);
+static eDVS edvs;
 
 static void reportForever(const char * msg)
 {
@@ -26,14 +26,22 @@ static void reportForever(const char * msg)
     }
 }
 
+void serialEvent1(void)
+{
+    while (Serial1.available()) {
+        edvs.update(Serial1.read());
+    }
+}
+
 void setup(void)
 {
     Serial.begin(115200);
 
     Serial1.begin(2000000, SERIAL_8N1, RX_PIN, TX_PIN);
 
-    edvs.begin();
+    edvs.begin(Serial1);
 
+    /*
     WiFi.mode(WIFI_STA);
 
     if (esp_now_init() != ESP_OK) {
@@ -48,12 +56,20 @@ void setup(void)
 
     if (esp_now_add_peer(&peerInfo) != ESP_OK) {
         reportForever("Failed to add peer");
-    }
+    }*/
 }
 
 void loop(void)
 {
-    while (Serial1.available()) {
-        Serial.println(Serial1.read(), HEX);
+    if (edvs.hasNext()) {
+
+        // Display event
+        eDVS::event_t e;
+        edvs.next(e);
+
+        Serial.printf("%3d %3d %c\n", e.x, e.y, e.p > 0 ? '+' : '-');
     }
+
+     // Send message bytes directly to ESP receiver
+    //esp_now_send(ESP_RECEIVER_ADDRESS, &byte, 1);
 }

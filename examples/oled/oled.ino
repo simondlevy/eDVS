@@ -23,7 +23,7 @@ static uint16_t qpos;
 
 OLED_GFX oled(CS, DC, RST);
 
-static eDVS edvs(Serial1);
+static eDVS edvs;
 
 void serialEvent1(void)
 {
@@ -38,7 +38,7 @@ void setup(void)
 
     Serial1.begin(2000000);
 
-    edvs.begin();
+    edvs.begin(Serial1);
 
     oled.begin();
 
