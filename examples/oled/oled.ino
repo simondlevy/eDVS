@@ -53,8 +53,7 @@ void loop(void)
     if (edvs.hasNext()) {
 
         // Display event
-        eDVS::event_t e;
-        edvs.next(e);
+        eDVS::event_t e = edvs.next();
         oled.Set_Color(e.p == -1 ? OLED_GFX::GREEN : OLED_GFX::RED);
         oled.Draw_Pixel(e.y,e.x);
 

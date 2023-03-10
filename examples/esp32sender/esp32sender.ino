@@ -63,9 +63,7 @@ void loop(void)
 {
     if (edvs.hasNext()) {
 
-        // Display event
-        eDVS::event_t e;
-        edvs.next(e);
+        eDVS::event_t e = edvs.next();
 
         Serial.printf("%3d %3d %c\n", e.x, e.y, e.p > 0 ? '+' : '-');
     }

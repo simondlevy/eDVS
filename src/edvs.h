@@ -86,12 +86,21 @@ class eDVS {
             return _queue[_qpos].p != 0; // polarity must be +1 or -1, so 0 indicates empty
         }
 
-        void next(event_t & event)
+        event_t next(void)
         {
-            memcpy(&event, &_queue[_qpos], sizeof(event_t));
+            event_t event;
+
+            event_t curr = _queue[_qpos];
+
+            event.x = curr.x;
+            event.y = curr.y;
+            event.p = curr.p;
+
             _queue[_qpos].p = 0;         // polarity must be +1 or -1, so 0 indicates empty
             advance();
-        }
+
+            return event;
+         }
 
     private:
 
