@@ -16,8 +16,8 @@ import argparse
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--port", required=True, help="Port (/dev/ttyUSB0, COM5, etc.")
-    parser.add_argument("-b", "--baud", default=12000000, type=int, help="Baud rate")
+    parser.add_argument("-p", "--port", default='/dev/ttyUSB0' , help="Port (/dev/ttyUSB0, COM5, etc.")
+    parser.add_argument("-b", "--baud", default=2000000, type=int, help="Baud rate")
     parser.add_argument("-i", "--interval", default=0.02, type=float, help="Fade-out interval for events")
     parser.add_argument("-f", "--fps", default=100, type=int, help="Dispaly frames per second")
     parser.add_argument("-s", "--scaleup", default=4, type=int, help="Scale-up factor")
