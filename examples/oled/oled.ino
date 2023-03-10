@@ -38,6 +38,8 @@ void setup(void)
 
     Serial1.begin(2000000);
 
+    edvs.begin();
+
     oled.begin();
 
     oled.Clear_Screen();
