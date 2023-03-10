@@ -110,7 +110,7 @@ class eDVS {
 
         void send(const char * cmd)
         {
-            for (char * p=(char *)cmd; *p; p++) {
+            for (auto * p=(char *)cmd; *p; p++) {
                 _serial->write(*p);
             }
             _serial->write('\n');
