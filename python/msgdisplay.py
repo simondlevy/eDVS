@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 '''
-Simple demo of the iniVation eDVS using OpenCV
+Gets four-byte messages from the eDVS USB adapter, converts them into events,
+and displays them using OpenCV
 
-Copyright (C) 2020 Simon D. Levy
+
+Copyright (C) 2023 Simon D. Levy
 
 MIT License
 '''
@@ -13,6 +15,13 @@ import argparse
 import serial
 
 EOM = 200
+
+# We implement a simple state machine for parsing four-byte messages (X, Y, P, EOM)
+STATE_NONE   = 0
+STATE_BEGIN  = 1
+STATE_GET_X  = 2
+STATE_GET_Y  = 3
+STATE_GET_P  = 4
 
 def main():
 
@@ -35,44 +44,46 @@ def main():
     # Start with an empty image
     image = np.zeros((128,128,3)).astype('uint8')
 
-    # Compute number of iterations before events should disappear, based on 1msec display assumption
+    # Compute number of iterations before events should disappear, based on
+    # 1msec display assumption
     ageout = int(args.interval * 1000)
 
     port = serial.Serial(args.port, args.baud)
 
-    while(True):
+    x, y, p = 0, 0, 0
+
+    state = STATE_NONE
+
+    while True:
 
         val = ord(port.read())
 
-        if val == 255:
-            val = -1
+        if val == EOM:
+            state = STATE_BEGIN
 
-        print('\n' if val == EOM else val, end=' ')
+        elif state == STATE_BEGIN:
+            state = STATE_GET_X
 
-        '''
-        # Zero out events older than a certain time before now
-        image[counts==ageout] = 0
-        counts[counts==ageout] = 0
+        elif state == STATE_GET_X:
+            state = STATE_GET_Y
 
-        # Increase age for events
-        counts[counts>0] += 1
+        elif state == STATE_GET_Y:
+            state = STATE_GET_P
 
-        # Scale up the image for visibility
-        bigimage = cv2.resize(image, (128*args.scaleup,128*args.scaleup))
+        elif state == STATE_GET_P:
+            state = STATE_NONE
 
-        # Write the movie to the video file if indicated
-        if out is not None:
-            out.write(bigimage)
+        if state == STATE_GET_X:
+            x = val
 
-        # Display the large color image
-        cv2.imshow('Mini eDVS', bigimage)
+        elif state == STATE_GET_Y:
+            y = val
 
-        # Quit on ESCape
-        if cv2.waitKey(1) == 27:
-            break
+        elif state == STATE_GET_P:
+            p = -1 if val == 255 else 1
+            print(x, y, p)
 
     cv2.destroyAllWindows()
-    '''
 
 if __name__ == '__main__':
 

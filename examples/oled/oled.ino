@@ -11,6 +11,9 @@ MIT License
 #include "edvs.h"
 #include <OLED_GFX.h>
 
+// End-Of-Message byte
+static const uint8_t EOM = 200;
+
 // OLED Pins
 static const uint8_t CS  = 10;
 static const uint8_t DC  = 9;
@@ -54,23 +57,23 @@ void loop(void)
     // Get events from DVS
     if (edvs.hasNext()) {
 
-        // Display event
+        // Grab event
         eDVS::event_t e = edvs.next();
+
+        // Display it
         oled.Set_Color(e.p == -1 ? OLED_GFX::GREEN : OLED_GFX::RED);
         oled.Draw_Pixel(e.y,e.x);
 
-        // Store event in queue
+        // Store it in the queue
         queue[qpos].x = e.x;
         queue[qpos].y = e.y;
         qpos = (qpos + 1) % QSIZE;
 
-        if (e.x > maxval) {
-            maxval = e.x;
-        }
-        if (e.y > maxval) {
-            maxval = e.y;
-        }
-
+        // Send it out over USB as a message
+        Serial.write(e.x);
+        Serial.write(e.y);
+        Serial.write(e.p);
+        Serial.write(EOM);
     }
 
     // Remove pixel for oldest event in queue

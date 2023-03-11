@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 '''
-Simple demo of the iniVation eDVS using OpenCV
+Gets raw bytes from the eDVS USB adapter, converts them into events, and
+displays them using OpenCV
 
-Copyright (C) 2020 Simon D. Levy
+Copyright (C) 2023 Simon D. Levy
 
 MIT License
 '''
