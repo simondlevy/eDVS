@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-Gets raw bytes from the eDVS USB adapter, converts them into events, and
+Gets raw bytes from the Teensy 4.0 board, converts them into events, and
 displays them using OpenCV
 
 Copyright (C) 2023 Simon D. Levy
