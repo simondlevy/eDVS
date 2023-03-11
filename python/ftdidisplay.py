@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 '''
-Gets raw bytes from the eDVS FTDI adapter, converts them into events, and
-displays them using OpenCV
+Simple demo of the iniVation eDVS using OpenCV
 
-Copyright (C) 2023 Simon D. Levy
+Copyright (C) 2020 Simon D. Levy
 
 MIT License
 '''
 
-from edvs import EDVS
+from edvs import eDVS
 from threading import Thread
 import cv2
 import numpy as np
@@ -26,7 +25,7 @@ def main():
     args = parser.parse_args()
 
     # Connect to sensor
-    edvs = EDVS(args.port, args.baud)
+    edvs = eDVS(args.port, args.baud)
 
     # Display firmware version
     print(edvs.version())

@@ -9,9 +9,81 @@ MIT License
 import serial
 import time
 
-class eDVS:
+
+class Parser:
 
     QSIZE = 1000
+
+    def __init__(self, port):
+        '''
+        Creates an eDVS parser.
+        params:
+            port - port object
+        '''
+
+        self.port = port
+
+        # Circular event queue
+        self.queue = [None] * self.QSIZE
+        self.qpos = 0
+
+        self.done = False
+
+    def start(self):
+        '''
+        Initiates communication with the eDVS.
+        '''
+
+        # Every other byte represents a completed event
+        x = None
+        gotx = False
+
+        # Flag will be set on main thread when user quits
+        while not self.done:
+
+            # Read a byte from the sensor
+            b = ord(self.port.read())
+
+            # Value is in rightmost seven bits
+            v = b & 0b01111111
+
+            # Isolate first bit
+            f = b >> 7
+
+            # Correct for misaligned bytes
+            if f == 0 and not gotx:
+                gotx = not gotx
+
+            # Second byte; record event
+            if gotx:
+                y = v
+                p = 2*f-1  # Convert event polarity from 0,1 to -1,+1
+                self.queue[self.qpos] = (x, y, p)
+                self._advance()
+
+            # First byte; store X
+            else:
+                x = v
+
+            gotx = not gotx
+
+    def hasNext(self):
+
+        return self.queue[self.qpos] is not None
+
+    def next(self):
+
+        e = self.queue[self.qpos]
+        self.queue[self.qpos] = None
+        self._advance()
+        return e
+
+    def _advance(self):
+
+        self.qpos = (self.qpos+1) % self.QSIZE
+
+
+class EDVS:
 
     def __init__(self, port, baudrate=12000000):
         '''
@@ -20,11 +92,9 @@ class eDVS:
             port - port ID ('COM5', '/dev/ttyUSB0', etc.)
         '''
 
-        # Circular event queue
-        self.queue = [None] * self.QSIZE
-        self.qpos = 0
-
         self.port = serial.Serial(port=port, baudrate=baudrate)
+
+        self.parser = Parser(port)
 
         self.done = False
 
@@ -42,50 +112,15 @@ class eDVS:
         # Use two-byte event format
         self._send('!E0')
 
-        # Every other byte represents a completed event
-        x    = None
-        gotx = False
-
-        # Flag will be set on main thread when user quits
-        while not self.done:
-
-            # Read a byte from the sensor
-            b = ord(self.port.read())
-
-            # Value is in rightmost seven bits
-            v = b & 0b01111111
-
-            # Isolate first bit
-            f = b>>7
-
-            # Correct for misaligned bytes
-            if f==0 and not gotx:
-                gotx = not gotx
-
-            # Second byte; record event
-            if gotx:
-                y = v
-                p = 2*f-1 # Convert event polarity from 0,1 to -1,+1
-                self.queue[self.qpos] = (x,y,p)
-                self._advance()
-
-            # First byte; store X
-            else:
-                x = v
-
-            gotx = not gotx
-
+        self.parser.start(self)
 
     def hasNext(self):
 
-        return self.queue[self.qpos] is not None
+        return self.parser.hasNext()
 
     def next(self):
 
-        e = self.queue[self.qpos]
-        self.queue[self.qpos] = None
-        self._advance()
-        return e
+        return self.parser.next()
 
     def stop(self):
         '''
@@ -122,7 +157,7 @@ class eDVS:
 
     def ledAlarm(self, msec):
 
-        self._led('a=%d'%msec)
+        self._led('a=%d' % msec)
 
     def _led(self, cmd):
 
@@ -132,7 +167,3 @@ class eDVS:
 
         self.port.write((cmd + '\n').encode())
         time.sleep(.01)
-                
-    def _advance(self):
-        
-        self.qpos = (self.qpos+1) % self.QSIZE
