@@ -31,13 +31,16 @@ static eDVS edvs;
 void serialEvent1(void)
 {
     while (Serial1.available()) {
-        edvs.update(Serial1.read());
+        auto b = Serial1.read();
+        edvs.update(b);
+        Serial.write(b);
     }
 }
 
 void setup(void)
 {
-    Serial.begin(115200);
+
+    Serial.begin(2000000);
 
     Serial1.begin(2000000);
 
