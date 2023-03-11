@@ -1,5 +1,5 @@
 '''
-eDVS class definition
+EDVS class definition
 
 Copyright (C) 2020 Simon D. Levy
 
@@ -9,13 +9,13 @@ MIT License
 import serial
 import time
 
-class eDVS:
+class EDVS:
 
     QSIZE = 1000
 
     def __init__(self, port, baudrate=12000000):
         '''
-        Creates an eDVS object.
+        Creates an EDVS object.
         params:
             port - port ID ('COM5', '/dev/ttyUSB0', etc.)
         '''
@@ -30,7 +30,7 @@ class eDVS:
 
     def start(self):
         '''
-        Initiates communication with the eDVS.
+        Initiates communication with the EDVS.
         '''
 
         # Reset board
@@ -89,7 +89,7 @@ class eDVS:
 
     def stop(self):
         '''
-        Terminates communication with the eDVS.
+        Terminates communication with the EDVS.
         '''
 
         self.done = True

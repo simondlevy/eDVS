@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 '''
-Simple demo of the iniVation eDVS using OpenCV
+Simple demo of the iniVation EDVS using OpenCV
 
 Copyright (C) 2020 Simon D. Levy
 
 MIT License
 '''
 
-from edvs import eDVS
+from edvs import EDVS
 from threading import Thread
 import cv2
 import numpy as np
@@ -25,7 +25,7 @@ def main():
     args = parser.parse_args()
 
     # Connect to sensor
-    edvs = eDVS(args.port, args.baud)
+    edvs = EDVS(args.port, args.baud)
 
     # Display firmware version
     print(edvs.version())
