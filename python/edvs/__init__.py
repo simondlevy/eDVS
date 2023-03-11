@@ -9,22 +9,22 @@ MIT License
 import serial
 import time
 
-class eDVS:
+class Parser:
 
     QSIZE = 1000
 
-    def __init__(self, port, baudrate=12000000):
+    def __init__(self, port):
         '''
-        Creates an eDVS object.
+        Creates an eDVS parser.
         params:
-            port - port ID ('COM5', '/dev/ttyUSB0', etc.)
+            port - port object
         '''
+
+        self.port = port
 
         # Circular event queue
         self.queue = [None] * self.QSIZE
         self.qpos = 0
-
-        self.port = serial.Serial(port=port, baudrate=baudrate)
 
         self.done = False
 
@@ -32,15 +32,6 @@ class eDVS:
         '''
         Initiates communication with the eDVS.
         '''
-
-        # Reset board
-        self._send('R')
-
-        # Enable event sending
-        self._send('E+')
-
-        # Use two-byte event format
-        self._send('!E0')
 
         # Every other byte represents a completed event
         x    = None
@@ -87,6 +78,49 @@ class eDVS:
         self._advance()
         return e
 
+    def _advance(self):
+        
+        self.qpos = (self.qpos+1) % self.QSIZE
+
+class EDVS:
+
+    def __init__(self, port, baudrate=12000000):
+        '''
+        Creates an eDVS object.
+        params:
+            port - port ID ('COM5', '/dev/ttyUSB0', etc.)
+        '''
+
+        self.port = serial.Serial(port=port, baudrate=baudrate)
+
+        self.parser = Parser(port)
+
+        self.done = False
+
+    def start(self):
+        '''
+        Initiates communication with the eDVS.
+        '''
+
+        # Reset board
+        self._send('R')
+
+        # Enable event sending
+        self._send('E+')
+
+        # Use two-byte event format
+        self._send('!E0')
+
+        self.parser.start(self)
+
+    def hasNext(self):
+
+        return self.parser.hasNext() 
+
+    def next(self):
+
+        return self.parser.next() 
+
     def stop(self):
         '''
         Terminates communication with the eDVS.
@@ -132,7 +166,3 @@ class eDVS:
 
         self.port.write((cmd + '\n').encode())
         time.sleep(.01)
-                
-    def _advance(self):
-        
-        self.qpos = (self.qpos+1) % self.QSIZE

@@ -8,7 +8,7 @@ Copyright (C) 2023 Simon D. Levy
 MIT License
 '''
 
-from newedvs import eDVS
+import edvs
 from threading import Thread
 import cv2
 import numpy as np
@@ -17,22 +17,23 @@ import serial
 
 def main():
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--port", default='/dev/ttyACM0' , help="Port (/dev/ttyUSB0, COM5, etc.")
-    parser.add_argument("-b", "--baud", default=2000000, type=int, help="Baud rate")
-    parser.add_argument("-i", "--interval", default=0.02, type=float, help="Fade-out interval for events")
-    parser.add_argument("-f", "--fps", default=100, type=int, help="Dispaly frames per second")
-    parser.add_argument("-s", "--scaleup", default=4, type=int, help="Scale-up factor")
-    parser.add_argument("-m", "--movie", default=None, help="Movie file name")
-    args = parser.parse_args()
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument("-p", "--port", default='/dev/ttyACM0' , help="Port (/dev/ttyUSB0, COM5, etc.")
+    argparser.add_argument("-b", "--baud", default=2000000, type=int, help="Baud rate")
+    argparser.add_argument("-i", "--interval", default=0.02, type=float, help="Fade-out interval for events")
+    argparser.add_argument("-f", "--fps", default=100, type=int, help="Dispaly frames per second")
+    argparser.add_argument("-s", "--scaleup", default=4, type=int, help="Scale-up factor")
+    argparser.add_argument("-m", "--movie", default=None, help="Movie file name")
+    args = argparser.parse_args()
 
-    # Connect to sensor
+    # Connect to Teensy
     port = serial.Serial(args.port, args.baud)
 
-    edvs = eDVS(port)
+    # Construct and EDVS parser
+    dvsparser = edvs.Parser(port)
 
     # Start sensor on its own thread
-    thread = Thread(target=edvs.start)
+    thread = Thread(target=dvsparser.start)
     thread.daemon = True
     thread.start()
 
@@ -53,8 +54,8 @@ def main():
     while(True):
 
         # Get events from DVS
-        while edvs.hasNext():
-            x,y, p = edvs.next()
+        while dvsparser.hasNext():
+            x,y, p = dvsparser.next()
             image[x,y] = (0,255,0) if p == -1 else (0,0,255)
             counts[x,y] = 1
 
