@@ -49,6 +49,8 @@ void setup(void)
 
 void loop(void)
 {
+    static uint8_t maxval;
+
     // Get events from DVS
     if (edvs.hasNext()) {
 
@@ -61,6 +63,13 @@ void loop(void)
         queue[qpos].x = e.x;
         queue[qpos].y = e.y;
         qpos = (qpos + 1) % QSIZE;
+
+        if (e.x > maxval) {
+            maxval = e.x;
+        }
+        if (e.y > maxval) {
+            maxval = e.y;
+        }
 
     }
 
