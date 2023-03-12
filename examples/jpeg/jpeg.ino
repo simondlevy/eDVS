@@ -65,11 +65,9 @@ void loop()
 
             memset(ucMCU, 0, sizeof(ucMCU));
 
-            auto iMCUCount = ((SIZE + jpe.cx-1)/ jpe.cx) * ((SIZE + jpe.cy-1) / jpe.cy);
+            for (auto i=0; i<256 && rc == JPEG_SUCCESS; i++) {
 
-            for (uint32_t i=0; i<iMCUCount && rc == JPEG_SUCCESS; i++) {
-
-                for (int j=0; j<8; j++) {
+                for (auto j=0; j<8; j++) {
                     ucMCU[j*8+j] = 255;
                 }
 
@@ -79,6 +77,8 @@ void loop()
             jpg.close();
 
             delayMicroseconds(1000000/FPS);
-        }
-    } // opened successfully
+
+        } // encodeBegin() succeeded
+
+    } // open() succeeded
 }
