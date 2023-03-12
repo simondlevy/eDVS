@@ -4,9 +4,8 @@
 
 #include <JPEGENC.h>
 
-JPEG jpg;
+static const uint32_t FPS = 30;
 
-//
 // Callback functions needed by the unzipLIB to access a file system
 // The library has built-in code for memory-to-memory transfers, but needs
 // these callback functions to allow using other storage media
@@ -53,6 +52,7 @@ void loop()
     static const uint32_t SIZE = 128;
 
     JPEGENCODE jpe;
+    JPEG jpg;
 
     uint8_t ucMCU[64];
 
@@ -76,7 +76,7 @@ void loop()
                 // Send two types of MCUs (a simple diagonal line, and a blank box)
                 if (i & 1) { // odd MCUs
                     for (int j=0; j<8; j++)
-                        ucMCU[j*8+j] = 192; // create an image composed of diagonal white lines
+                        ucMCU[j*8+j] = 192; // diagonal white lines
                 } else { // even MCUs
                     for (int j=0; j<8; j++)
                         ucMCU[j*8+j] = 0; // blank
@@ -86,7 +86,7 @@ void loop()
 
             jpg.close();
 
-            delay(100);
+            delayMicroseconds(1000000/FPS);
         }
     } // opened successfully
 }
