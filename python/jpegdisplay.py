@@ -10,9 +10,9 @@ import serial
 def main():
 
     # Connect to Teensy
-    port = serial.Serial('/dev/ttyACM0', 115200, timeout=0.1);
+    port = serial.Serial('/dev/ttyACM0', 115200, timeout=0.02);
 
-    f = open('tmp.jpg', 'wb')
+    count = 0
 
     try:
 
@@ -21,9 +21,11 @@ def main():
             buf = port.read(100_000_000)
 
             if len(buf) > 0:
+                f = open('images/image%04d.jpg' % count, 'wb')
                 print(len(buf))
                 f.write(buf)
-                exit(0)
+                f.close()
+                count += 1
 
     except KeyboardInterrupt:
 
