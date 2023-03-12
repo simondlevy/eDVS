@@ -31,9 +31,7 @@ static int32_t myRead(JPEGFILE *p, uint8_t *buffer, int32_t length)
 
 static int32_t myWrite(JPEGFILE *p, uint8_t *buffer, int32_t length) 
 {
-    (void)p;
-    (void)buffer;
-    return length;
+    return Serial.write(buffer, length);
 }
 
 static int32_t mySeek(JPEGFILE *p, int32_t position) 
@@ -48,13 +46,11 @@ void setup()
     Serial.begin(115200);
 
     delay(2000);
-
-    Serial.println("JPEG encoder performance test");
 } 
 
 void loop() 
 {
-    const int iWidth = 1024, iHeight = 1024;
+    static const uint32_t SIZE = 128;
 
     JPEGENCODE jpe;
 
@@ -64,19 +60,18 @@ void loop()
 
     if (rc == JPEG_SUCCESS) {
 
-        Serial.println("JPEG file opened successfully");
+        // auto lTime = micros();
 
-        auto lTime = micros();
-
-        auto rc = jpg.encodeBegin(&jpe, iWidth, iHeight, JPEG_PIXEL_GRAYSCALE, JPEG_SUBSAMPLE_444, JPEG_Q_HIGH);
+        auto rc = jpg.encodeBegin(
+                &jpe, SIZE, SIZE, JPEG_PIXEL_GRAYSCALE, JPEG_SUBSAMPLE_444, JPEG_Q_HIGH);
 
         if (rc == JPEG_SUCCESS) {
 
             memset(ucMCU, 0, sizeof(ucMCU));
 
-            auto iMCUCount = ((iWidth + jpe.cx-1)/ jpe.cx) * ((iHeight + jpe.cy-1) / jpe.cy);
+            auto iMCUCount = ((SIZE + jpe.cx-1)/ jpe.cx) * ((SIZE + jpe.cy-1) / jpe.cy);
 
-            for (auto i=0; i<iMCUCount && rc == JPEG_SUCCESS; i++) {
+            for (uint32_t i=0; i<iMCUCount && rc == JPEG_SUCCESS; i++) {
 
                 // Send two types of MCUs (a simple diagonal line, and a blank box)
                 if (i & 1) { // odd MCUs
@@ -88,13 +83,17 @@ void loop()
                 }
                 rc = jpg.addMCU(&jpe, ucMCU, 8);
             }
-            auto iDataSize = jpg.close();
+
+            /*auto iDataSize = */ jpg.close();
+
+            /*
             lTime = micros() - lTime;
             Serial.print("Output file size = ");
             Serial.println(iDataSize, DEC);
             Serial.print("Encoding time = ");
             Serial.print((int)lTime, DEC);
-            Serial.println("us");
+            Serial.println("us");*/
+
             delay(5000);
         }
     } // opened successfully
