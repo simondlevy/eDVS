@@ -69,14 +69,9 @@ void loop()
 
             for (uint32_t i=0; i<iMCUCount && rc == JPEG_SUCCESS; i++) {
 
-                // Send two types of MCUs (a simple diagonal line, and a blank box)
-                if (i & 1) { // odd MCUs
-                    for (int j=0; j<8; j++)
-                        ucMCU[j*8+j] = 192; // diagonal white lines
-                } else { // even MCUs
-                    for (int j=0; j<8; j++)
-                        ucMCU[j*8+j] = 0; // blank
-                }
+                for (int j=0; j<8; j++)
+                    ucMCU[j*8+j] = 192;
+
                 rc = jpg.addMCU(&jpe, ucMCU, 8);
             }
 
