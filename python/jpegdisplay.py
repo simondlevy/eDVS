@@ -18,7 +18,7 @@ def main():
 
         while(True):
 
-            buf = port.read(100_000_000)
+            buf = port.read(10_000)
 
             if len(buf) > 0:
                 f = open('images/image%04d.jpg' % count, 'wb')
