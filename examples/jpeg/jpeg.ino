@@ -86,7 +86,7 @@ void loop()
 
             jpg.close();
 
-            delay(250);
+            delay(100);
         }
     } // opened successfully
 }
