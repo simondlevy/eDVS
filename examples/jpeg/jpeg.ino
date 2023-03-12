@@ -84,15 +84,7 @@ void loop()
                 rc = jpg.addMCU(&jpe, ucMCU, 8);
             }
 
-            /*auto iDataSize = */ jpg.close();
-
-            /*
-            lTime = micros() - lTime;
-            Serial.print("Output file size = ");
-            Serial.println(iDataSize, DEC);
-            Serial.print("Encoding time = ");
-            Serial.print((int)lTime, DEC);
-            Serial.println("us");*/
+            jpg.close();
 
             delay(5000);
         }
