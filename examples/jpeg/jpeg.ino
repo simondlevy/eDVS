@@ -71,10 +71,8 @@ void loop()
 
             const auto iMCUCount = ((SIZE + jpe.cx-1)/ jpe.cx) * ((SIZE + jpe.cy-1) / jpe.cy);
 
-            const auto iBytePP = 1;
-
             for (uint32_t i=0; i<iMCUCount && rc == JPEG_SUCCESS; i++) {
-                rc = jpg.addMCU(&jpe, &bitmap[(jpe.x * iBytePP) + (jpe.y * SIZE)], SIZE);
+                rc = jpg.addMCU(&jpe, &bitmap[jpe.x + (jpe.y * SIZE)], SIZE);
             }
 
             jpg.close();
