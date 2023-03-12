@@ -52,9 +52,9 @@ void loop()
     JPEGENCODE jpe;
     JPEG jpg;
 
-    uint8_t ucMCU[SIZE];
-
     auto rc = jpg.open("/TEST.JPG", myOpen, myClose, myRead, myWrite, mySeek);
+
+    uint8_t bitmap[SIZE*SIZE];
 
     if (rc == JPEG_SUCCESS) {
 
@@ -63,15 +63,18 @@ void loop()
 
         if (rc == JPEG_SUCCESS) {
 
-            memset(ucMCU, 0, sizeof(ucMCU));
+            memset(bitmap, 0, sizeof(bitmap));
 
-            for (auto i=0; i<256 && rc == JPEG_SUCCESS; i++) {
+            for (uint8_t j=0; j<SIZE; ++j) {
+                bitmap[j*SIZE+j] = 255;
+            }
 
-                for (auto j=0; j<8; j++) {
-                    ucMCU[j*8+j] = 255;
-                }
+            const auto iMCUCount = ((SIZE + jpe.cx-1)/ jpe.cx) * ((SIZE + jpe.cy-1) / jpe.cy);
 
-                rc = jpg.addMCU(&jpe, ucMCU, 8);
+            const auto iBytePP = 1;
+
+            for (uint32_t i=0; i<iMCUCount && rc == JPEG_SUCCESS; i++) {
+                rc = jpg.addMCU(&jpe, &bitmap[(jpe.x * iBytePP) + (jpe.y * SIZE)], SIZE);
             }
 
             jpg.close();
