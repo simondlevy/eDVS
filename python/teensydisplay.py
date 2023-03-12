@@ -8,7 +8,7 @@ Copyright (C) 2023 Simon D. Levy
 MIT License
 '''
 
-import newdvs
+import edvs
 from threading import Thread
 import cv2
 import numpy as np
@@ -30,7 +30,7 @@ def main():
     port = serial.Serial(args.port, args.baud)
 
     # Construct and EDVS parser
-    dvsparser = newdvs.Parser(port)
+    dvsparser = edvs.Parser(port)
 
     # Start sensor on its own thread
     thread = Thread(target=dvsparser.start)
@@ -81,6 +81,8 @@ def main():
             break
 
     cv2.destroyAllWindows()
+
+    dvsparser.stop()
 
     thread.join()
 
