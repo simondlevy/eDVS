@@ -1,35 +1,101 @@
 /*
-OLED display program for eDVS
-
-Additional library needed: https://github.com/bitbank2/JPEGENC
-
-Copyright (C) 2020 Simon D. Levy
-
-MIT License
-*/
+ * Adapted from https://github.com/bitbank2/JPEGENC/blob/master/examples/jpeg_encode_perf/jpeg_encode_perf.ino
+ */
 
 #include <JPEGENC.h>
 
-static JPEGENCODE jpe;
-static JPEG jpg;
+JPEG jpg;
 
-static uint8_t image[128*128];
+//
+// Callback functions needed by the unzipLIB to access a file system
+// The library has built-in code for memory-to-memory transfers, but needs
+// these callback functions to allow using other storage media
+//
+static void * myOpen(const char *filename) 
+{
+    (void)filename;
+    return (void *)1; // non-NULL value
+}
 
-void setup(void)
+static void myClose(JPEGFILE *p) 
+{
+    (void)p;
+}
+
+static int32_t myRead(JPEGFILE *p, uint8_t *buffer, int32_t length) 
+{
+    (void)p;
+    (void)buffer;
+    return length;
+}
+
+static int32_t myWrite(JPEGFILE *p, uint8_t *buffer, int32_t length) 
+{
+    (void)p;
+    (void)buffer;
+    return length;
+}
+
+static int32_t mySeek(JPEGFILE *p, int32_t position) 
+{
+    (void)p;
+    return position;
+}
+
+
+void setup() 
 {
     Serial.begin(115200);
 
-    for (uint8_t k=0; k<128; ++k) {
-        image[k*128+k] = 255;
-    }
-}
+    delay(2000);
 
-void loop(void)
+    Serial.println("JPEG encoder performance test");
+} 
+
+void loop() 
 {
-    auto rc = jpg.encodeBegin(
-            &jpe, 128, 128, JPEG_PIXEL_GRAYSCALE, JPEG_SUBSAMPLE_444, JPEG_Q_HIGH);
+    const int iWidth = 1024, iHeight = 1024;
+
+    JPEGENCODE jpe;
+
+    uint8_t ucMCU[64];
+
+    auto rc = jpg.open("/TEST.JPG", myOpen, myClose, myRead, myWrite, mySeek);
 
     if (rc == JPEG_SUCCESS) {
-        Serial.println(micros());
-    }
+
+        Serial.println("JPEG file opened successfully");
+
+        auto lTime = micros();
+
+        auto rc = jpg.encodeBegin(&jpe, iWidth, iHeight, JPEG_PIXEL_GRAYSCALE, JPEG_SUBSAMPLE_444, JPEG_Q_HIGH);
+
+        if (rc == JPEG_SUCCESS) {
+
+            memset(ucMCU, 0, sizeof(ucMCU));
+
+            auto iMCUCount = ((iWidth + jpe.cx-1)/ jpe.cx) * ((iHeight + jpe.cy-1) / jpe.cy);
+
+            for (auto i=0; i<iMCUCount && rc == JPEG_SUCCESS; i++) {
+
+                // Send two types of MCUs (a simple diagonal line, and a blank box)
+                if (i & 1) { // odd MCUs
+                    for (int j=0; j<8; j++)
+                        ucMCU[j*8+j] = 192; // create an image composed of diagonal white lines
+                } else { // even MCUs
+                    for (int j=0; j<8; j++)
+                        ucMCU[j*8+j] = 0; // blank
+                }
+                rc = jpg.addMCU(&jpe, ucMCU, 8);
+            }
+            auto iDataSize = jpg.close();
+            lTime = micros() - lTime;
+            Serial.print("Output file size = ");
+            Serial.println(iDataSize, DEC);
+            Serial.print("Encoding time = ");
+            Serial.print((int)lTime, DEC);
+            Serial.println("us");
+            delay(5000);
+        }
+    } // opened successfully
 }
