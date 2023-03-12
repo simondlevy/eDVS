@@ -43,8 +43,6 @@ static int32_t mySeek(JPEGFILE *p, int32_t position)
 void setup() 
 {
     Serial.begin(115200);
-
-    delay(2000);
 } 
 
 void loop() 
@@ -59,8 +57,6 @@ void loop()
     auto rc = jpg.open("/TEST.JPG", myOpen, myClose, myRead, myWrite, mySeek);
 
     if (rc == JPEG_SUCCESS) {
-
-        // auto lTime = micros();
 
         auto rc = jpg.encodeBegin(
                 &jpe, SIZE, SIZE, JPEG_PIXEL_GRAYSCALE, JPEG_SUBSAMPLE_444, JPEG_Q_HIGH);
