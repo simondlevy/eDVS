@@ -69,8 +69,9 @@ void loop()
 
             for (uint32_t i=0; i<iMCUCount && rc == JPEG_SUCCESS; i++) {
 
-                for (int j=0; j<8; j++)
-                    ucMCU[j*8+j] = 192;
+                for (int j=0; j<8; j++) {
+                    ucMCU[j*8+j] = 255;
+                }
 
                 rc = jpg.addMCU(&jpe, ucMCU, 8);
             }
