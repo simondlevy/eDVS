@@ -52,7 +52,7 @@ void loop()
     JPEGENCODE jpe;
     JPEG jpg;
 
-    uint8_t ucMCU[64];
+    uint8_t ucMCU[SIZE];
 
     auto rc = jpg.open("/TEST.JPG", myOpen, myClose, myRead, myWrite, mySeek);
 
