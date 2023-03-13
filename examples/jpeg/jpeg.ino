@@ -71,10 +71,6 @@ void loop()
 
             pixpos = (pixpos + 1) % 128;
 
-            for (uint8_t j=0; j<SIZE; ++j) {
-                // bitmap[j*SIZE+j] = 255;
-            }
-
             const auto iMCUCount = ((SIZE + jpe.cx-1)/ jpe.cx) * ((SIZE + jpe.cy-1) / jpe.cy);
 
             for (uint32_t i=0; i<iMCUCount && rc == JPEG_SUCCESS; i++) {
