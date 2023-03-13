@@ -1,15 +1,20 @@
-/*
- * Adapted from https://github.com/bitbank2/JPEGENC/blob/master/examples/jpeg_encode_perf/jpeg_encode_perf.ino
- */
-
+#include "edvs.h"
 #include <JPEGENC.h>
 
 static const uint32_t FPS = 30;
 
-// Callback functions needed by the unzipLIB to access a file system
-// The library has built-in code for memory-to-memory transfers, but needs
-// these callback functions to allow using other storage media
-//
+static eDVS edvs;
+
+void serialEvent1(void)
+{
+    while (Serial1.available()) {
+        auto b = Serial1.read();
+        edvs.update(b);
+    }
+}
+
+// JPEG compression functions =================================================
+
 static void * myOpen(const char *filename) 
 {
     (void)filename;
@@ -39,10 +44,15 @@ static int32_t mySeek(JPEGFILE *p, int32_t position)
     return position;
 }
 
+// ============================================================================
 
 void setup() 
 {
     Serial.begin(115200);
+
+    Serial1.begin(2000000);
+
+    edvs.begin(Serial1);
 } 
 
 void loop() 
