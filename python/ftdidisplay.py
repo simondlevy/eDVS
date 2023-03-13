@@ -16,19 +16,22 @@ import argparse
 
 def main():
 
-    argparser = argparse.ArgumentParser()
+    argparser = argparse.ArgumentParser(
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
     argparser.add_argument("-p", "--port", default='/dev/ttyUSB0',
                            help="Port (/dev/ttyUSB0, COM5, etc.")
     argparser.add_argument("-b", "--baud", default=2000000, type=int,
                            help="Baud rate")
     argparser.add_argument("-i", "--interval", default=0.02, type=float,
                            help="Fade-out interval for events")
-    argparser.add_argument("-f", "--fps", default=100, type=int,
-                           help="Dispaly frames per second")
+    argparser.add_argument("-f", "--fps-movie", default=100, type=int,
+                           help="Movie frames per second")
     argparser.add_argument("-s", "--scaleup", default=4, type=int,
                            help="Scale-up factor")
     argparser.add_argument("-m", "--movie", default=None,
                            help="Movie file name")
+
     args = argparser.parse_args()
 
     # Connect to sensor
