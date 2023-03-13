@@ -14,10 +14,11 @@ import cv2
 SCALEUP = 2
 DELAY_MSEC = 15
 
+
 def main():
 
     # Connect to Teensy
-    port = serial.Serial('/dev/ttyACM0', 115200, timeout=0.02);
+    port = serial.Serial('/dev/ttyACM0', 115200, timeout=0.02)
 
     # count = 0
 
@@ -37,7 +38,7 @@ def main():
 
                 if image is not None:
 
-                    bigimage = cv2.resize(image, (128*SCALEUP,128*SCALEUP))
+                    bigimage = cv2.resize(image, (128*SCALEUP, 128*SCALEUP))
 
                     cv2.imshow('image', bigimage)
 
@@ -48,5 +49,5 @@ def main():
 
         port.close()
 
-main()
 
+main()
