@@ -56,6 +56,8 @@ void loop()
 
     uint8_t bitmap[SIZE*SIZE];
 
+    static uint8_t pixpos;
+
     if (rc == JPEG_SUCCESS) {
 
         auto rc = jpg.encodeBegin(
@@ -65,8 +67,12 @@ void loop()
 
             memset(bitmap, 0, sizeof(bitmap));
 
+            bitmap[63 + pixpos] = 255;
+
+            pixpos = (pixpos + 1) % 128;
+
             for (uint8_t j=0; j<SIZE; ++j) {
-                bitmap[j*SIZE+j] = 255;
+                // bitmap[j*SIZE+j] = 255;
             }
 
             const auto iMCUCount = ((SIZE + jpe.cx-1)/ jpe.cx) * ((SIZE + jpe.cy-1) / jpe.cy);
