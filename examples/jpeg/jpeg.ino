@@ -102,7 +102,7 @@ void loop()
 
         while (edvs.hasNext()) {
             eDVS::event_t e = edvs.next();
-            pixels[e.x * IMGSIZE + e.y] = 255;
+            pixels[e.x * IMGSIZE + e.y] = e.p == -1 ? 100 : 200;
         }
 
         sendImage(pixels);
