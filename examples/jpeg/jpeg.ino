@@ -55,7 +55,7 @@ void setup()
     edvs.begin(Serial1);
 } 
 
-void loop() 
+static void sendImage(void)
 {
     static const uint32_t SIZE = 128;
 
@@ -88,10 +88,18 @@ void loop()
             }
 
             jpg.close();
+        } 
+    } 
+}
 
-            delayMicroseconds(1000000/FPS);
+void loop() 
+{
+    static uint32_t usec_prev;
 
-        } // encodeBegin() succeeded
+    auto usec = micros();
 
-    } // open() succeeded
+    if (usec - usec_prev > 1000000/FPS) {
+        sendImage();
+        usec_prev = usec;
+    }
 }
