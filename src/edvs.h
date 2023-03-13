@@ -12,6 +12,10 @@ MIT License
 
 class EDVS {
 
+    private:
+
+        static const uint32_t BAUD = 2000000;
+
     public:
 
         typedef struct {
@@ -38,6 +42,9 @@ class EDVS {
 
         void begin(HardwareSerial & serial)
         {
+            // Start serial
+            serial.begin(BAUD);
+
             // Reset board
             send(serial, "R");
 

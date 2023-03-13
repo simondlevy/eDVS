@@ -42,8 +42,6 @@ void setup(void)
 
     Serial.begin(2000000);
 
-    Serial1.begin(2000000);
-
     edvs.begin(Serial1);
 
     oled.begin();
@@ -55,8 +53,6 @@ void setup(void)
 
 void loop(void)
 {
-    static uint8_t maxval;
-
     // Get events from DVS
     if (edvs.hasNext()) {
 
