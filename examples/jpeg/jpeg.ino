@@ -86,18 +86,19 @@ void loop()
 {
     static uint32_t usec_prev;
 
-    static uint8_t pixpos;
-
-    static uint8_t pixels[IMGSIZE*IMGSIZE];
-
     auto usec = micros();
 
     if (usec - usec_prev > 1000000/FPS) {
+
+        static uint8_t pixpos;
+        static uint8_t pixels[IMGSIZE*IMGSIZE];
+
         pixpos = (pixpos + 1) % 128;
         pixels[63 + pixpos] = 255;
         pixpos = (pixpos + 1) % 128;
         sendImage(pixels);
         memset(pixels, 0, sizeof(pixels));
+
         usec_prev = usec;
     }
 }
