@@ -2,6 +2,8 @@
 '''
 Copyright (C) 2023 Simon D. Levy
 
+Read and display JPEG-compressed event images over USB
+
 MIT License
 '''
 
@@ -10,6 +12,7 @@ import numpy as np
 import cv2
 
 SCALEUP = 2
+DELAY_MSEC = 15
 
 def main():
 
@@ -38,7 +41,7 @@ def main():
 
                     cv2.imshow('image', bigimage)
 
-                    if cv2.waitKey(1) == 27:  # ESC
+                    if cv2.waitKey(DELAY_MSEC) == 27:  # ESC
                         break
 
     except KeyboardInterrupt:

@@ -1,3 +1,13 @@
+/*
+JPEG encoding for eDVS
+
+Additional library needed: https://github.com/bitbank2/JPEGENC
+
+Copyright (C) 2023 Simon D. Levy
+
+MIT License
+*/
+
 #include "edvs.h"
 #include <JPEGENC.h>
 
