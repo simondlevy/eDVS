@@ -22,21 +22,24 @@ def main():
 
         while(True):
 
-            image = np.zeros((128,128))
+            image = np.zeros((128, 128))
 
             img_data = port.read(10_000)
 
             if len(img_data) > 0:
 
                 jpg_as_np = np.frombuffer(img_data, dtype=np.uint8)
-                image = cv2.imdecode(jpg_as_np, flags=1)
 
-                bigimage = cv2.resize(image, (128*SCALEUP,128*SCALEUP))
+                image = cv2.imdecode(jpg_as_np, flags=cv2.IMREAD_GRAYSCALE)
 
-                cv2.imshow('image', bigimage)
+                if image is not None:
 
-                if cv2.waitKey(1) == 27:  # ESC
-                    break
+                    bigimage = cv2.resize(image, (128*SCALEUP,128*SCALEUP))
+
+                    cv2.imshow('image', bigimage)
+
+                    if cv2.waitKey(1) == 27:  # ESC
+                        break
 
     except KeyboardInterrupt:
 

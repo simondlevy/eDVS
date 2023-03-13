@@ -67,9 +67,15 @@ static void sendImage(uint8_t pixels[])
     if (rc == JPEG_SUCCESS) {
 
         auto rc = jpg.encodeBegin(
-                &jpe, IMGSIZE, IMGSIZE, JPEG_PIXEL_GRAYSCALE, JPEG_SUBSAMPLE_444, JPEG_Q_HIGH);
+                &jpe,
+                IMGSIZE,
+                IMGSIZE,
+                JPEG_PIXEL_GRAYSCALE,
+                JPEG_SUBSAMPLE_444,
+                JPEG_Q_HIGH);
 
-        const auto iMCUCount = ((IMGSIZE + jpe.cx-1)/ jpe.cx) * ((IMGSIZE + jpe.cy-1) / jpe.cy);
+        const auto iMCUCount =
+            ((IMGSIZE + jpe.cx-1)/ jpe.cx) * ((IMGSIZE + jpe.cy-1) / jpe.cy);
 
         if (rc == JPEG_SUCCESS) {
 
@@ -90,14 +96,16 @@ void loop()
 
     if (usec - usec_prev > 1000000/FPS) {
 
-        static uint8_t pixpos;
-        static uint8_t pixels[IMGSIZE*IMGSIZE];
+        uint8_t pixels[IMGSIZE*IMGSIZE];
 
-        pixpos = (pixpos + 1) % 128;
-        pixels[63 + pixpos] = 255;
-        pixpos = (pixpos + 1) % 128;
-        sendImage(pixels);
         memset(pixels, 0, sizeof(pixels));
+
+        while (edvs.hasNext()) {
+            eDVS::event_t e = edvs.next();
+            pixels[e.x * IMGSIZE + e.y] = 255;
+        }
+
+        sendImage(pixels);
 
         usec_prev = usec;
     }
