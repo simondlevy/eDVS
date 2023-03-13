@@ -39,5 +39,5 @@ void setup()
 
 void loop() 
 {
-    step(edvs, serialWrite);
+    EdvsJpeg::step(edvs, serialWrite);
 }
