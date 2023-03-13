@@ -12,8 +12,9 @@ MIT License
 #include <JPEGENC.h>
 
 static const uint32_t IMGSIZE = 128;
-
 static const uint32_t FPS = 30;
+static const uint8_t NEGATIVE_EVENT_GRAYSCALE = 100;
+static const uint8_t POSITIVE_EVENT_GRAYSCALE = 200;
 
 static eDVS edvs;
 
@@ -112,7 +113,10 @@ void loop()
 
         while (edvs.hasNext()) {
             eDVS::event_t e = edvs.next();
-            pixels[e.x * IMGSIZE + e.y] = e.p == -1 ? 100 : 200;
+            pixels[e.x * IMGSIZE + e.y] =
+                e.p == -1 ?
+                NEGATIVE_EVENT_GRAYSCALE :
+                POSITIVE_EVENT_GRAYSCALE;
         }
 
         sendImage(pixels);
