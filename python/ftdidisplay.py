@@ -13,18 +13,22 @@ import cv2
 import numpy as np
 import argparse
 
+
 def main():
 
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("-p", "--port", default='/dev/ttyUSB0' ,
-            help="Port (/dev/ttyUSB0, COM5, etc.")
-    argparser.add_argument("-b", "--baud", default=2000000, type=int, help="Baud rate")
-    argparser.add_argument("-i", "--interval", default=0.02,
-            type=float, help="Fade-out interval for events")
+    argparser.add_argument("-p", "--port", default='/dev/ttyUSB0',
+                           help="Port (/dev/ttyUSB0, COM5, etc.")
+    argparser.add_argument("-b", "--baud", default=2000000, type=int,
+                           help="Baud rate")
+    argparser.add_argument("-i", "--interval", default=0.02, type=float,
+                           help="Fade-out interval for events")
     argparser.add_argument("-f", "--fps", default=100, type=int,
-            help="Dispaly frames per second")
-    argparser.add_argument("-s", "--scaleup", default=4, type=int, help="Scale-up factor")
-    argparser.add_argument("-m", "--movie", default=None, help="Movie file name")
+                           help="Dispaly frames per second")
+    argparser.add_argument("-s", "--scaleup", default=4, type=int,
+                           help="Scale-up factor")
+    argparser.add_argument("-m", "--movie", default=None,
+                           help="Movie file name")
     args = argparser.parse_args()
 
     # Connect to sensor
@@ -40,15 +44,15 @@ def main():
 
     # Create a video file to save the movie if indicated
     out = (cv2.VideoWriter(args.movie,
-                           cv2.VideoWriter_fourcc('M','J','P','G'),
-                           args.fps, (128*args.scaleup,128*args.scaleup)) 
-            if args.movie is not None  else None)
+                           cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+                           args.fps, (128*args.scaleup, 128*args.scaleup))
+           if args.movie is not None else None)
 
     # Track time so we can stop displaying old events
-    counts = np.zeros((128,128)).astype('uint8')
+    counts = np.zeros((128, 128)).astype('uint8')
 
     # Start with an empty image
-    image = np.zeros((128,128,3)).astype('uint8')
+    image = np.zeros((128, 128, 3)).astype('uint8')
 
     # Compute number of iterations before events should disappear, based on
     # 1msec display assumption
@@ -58,19 +62,19 @@ def main():
 
         # Get events from DVS
         while edvs.hasNext():
-            x,y, p = edvs.next()
-            image[x,y] = (0,255,0) if p == -1 else (0,0,255)
-            counts[x,y] = 1
+            x, y, p = edvs.next()
+            image[x, y] = (0, 255, 0) if p == -1 else (0, 0, 255)
+            counts[x, y] = 1
 
         # Zero out events older than a certain time before now
-        image[counts==ageout] = 0
-        counts[counts==ageout] = 0
+        image[counts == ageout] = 0
+        counts[counts == ageout] = 0
 
         # Increase age for events
-        counts[counts>0] += 1
+        counts[counts > 0] += 1
 
         # Scale up the image for visibility
-        bigimage = cv2.resize(image, (128*args.scaleup,128*args.scaleup))
+        bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
 
         # Write the movie to the video file if indicated
         if out is not None:
@@ -88,6 +92,7 @@ def main():
     edvs.stop()
 
     thread.join()
+
 
 if __name__ == '__main__':
 

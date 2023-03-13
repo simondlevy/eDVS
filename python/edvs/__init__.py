@@ -44,7 +44,7 @@ class EDVS:
         self._send('!E0')
 
         # Every other byte represents a completed event
-        x    = None
+        x = None
         gotx = False
 
         # Flag will be set on main thread when user quits
@@ -57,17 +57,17 @@ class EDVS:
             v = b & 0b01111111
 
             # Isolate first bit
-            f = b>>7
+            f = b >> 7
 
             # Correct for misaligned bytes
-            if f==0 and not gotx:
+            if f == 0 and not gotx:
                 gotx = not gotx
 
             # Second byte; record event
             if gotx:
                 y = v
-                p = 2*f-1 # Convert event polarity from 0,1 to -1,+1
-                self.queue[self.qpos] = (x,y,p)
+                p = 2*f-1  # Convert event polarity from 0,1 to -1,+1
+                self.queue[self.qpos] = (x, y, p)
                 self._advance()
 
             # First byte; store X
@@ -123,7 +123,7 @@ class EDVS:
 
     def ledAlarm(self, msec):
 
-        self._led('a=%d'%msec)
+        self._led('a=%d' % msec)
 
     def _led(self, cmd):
 
