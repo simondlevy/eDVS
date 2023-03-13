@@ -1,5 +1,5 @@
 /*
-OLED display program for eDVS
+OLED display program for EDVS
 
 Additional library needed: https://github.com/simondlevy/WaveshareOLED
 
@@ -21,12 +21,12 @@ static const uint8_t RST = 8;
 
 // Queue of old events for erasing
 static const uint16_t QSIZE = 1000;
-static eDVS::event_t queue[QSIZE];
+static EDVS::event_t queue[QSIZE];
 static uint16_t qpos;
 
 OLED_GFX oled(CS, DC, RST);
 
-static eDVS edvs;
+static EDVS edvs;
 
 void serialEvent1(void)
 {
@@ -61,7 +61,7 @@ void loop(void)
     if (edvs.hasNext()) {
 
         // Grab event
-        eDVS::event_t e = edvs.next();
+        EDVS::event_t e = edvs.next();
 
         // Display it
         oled.Set_Color(e.p == -1 ? OLED_GFX::GREEN : OLED_GFX::RED);
@@ -80,7 +80,7 @@ void loop(void)
     }
 
     // Remove pixel for oldest event in queue
-    eDVS::event_t e2 = queue[(qpos+1)%QSIZE];
+    EDVS::event_t e2 = queue[(qpos+1)%QSIZE];
     oled.Set_Color(OLED_GFX::BLACK);
     oled.Draw_Pixel(e2.y,e2.x);
 }

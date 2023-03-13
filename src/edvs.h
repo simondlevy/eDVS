@@ -1,5 +1,5 @@
 /*
-eDVS class definition
+EDVS class definition
 
 Copyright (C) 2020 Simon D. Levy
 
@@ -10,7 +10,7 @@ MIT License
 
 #include <Arduino.h>
 
-class eDVS {
+class EDVS {
 
     public:
 
@@ -22,7 +22,7 @@ class eDVS {
 
         } event_t;
 
-        eDVS(void)
+        EDVS(void)
         {
             for (uint16_t k=0; k<QSIZE; ++k) {
                 _queue[k].x = 0;

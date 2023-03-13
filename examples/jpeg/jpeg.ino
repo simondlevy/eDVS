@@ -1,5 +1,5 @@
 /*
-JPEG encoding for eDVS
+JPEG encoding for EDVS
 
 Additional library needed: https://github.com/bitbank2/JPEGENC
 
@@ -13,7 +13,7 @@ MIT License
 
 #include <JPEGENC.h>
 
-static eDVS edvs;
+static EDVS edvs;
 
 void serialEvent1(void)
 {

@@ -1,5 +1,5 @@
 /*
-JPEG encoding for eDVS
+JPEG encoding for EDVS
 
 Additional library needed: https://github.com/bitbank2/JPEGENC
 
@@ -10,6 +10,10 @@ MIT License
 
 #include "edvs.h"
 #include <JPEGENC.h>
+
+class EdvsJpeg {
+
+};
 
 static const uint32_t IMGSIZE = 128;
 static const uint32_t FPS = 30;
@@ -75,7 +79,7 @@ static void sendImage(
 
 
 static void step(
-        eDVS & edvs,
+        EDVS & edvs,
         int32_t (*writefun)(JPEGFILE *p, uint8_t *buffer, int32_t length)) 
 {
     static uint32_t usec_prev;
@@ -89,7 +93,7 @@ static void step(
         memset(pixels, 0, sizeof(pixels));
 
         while (edvs.hasNext()) {
-            eDVS::event_t e = edvs.next();
+            EDVS::event_t e = edvs.next();
             pixels[e.x * IMGSIZE + e.y] =
                 e.p == -1 ?
                 NEGATIVE_EVENT_GRAYSCALE :

@@ -1,5 +1,5 @@
 /*
-UART Relay program for eDVS
+UART Relay program for EDVS
 
 Copyright (C) 2020 Simon D. Levy
 
