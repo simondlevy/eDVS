@@ -25,12 +25,8 @@ def main():
                            help="Baud rate")
     argparser.add_argument("-i", "--interval", default=0.02, type=float,
                            help="Fade-out interval for events")
-    argparser.add_argument("-f", "--fps-movie", default=100, type=int,
-                           help="Movie frames per second")
     argparser.add_argument("-s", "--scaleup", default=4, type=int,
                            help="Scale-up factor")
-    argparser.add_argument("-m", "--movie", default=None,
-                           help="Movie file name")
 
     args = argparser.parse_args()
 
@@ -44,12 +40,6 @@ def main():
     thread = Thread(target=edvs.start)
     thread.daemon = True
     thread.start()
-
-    # Create a video file to save the movie if indicated
-    out = (cv2.VideoWriter(args.movie,
-                           cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
-                           args.fps, (128*args.scaleup, 128*args.scaleup))
-           if args.movie is not None else None)
 
     # Track time so we can stop displaying old events
     counts = np.zeros((128, 128)).astype('uint8')
@@ -78,10 +68,6 @@ def main():
 
         # Scale up the image for visibility
         bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
-
-        # Write the movie to the video file if indicated
-        if out is not None:
-            out.write(bigimage)
 
         # Display the large color image
         cv2.imshow('Mini eDVS', bigimage)
