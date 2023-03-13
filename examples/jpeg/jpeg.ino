@@ -1,6 +1,8 @@
 #include "edvs.h"
 #include <JPEGENC.h>
 
+static const uint32_t IMGSIZE = 128;
+
 static const uint32_t FPS = 30;
 
 static eDVS edvs;
@@ -55,36 +57,24 @@ void setup()
     edvs.begin(Serial1);
 } 
 
-static void sendImage(void)
+static void sendImage(uint8_t pixels[])
 {
-    static const uint32_t SIZE = 128;
-
     JPEGENCODE jpe;
     JPEG jpg;
 
     auto rc = jpg.open("/TEST.JPG", myOpen, myClose, myRead, myWrite, mySeek);
 
-    uint8_t bitmap[SIZE*SIZE];
-
-    static uint8_t pixpos;
-
     if (rc == JPEG_SUCCESS) {
 
         auto rc = jpg.encodeBegin(
-                &jpe, SIZE, SIZE, JPEG_PIXEL_GRAYSCALE, JPEG_SUBSAMPLE_444, JPEG_Q_HIGH);
+                &jpe, IMGSIZE, IMGSIZE, JPEG_PIXEL_GRAYSCALE, JPEG_SUBSAMPLE_444, JPEG_Q_HIGH);
 
-        const auto iMCUCount = ((SIZE + jpe.cx-1)/ jpe.cx) * ((SIZE + jpe.cy-1) / jpe.cy);
+        const auto iMCUCount = ((IMGSIZE + jpe.cx-1)/ jpe.cx) * ((IMGSIZE + jpe.cy-1) / jpe.cy);
 
         if (rc == JPEG_SUCCESS) {
 
-            memset(bitmap, 0, sizeof(bitmap));
-
-            bitmap[63 + pixpos] = 255;
-
-            pixpos = (pixpos + 1) % 128;
-
             for (uint32_t i=0; i<iMCUCount && rc == JPEG_SUCCESS; i++) {
-                rc = jpg.addMCU(&jpe, &bitmap[jpe.x + (jpe.y * SIZE)], SIZE);
+                rc = jpg.addMCU(&jpe, &pixels[jpe.x + (jpe.y * IMGSIZE)], IMGSIZE);
             }
 
             jpg.close();
@@ -96,10 +86,18 @@ void loop()
 {
     static uint32_t usec_prev;
 
+    static uint8_t pixpos;
+
+    static uint8_t pixels[IMGSIZE*IMGSIZE];
+
     auto usec = micros();
 
     if (usec - usec_prev > 1000000/FPS) {
-        sendImage();
+        pixpos = (pixpos + 1) % 128;
+        pixels[63 + pixpos] = 255;
+        pixpos = (pixpos + 1) % 128;
+        sendImage(pixels);
+        memset(pixels, 0, sizeof(pixels));
         usec_prev = usec;
     }
 }
