@@ -9,6 +9,8 @@ import serial
 import numpy as np
 import cv2
 
+SCALEUP = 2
+
 def main():
 
     # Connect to Teensy
@@ -29,17 +31,12 @@ def main():
                 jpg_as_np = np.frombuffer(img_data, dtype=np.uint8)
                 image = cv2.imdecode(jpg_as_np, flags=1)
 
+                bigimage = cv2.resize(image, (128*SCALEUP,128*SCALEUP))
 
-                #f = open('images/image%04d.jpg' % count, 'wb')
-                #print(len(buf))
-                #f.write(buf)
-                #f.close()
-                #count += 1
+                cv2.imshow('image', bigimage)
 
-            cv2.imshow('image', image)
-
-            if cv2.waitKey(1) == 27:  # ESC
-                break
+                if cv2.waitKey(1) == 27:  # ESC
+                    break
 
     except KeyboardInterrupt:
 
