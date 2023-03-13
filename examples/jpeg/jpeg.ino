@@ -73,6 +73,8 @@ void loop()
         auto rc = jpg.encodeBegin(
                 &jpe, SIZE, SIZE, JPEG_PIXEL_GRAYSCALE, JPEG_SUBSAMPLE_444, JPEG_Q_HIGH);
 
+        const auto iMCUCount = ((SIZE + jpe.cx-1)/ jpe.cx) * ((SIZE + jpe.cy-1) / jpe.cy);
+
         if (rc == JPEG_SUCCESS) {
 
             memset(bitmap, 0, sizeof(bitmap));
@@ -80,8 +82,6 @@ void loop()
             bitmap[63 + pixpos] = 255;
 
             pixpos = (pixpos + 1) % 128;
-
-            const auto iMCUCount = ((SIZE + jpe.cx-1)/ jpe.cx) * ((SIZE + jpe.cy-1) / jpe.cy);
 
             for (uint32_t i=0; i<iMCUCount && rc == JPEG_SUCCESS; i++) {
                 rc = jpg.addMCU(&jpe, &bitmap[jpe.x + (jpe.y * SIZE)], SIZE);
