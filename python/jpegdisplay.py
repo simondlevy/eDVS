@@ -13,6 +13,25 @@ import cv2
 import argparse
 
 
+def display(img_data, scaleup, delay):
+
+    quit = False
+
+    jpg_as_np = np.frombuffer(img_data, dtype=np.uint8)
+
+    image = cv2.imdecode(jpg_as_np, flags=cv2.IMREAD_GRAYSCALE)
+
+    if image is not None:
+
+        bigimage = cv2.resize(image, (128*scaleup, 128*scaleup))
+
+        cv2.imshow('image', bigimage)
+
+        quit = cv2.waitKey(delay) == 27  # ESC
+
+    return quit
+
+
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -32,28 +51,35 @@ def main():
     # Connect to Teensy
     port = serial.Serial(args.port, args.baud, timeout=0.02)
 
+    prev = 0
+
+    buf = []
+
     try:
 
         while(True):
 
-            img_data = port.read(10_000)
+            # img_data = port.read(10_000)
+            img_data = port.read()
 
             if len(img_data) > 0:
 
-                # print('0x%02X 0x%02X' % (img_data[0], img_data[1]))
+                byte = ord(img_data)
 
-                jpg_as_np = np.frombuffer(img_data, dtype=np.uint8)
+                if byte == 0xD8 and prev == 0xFF:
 
-                image = cv2.imdecode(jpg_as_np, flags=cv2.IMREAD_GRAYSCALE)
+                    if len(buf) > 1000:
 
-                if image is not None:
+                        if display(bytes(buf), args.scaleup, args.delay):
+                            break
 
-                    bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
+                    buf = [prev, byte]
 
-                    cv2.imshow('image', bigimage)
+                else:
+                    buf += [byte]
 
-                    if cv2.waitKey(args.delay) == 27:  # ESC
-                        break
+                prev = byte
+
 
     except KeyboardInterrupt:
 
