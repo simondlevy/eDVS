@@ -36,11 +36,11 @@ def main():
 
         while(True):
 
-            image = np.zeros((128, 128))
-
             img_data = port.read(10_000)
 
             if len(img_data) > 0:
+
+                # print('0x%02X 0x%02X' % (img_data[0], img_data[1]))
 
                 jpg_as_np = np.frombuffer(img_data, dtype=np.uint8)
 
