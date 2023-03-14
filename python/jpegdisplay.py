@@ -59,13 +59,13 @@ def main():
 
         while(True):
 
-            # img_data = port.read(10_000)
             data = port.read()
 
             if len(data) > 0:
 
                 byte = ord(data)
 
+                # 0xFF 0xD8 signals start of new JPEG image
                 if byte == 0xD8 and prev == 0xFF:
 
                     if len(buf) > 1000:
@@ -79,7 +79,6 @@ def main():
                     buf += [byte]
 
                 prev = byte
-
 
     except KeyboardInterrupt:
 
