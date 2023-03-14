@@ -23,8 +23,10 @@ void serialEvent1(void)
     }
 }
 
-static int32_t serialWrite(JPEGFILE *p, uint8_t *buffer, int32_t length) 
+static int32_t write(JPEGFILE *p, uint8_t *buffer, int32_t length) 
 {
+    (void)p;
+
     return Serial.write(buffer, length);
 }
 
@@ -37,5 +39,5 @@ void setup()
 
 void loop() 
 {
-    EdvsJpeg::step(edvs, serialWrite);
+    EdvsJpeg::step(edvs, write);
 }

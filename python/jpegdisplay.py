@@ -10,17 +10,27 @@ MIT License
 import serial
 import numpy as np
 import cv2
-
-SCALEUP = 2
-DELAY_MSEC = 15
+import argparse
 
 
 def main():
 
-    # Connect to Teensy
-    port = serial.Serial('/dev/ttyACM0', 115200, timeout=0.02)
+    argparser = argparse.ArgumentParser(
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    # count = 0
+    argparser.add_argument("-p", "--port", default='/dev/ttyACM0',
+                           help="Port (/dev/ttyUSB0, COM5, etc.")
+    argparser.add_argument("-b", "--baud", default=115200, type=int,
+                           help="Baud rate")
+    argparser.add_argument("-s", "--scaleup", default=2, type=int,
+                           help="Scale-up factor")
+    argparser.add_argument("-d", "--delay", default=15, type=int,
+                           help="Millsecond delay between frames")
+
+    args = argparser.parse_args()
+
+    # Connect to Teensy
+    port = serial.Serial(args.port, args.baud, timeout=0.02)
 
     try:
 
@@ -38,11 +48,11 @@ def main():
 
                 if image is not None:
 
-                    bigimage = cv2.resize(image, (128*SCALEUP, 128*SCALEUP))
+                    bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
 
                     cv2.imshow('image', bigimage)
 
-                    if cv2.waitKey(DELAY_MSEC) == 27:  # ESC
+                    if cv2.waitKey(args.delay) == 27:  # ESC
                         break
 
     except KeyboardInterrupt:
