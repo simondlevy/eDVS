@@ -60,11 +60,11 @@ def main():
         while(True):
 
             # img_data = port.read(10_000)
-            img_data = port.read()
+            data = port.read()
 
-            if len(img_data) > 0:
+            if len(data) > 0:
 
-                byte = ord(img_data)
+                byte = ord(data)
 
                 if byte == 0xD8 and prev == 0xFF:
 
