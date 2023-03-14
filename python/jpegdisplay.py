@@ -52,7 +52,6 @@ def main():
     port = serial.Serial(args.port, args.baud, timeout=0.02)
 
     prev = 0
-
     buf = []
 
     try:
