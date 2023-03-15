@@ -31,9 +31,9 @@ def main():
 
     port = serial.Serial(args.port, args.baud)
 
-    count = 0
+    byte_count = 0
 
-    prev = 0
+    time_prev = 0
 
     while(True):
 
@@ -41,15 +41,19 @@ def main():
 
             byte = ord(port.read(1))
 
-            count += 1
+            byte_count += 1
 
-            curr = time.time()
+            time_curr = time.time()
 
-            if curr - prev > 1.0:
+            if time_curr - time_prev > 1.0:
 
-                prev = curr
-                print(count)
-                count = 0
+                time_prev = time_curr
+
+                if byte_count > 3:
+                    print('%d events per second' % (byte_count//3))
+
+                byte_count = 0
+
 
         except KeyboardInterrupt:
             break
