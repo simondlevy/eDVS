@@ -11,14 +11,10 @@ MIT License
 #include "edvs.h"
 
 static const uint32_t BAUD = 921600;
-
 static uint32_t FPS = 30;
-
 static const uint32_t MAX_EVENTS_PER_FRAME = 5000;
 
 static EDVS edvs;
-
-static const uint8_t EOM = 200;
 
 void serialEvent1(void)
 {
@@ -30,10 +26,7 @@ void serialEvent1(void)
 
 void setup(void)
 {
-
-    Serial.begin(2000000);
-
-    Serial2.begin(BAUD);
+    Serial.begin(BAUD);
 
     edvs.begin(Serial1);
 }
