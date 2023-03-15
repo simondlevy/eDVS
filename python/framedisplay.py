@@ -38,35 +38,35 @@ def main():
 
         try:
 
+            # Read raw bytes from serial and convert them to unsigned eight-bit ints
             data = np.frombuffer(port.read(5000), dtype=np.uint8)
  
+            # Find the positions of the polarity values (+1, 255=-1)
             polpos = np.logical_or(data == 1, data == 255)
             
+            # Use the position of the first polarity value as a sentinel
             beg = np.argmax(polpos) + 1
-
-            end = 5000 - np.argmax(polpos[::-1])
-
-            events = data[beg:end]
-
+            events = data[beg:]
             x = np.array(events[::3])
             y = np.array(events[1::3])
 
+            # Replace stray polarity values with 0
             x[x>127] = 0
             y[y>127] = 0
 
+            # Handle off-by-one size mismatch
             n = min(len(x), len(y))
-
             x = x[:n]
             y = y[:n]
 
+            # Fill image with white pixels at event locations
             image = np.zeros((128, 128)).astype('uint8')
-
             image[x,y] = 255
 
             # Scale up the image for visibility
             bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
 
-            # Display the large color image
+            # Display the upscaled image
             cv2.imshow('Mini eDVS', bigimage)
 
             # Quit on ESCape
