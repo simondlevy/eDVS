@@ -28,11 +28,12 @@ OLED_GFX oled(CS, DC, RST);
 
 static EDVS edvs;
 
+static bool ready;
+
 void serialEvent1(void)
 {
     while (Serial1.available()) {
-        auto b = Serial1.read();
-        edvs.update(b);
+        ready = edvs.update(Serial1.read());
     }
 }
 
@@ -53,10 +54,13 @@ void setup(void)
 void loop(void)
 {
     // Get events from DVS
-    if (edvs.hasNext()) {
+    //if (edvs.hasNext()) {
+    if (ready) {
+
+        ready = false;
 
         // Grab event
-        EDVS::event_t e = edvs.next();
+        EDVS::event_t e = edvs.getCurrent();
 
         // Display it
         oled.Set_Color(e.p == -1 ? OLED_GFX::GREEN : OLED_GFX::RED);
@@ -68,7 +72,7 @@ void loop(void)
         qpos = (qpos + 1) % QSIZE;
     }
 
-    // Remove pixel for oldest event in queue
+    // Erase pixel for oldest event in queue
     EDVS::event_t e2 = queue[(qpos+1)%QSIZE];
     oled.Set_Color(OLED_GFX::BLACK);
     oled.Draw_Pixel(e2.y,e2.x);
