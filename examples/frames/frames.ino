@@ -28,6 +28,8 @@ void setup(void)
 {
     Serial.begin(BAUD);
 
+    Serial1.begin(EDVS::BAUD);
+
     edvs.begin(Serial1);
 }
 

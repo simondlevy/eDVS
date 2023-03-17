@@ -14,9 +14,11 @@ class EDVS {
 
     private:
 
-        static const uint32_t BAUD = 2000000;
+        static const uint32_t MAX_QSIZE = 1000;
 
     public:
+
+        static const uint32_t BAUD = 2000000;
 
         typedef struct {
 
@@ -26,9 +28,11 @@ class EDVS {
 
         } event_t;
 
-        EDVS(void)
+        EDVS(const uint16_t qsize=1000)
         {
-            for (uint16_t k=0; k<QSIZE; ++k) {
+            _qsize = qsize;
+
+            for (uint16_t k=0; k<_qsize; ++k) {
                 _queue[k].x = 0;
                 _queue[k].y = 0;
                 _queue[k].p = 0;
@@ -42,9 +46,6 @@ class EDVS {
 
         void begin(HardwareSerial & serial)
         {
-            // Start serial
-            serial.begin(BAUD);
-
             // Reset board
             send(serial, "R");
 
@@ -111,9 +112,9 @@ class EDVS {
 
     private:
 
-        static const uint16_t QSIZE = 1000;
+        event_t _queue[MAX_QSIZE];
 
-        event_t _queue[QSIZE];
+        uint16_t _qsize;
         uint16_t _qpos;
 
         bool _done;
@@ -131,6 +132,6 @@ class EDVS {
 
         void advance(void)
         {
-            _qpos = (_qpos+1) % QSIZE;
+            _qpos = (_qpos+1) % _qsize;
         }
 };

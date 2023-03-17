@@ -6,6 +6,8 @@ Copyright (C) 2020 Simon D. Levy
 MIT License
 */
 
+#include "edvs.h"
+
 // For ESP32
 static const uint8_t RX_PIN = 4;
 static const uint8_t TX_PIN = 14;
@@ -18,7 +20,7 @@ void setup(void)
     //Serial1.begin(2000000, SERIAL_8N1, RX_PIN, TX_PIN);
 
     // Ordinary Arduino
-    Serial1.begin(2000000);
+    Serial1.begin(EDVS::BAUD);
 }
 
 void loop(void)
