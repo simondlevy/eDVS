@@ -33,14 +33,13 @@ void serialEvent1(void)
     while (Serial1.available()) {
         auto b = Serial1.read();
         edvs.update(b);
-        Serial.write(b);
     }
 }
 
 void setup(void)
 {
 
-    Serial.begin(2000000);
+    Serial1.begin(EDVS::BAUD);
 
     edvs.begin(Serial1);
 
@@ -67,12 +66,6 @@ void loop(void)
         queue[qpos].x = e.x;
         queue[qpos].y = e.y;
         qpos = (qpos + 1) % QSIZE;
-
-        // Send it out over USB as a message
-        Serial.write(e.x);
-        Serial.write(e.y);
-        Serial.write(e.p);
-        Serial.write(EOM);
     }
 
     // Remove pixel for oldest event in queue

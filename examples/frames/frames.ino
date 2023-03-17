@@ -14,7 +14,7 @@ static const uint32_t BAUD = 921600;
 static uint32_t FPS = 30;
 static const uint32_t MAX_EVENTS_PER_FRAME = 5000;
 
-static EDVS edvs;
+static EDVS edvs; 
 
 void serialEvent1(void)
 {
