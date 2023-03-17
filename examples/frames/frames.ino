@@ -37,7 +37,7 @@ void loop(void)
 {
     static uint32_t count;
 
-    static uint8_t frame[3 *MAX_EVENTS_PER_FRAME];
+    static uint8_t frame[2 * MAX_EVENTS_PER_FRAME];
 
     // Get events from DVS
     while (edvs.hasNext()) {
@@ -45,11 +45,10 @@ void loop(void)
         // Grab event
         EDVS::event_t e = edvs.next();
 
-        frame[count] = e.x;
-        frame[count+1] = e.y;
-        frame[count+2] = e.p;
+        frame[count]   = e.x;
+        frame[count+1] = e.y; 
 
-        count += 3;
+        count += 2;
     }
 
     static uint32_t usec_prev;
