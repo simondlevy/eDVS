@@ -1,7 +1,7 @@
 /*
 UART Relay program for EDVS
 
-Copyright (C) 2020 Simon D. Levy
+Copyright (C) 2023 Simon D. Levy
 
 MIT License
 */

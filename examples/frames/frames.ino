@@ -1,9 +1,7 @@
 /*
 Frames-based display program for EDVS
 
-Additional library needed: https://github.com/simondlevy/WaveshareOLED
-
-Copyright (C) 2020 Simon D. Levy
+Copyright (C) 2023 Simon D. Levy
 
 MIT License
 */

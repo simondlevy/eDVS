@@ -101,6 +101,11 @@ class EDVS {
             return retval;
         }
 
+        event_t & getCurrent(void)
+        {
+            return _current;
+        }
+
         bool hasNext(void) 
         {
             return _queue[_qpos].p != 0; // polarity must be +1 or -1, so 0 indicates empty
