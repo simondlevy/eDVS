@@ -25,24 +25,30 @@ def main():
                            help="Port (/dev/ttyACM0, COM5, etc.")
     argparser.add_argument("-b", "--baud", default=921600, type=int,
                            help="Baud rate")
+    argparser.add_argument("-t", "--timeout", default=.01, type=float,
+                           help="Timeout for serial read (sec)")
     argparser.add_argument("-s", "--scaleup", default=4, type=int,
                            help="Scale-up factor")
 
     args = argparser.parse_args()
 
-    port = serial.Serial(args.port, args.baud)
-
-    idx = 0
+    port = serial.Serial(args.port, args.baud, timeout=args.timeout)
 
     while(True):
 
         try:
 
-            # Read raw bytes from serial and convert them to unsigned eight-bit ints
+            # Read raw bytes from serial and convert them to signed eight-bit ints
             data = np.frombuffer(port.read(5000), dtype=np.int8)
 
+            # Separate X and Y components
             x = data[::2]
             y = data[1::2]
+
+            # Keep X and Y arrays the same size
+            n = min(len(x), len(y))
+            x = x[:n]
+            y = y[:n]
 
             # Fill image with white pixels at event locations
             image = np.zeros((128, 128)).astype('uint8')
