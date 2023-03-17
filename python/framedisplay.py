@@ -12,9 +12,7 @@ import numpy as np
 import argparse
 import serial
 
-MAX_EVENTS_PER_FRAME = 5000
-
-EOM = 200
+MAX_EVENTS_PER_FRAME = 1250
 
 def main():
 
@@ -39,7 +37,7 @@ def main():
         try:
 
             # Read raw bytes from serial and convert them to signed eight-bit ints
-            data = np.frombuffer(port.read(5000), dtype=np.int8)
+            data = np.frombuffer(port.read(2*MAX_EVENTS_PER_FRAME), dtype=np.int8)
 
             # Separate X and Y components
             x = data[::2]

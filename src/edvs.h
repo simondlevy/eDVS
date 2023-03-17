@@ -60,8 +60,10 @@ class EDVS {
             _gotx = false;
         }
 
-        void update(uint8_t b) 
+        bool update(uint8_t b) 
         {
+            auto retval = false;
+
             // Value is in rightmost seven bits
             uint8_t v = b & 0b01111111;
 
@@ -75,10 +77,18 @@ class EDVS {
 
             // Second byte; record event
             if (_gotx) {
-                _queue[_qpos].x = _x; 
-                _queue[_qpos].y = v; 
-                _queue[_qpos].p = 2*f-1; // Convert event polarity from 0,1 to -1,+1
+
+                _current.x = _x; 
+                _current.y = v; 
+                _current.p = 2*f-1; // Convert event polarity from 0,1 to -1,+1
+
+                _queue[_qpos].x = _current.x;
+                _queue[_qpos].y = _current.y;
+                _queue[_qpos].p = _current.p;
+
                 advance();
+
+                retval = true;
             }
 
             // First byte; store X
@@ -87,6 +97,8 @@ class EDVS {
             }
 
             _gotx = !_gotx;
+
+            return retval;
         }
 
         bool hasNext(void) 
@@ -113,6 +125,8 @@ class EDVS {
     private:
 
         event_t _queue[MAX_QSIZE];
+
+        event_t _current;
 
         uint16_t _qsize;
         uint16_t _qpos;
