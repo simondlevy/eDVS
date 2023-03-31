@@ -13,6 +13,7 @@ import argparse
 import serial
 from time import time
 
+
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -28,7 +29,7 @@ def main():
                            help='Timeout for serial read (sec)')
     argparser.add_argument('-s', '--scaleup', default=2, type=int,
                            help='Scale-up factor')
-    argparser.add_argument('-f', '--filename', default='events.dat', 
+    argparser.add_argument('-f', '--filename', default='events.dat',
                            help='binary file in which to save events')
 
     args = argparser.parse_args()
@@ -45,7 +46,8 @@ def main():
 
             try:
 
-                # Read raw bytes from serial and convert them to signed eight-bit ints
+                # Read raw bytes from serial and convert them to signed
+                # eight-bit ints
                 data = np.frombuffer(port.read(args.maxbuf), dtype=np.int8)
 
                 x = data[::2]
@@ -64,8 +66,10 @@ def main():
                 event_count += n
                 if time() - time_prev > 1:
                     if time_prev > 0:
-                        print('%6d events per second; %d frames per second; %d events per frame' %
-                              (event_count, frame_count, event_count/frame_count))
+                        print(('%6d events per second; %d frames ' +
+                              'per second; %d events per frame') %
+                              (event_count, frame_count,
+                               event_count/frame_count))
                     time_prev = time()
                     event_count = 0
                     frame_count = 0
@@ -79,10 +83,11 @@ def main():
 
                     # Fill image with white pixels at event locations
                     image = np.zeros((128, 128)).astype('uint8')
-                    image[x,y] = 255
+                    image[x, y] = 255
 
                     # Scale up the image for visibility
-                    bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
+                    bigimage = cv2.resize(image,
+                                          (128*args.scaleup, 128*args.scaleup))
 
                     # Display the upscaled image
                     cv2.imshow(args.port, bigimage)
