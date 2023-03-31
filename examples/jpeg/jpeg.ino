@@ -18,8 +18,7 @@ static EDVS edvs;
 void serialEvent1(void)
 {
     while (Serial1.available()) {
-        auto b = Serial1.read();
-        edvs.update(b);
+        edvs.update(Serial1.read());
     }
 }
 
