@@ -10,15 +10,21 @@ MIT License
 
 static EDVS edvs; 
 
-static bool ready;
-
 void serialEvent1(void)
 {
-    if (Serial1.available()) {
-        ready = edvs.update(Serial1.read());
-    }
+    while (Serial1.available()) {
 
+        if (edvs.update(Serial1.read())) {
+
+            EDVS::event_t e = edvs.getCurrent();
+
+            const uint8_t coords[2] = {e.x, e.y};
+
+            Serial.write(coords, 2);
+        }
+    }
 }
+
 
 void setup(void)
 {
@@ -31,21 +37,4 @@ void setup(void)
 
 void loop(void)
 {
-    static uint32_t count;
-
-    if (ready) {
-        ready = false;
-        auto e = edvs.getCurrent();
-        count++;
-    }
-
-    static uint32_t msec_prev;
-
-    auto msec_curr = millis();
-
-    if (msec_curr - msec_prev > 1000) {
-        Serial.println(count);
-        count = 0;
-        msec_prev = msec_curr;
-    }
 }

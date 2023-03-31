@@ -16,9 +16,6 @@ void setup(void)
 {
     Serial.begin(115200);
 
-    // ESP32
-    //Serial1.begin(2000000, SERIAL_8N1, RX_PIN, TX_PIN);
-
     // Ordinary Arduino
     Serial1.begin(EDVS::BAUD);
 }
