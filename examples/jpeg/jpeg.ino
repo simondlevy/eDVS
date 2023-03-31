@@ -34,8 +34,6 @@ void setup()
 {
     Serial.begin(115200);
 
-    Serial1.begin(EDVS::BAUD);
-
     edvs.begin(Serial1);
 } 
 

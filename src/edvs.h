@@ -46,6 +46,8 @@ class EDVS {
 
         void begin(HardwareSerial & serial)
         {
+            serial.begin(BAUD);
+
             // Reset board
             send(serial, "R");
 
