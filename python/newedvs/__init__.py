@@ -50,6 +50,7 @@ class EDVS:
         # Every other byte represents a completed event
         x = None
         state = 0
+        t = 0
 
         # Flag will be set on main thread when user quits
         while not self.done:
@@ -75,8 +76,11 @@ class EDVS:
                 state = 2
 
             else:
+                t = (t << 8) | b
                 state = (state + 1) % 6
                 if state == 0:
+                    print(t)
+                    t = 0
                     p = 2 * b0 - 1  # Convert event polarity from 0,1 to -1,+1
                     self.queue[self.qpos] = (x, y, p)
                     self._advance()
