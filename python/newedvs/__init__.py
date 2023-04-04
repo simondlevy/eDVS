@@ -60,10 +60,6 @@ class EDVS:
             # Isolate first bit
             f = b >> 7
 
-            # Correct for misaligned bytes
-            if f == 0 and not gotx:
-                gotx = not gotx
-
             # Second byte; record event
             if gotx:
                 y = v
