@@ -19,14 +19,16 @@ def main():
     argparser = argparse.ArgumentParser(
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    argparser.add_argument("-p", "--port", default='/dev/ttyUSB0',
-                           help="Port (/dev/ttyUSB0, COM5, etc.")
-    argparser.add_argument("-b", "--baud", default=2000000, type=int,
-                           help="Baud rate")
-    argparser.add_argument("-i", "--interval", default=0.02, type=float,
-                           help="Fade-out interval for events")
-    argparser.add_argument("-s", "--scaleup", default=4, type=int,
-                           help="Scale-up factor")
+    argparser.add_argument('-p', '--port', default='/dev/ttyUSB0',
+                           help='Port (/dev/ttyUSB0, COM5, etc.')
+    argparser.add_argument('-b', '--baud', default=2000000, type=int,
+                           help='Baud rate')
+    argparser.add_argument('-i', '--interval', default=0.02, type=float,
+                           help='Fade-out interval for events')
+    argparser.add_argument('-c', '--color', action='store_true',
+                           help='Display in color')
+    argparser.add_argument('-s', '--scaleup', default=4, type=int,
+                           help='Scale-up factor')
 
     args = argparser.parse_args()
 
@@ -56,7 +58,7 @@ def main():
         # Get events from DVS
         while edvs.hasNext():
             x, y, p = edvs.next()
-            image[x, y] = (0, 255, 0) if p == -1 else (0, 0, 255)
+            image[x, y] = ((0, 255, 0) if p == -1 else (0, 0, 255)) if args.color else (255, 255, 255)
             counts[x, y] = 1
 
         # Zero out events older than a certain time before now

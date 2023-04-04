@@ -16,7 +16,6 @@ class EdvsJpeg {
     private:
 
         static const uint32_t IMGSIZE = 128;
-        static const uint32_t FPS = 30;
         static const uint8_t NEGATIVE_EVENT_GRAYSCALE = 100;
         static const uint8_t POSITIVE_EVENT_GRAYSCALE = 200;
 
@@ -81,13 +80,14 @@ class EdvsJpeg {
 
         static void step(
                 EDVS & edvs,
-                int32_t (*writefun)(JPEGFILE *p, uint8_t *buffer, int32_t length)) 
+                int32_t (*writefun)(JPEGFILE *p, uint8_t *buffer, int32_t length),
+                const uint32_t fps = 30) 
         {
             static uint32_t usec_prev;
 
             auto usec = micros();
 
-            if (usec - usec_prev > 1000000/FPS) {
+            if (usec - usec_prev > 1000000/fps) {
 
                 uint8_t pixels[IMGSIZE*IMGSIZE];
 
