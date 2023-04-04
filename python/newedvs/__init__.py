@@ -47,6 +47,7 @@ class EDVS:
         # Every other byte represents a completed event
         x = None
         gotx = False
+        state = 0
 
         # Flag will be set on main thread when user quits
         while not self.done:
@@ -61,7 +62,8 @@ class EDVS:
             f = b >> 7
 
             # Second byte; record event
-            if gotx:
+            if state == 1:
+                state = 0
                 y = v
                 p = 2*f-1  # Convert event polarity from 0,1 to -1,+1
                 self.queue[self.qpos] = (x, y, p)
@@ -69,9 +71,8 @@ class EDVS:
 
             # First byte; store X
             else:
+                state = 1
                 x = v
-
-            gotx = not gotx
 
     def hasNext(self):
 
