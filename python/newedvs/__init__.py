@@ -71,7 +71,7 @@ class EDVS:
 
             # Correct for misaligned bytes
             if f == 0 and not gotx:
-                gotx = not gotx
+                gotx = True
 
             # Second byte; record event
             if gotx:
