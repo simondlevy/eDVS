@@ -14,7 +14,7 @@ class EDVS:
 
     QSIZE = 1000
 
-    def __init__(self, port, baudrate=12000000):
+    def __init__(self, port, baudrate=12000000, use_filter=False):
         '''
         Creates an EDVS object.
         params:
