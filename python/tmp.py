@@ -42,7 +42,8 @@ def main():
         # Get events from DVS
         while edvs.hasNext():
             x, y, p = edvs.next()
-            image[x, y] = (255, 255, 255)
+            # image[x, y] = (255, 255, 255)
+            image[x, y] = (0, 0, 255) if p == -1 else (0, 255, 0)
             counts[x, y] = 1
 
         # Zero out events older than a certain time before now

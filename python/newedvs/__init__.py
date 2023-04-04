@@ -29,6 +29,10 @@ class EDVS:
 
         self.done = False
 
+    def byte2event(self, b):
+
+        return b & 0b01111111, 2 * (b >> 7) - 1
+
     def start(self):
         '''
         Initiates communication with the EDVS.
@@ -55,17 +59,12 @@ class EDVS:
             # Read a byte from the sensor
             b = ord(self.port.read())
 
-            # Value is in rightmost seven bits
-            v = b & 0b01111111
-
-            # Isolate first bit
-            f = b >> 7
+            v, p = self.byte2event(b)
 
             # Second byte; record event
             if state == 1:
                 state = 0
                 y = v
-                p = 2*f-1  # Convert event polarity from 0,1 to -1,+1
                 self.queue[self.qpos] = (x, y, p)
                 self._advance()
 
