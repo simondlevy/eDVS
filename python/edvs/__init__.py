@@ -30,6 +30,9 @@ class EDVS:
 
         self.done = False
 
+        self.use_filter = use_filter
+        self.use_timestamp = use_timestamp
+
     def start(self):
         '''
         Initiates communication with the EDVS.
@@ -41,8 +44,8 @@ class EDVS:
         # Enable event sending
         self._send('E+')
 
-        # Use two-byte event format
-        self._send('!E0')
+        # Specify event format (no timestamp or 32-bit timestamp)
+        self._send('!E' + ('6' if self.use_timestamp else '0'))
 
         # Every other byte represents a completed event
         x = None
