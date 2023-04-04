@@ -29,9 +29,13 @@ class EDVS:
 
         self.done = False
 
-    def byte2event(self, b):
+    def byte2coord(self, b):
 
-        return b & 0b01111111, 2 * (b >> 7) - 1
+        return b & 0b01111111
+
+    def byte2polarity(self, b):
+
+        return 2 * (b >> 7) - 1
 
     def start(self):
         '''
@@ -51,6 +55,7 @@ class EDVS:
         # Every other byte represents a completed event
         x = None
         state = 0
+        gotx = False
 
         # Flag will be set on main thread when user quits
         while not self.done:
@@ -58,16 +63,28 @@ class EDVS:
             # Read a byte from the sensor
             b = ord(self.port.read())
 
-            if state == 0:
-                x, _ = self.byte2event(b)
-                state = 1
+            # Value is in rightmost seven bits
+            v = b & 0b01111111
+
+            # Isolate first bit
+            f = b >> 7
+
+            # Correct for misaligned bytes
+            if f == 0 and not gotx:
+                gotx = not gotx
 
             # Second byte; record event
-            elif state == 1:
-                y, p = self.byte2event(b)
+            if gotx:
+                y = v
+                p = 2*f-1  # Convert event polarity from 0,1 to -1,+1
                 self.queue[self.qpos] = (x, y, p)
                 self._advance()
-                state = 0
+
+            # First byte; store X
+            else:
+                x = v
+
+            gotx = not gotx
 
     def hasNext(self):
 
