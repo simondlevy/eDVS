@@ -55,7 +55,6 @@ class EDVS:
         # Every other byte represents a completed event
         x = None
         state = 0
-        gotx = False
 
         # Flag will be set on main thread when user quits
         while not self.done:
@@ -70,11 +69,11 @@ class EDVS:
             f = b >> 7
 
             # Correct for misaligned bytes
-            if f == 0 and not gotx:
-                gotx = True
+            if f == 0 and state == 0:
+                state = 1
 
             # Second byte; record event
-            if gotx:
+            if state == 1:
                 y = v
                 p = 2*f-1  # Convert event polarity from 0,1 to -1,+1
                 self.queue[self.qpos] = (x, y, p)
@@ -84,7 +83,7 @@ class EDVS:
             else:
                 x = v
 
-            gotx = not gotx
+            state = 0 if state == 1 else 0
 
     def hasNext(self):
 
