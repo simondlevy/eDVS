@@ -33,10 +33,6 @@ class EDVS:
 
         return b & 0b01111111
 
-    def byte2polarity(self, b):
-
-        return 2 * (b >> 7) - 1
-
     def start(self):
         '''
         Initiates communication with the EDVS.
@@ -50,7 +46,6 @@ class EDVS:
 
         # Specify event format (no timestamp or 32-bit timestamp)
         self._send('!E4')
-        # self._send('!E0')
 
         # Every other byte represents a completed event
         x = None
@@ -62,25 +57,22 @@ class EDVS:
             # Read a byte from the sensor
             b = ord(self.port.read())
 
-            # Value is in rightmost seven bits
-            v = b & 0b01111111
-
             # Isolate first bit
-            f = b >> 7
+            b0 = b >> 7
 
             # Correct for misaligned bytes
-            if f == 0 and state == 0:
+            if b0 == 0 and state == 0:
                 state = 1
 
             # First byte; store X
             if state == 0:
-                x = v
+                x = self.byte2coord(b)
                 state = 1
 
             # Second byte; record event
             elif state == 1:
-                y = v
-                p = 2*f-1  # Convert event polarity from 0,1 to -1,+1
+                y = self.byte2coord(b)
+                p = 2 * b0 - 1  # Convert event polarity from 0,1 to -1,+1
                 self.queue[self.qpos] = (x, y, p)
                 self._advance()
                 state = 2
