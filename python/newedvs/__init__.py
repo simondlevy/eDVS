@@ -72,13 +72,15 @@ class EDVS:
             # Second byte; record event
             elif state == 1:
                 y = self.byte2coord(b)
-                p = 2 * b0 - 1  # Convert event polarity from 0,1 to -1,+1
-                self.queue[self.qpos] = (x, y, p)
-                self._advance()
                 state = 2
 
             else:
                 state = (state + 1) % 6
+                if state == 0:
+                    p = 2 * b0 - 1  # Convert event polarity from 0,1 to -1,+1
+                    self.queue[self.qpos] = (x, y, p)
+                    self._advance()
+
 
     def hasNext(self):
 
