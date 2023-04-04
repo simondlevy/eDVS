@@ -49,8 +49,8 @@ class EDVS:
         self._send('E+')
 
         # Specify event format (no timestamp or 32-bit timestamp)
-        # self._send('!E6')
-        self._send('!E0')
+        self._send('!E4')
+        # self._send('!E0')
 
         # Every other byte represents a completed event
         x = None
@@ -83,7 +83,10 @@ class EDVS:
                 p = 2*f-1  # Convert event polarity from 0,1 to -1,+1
                 self.queue[self.qpos] = (x, y, p)
                 self._advance()
-                state = 0
+                state = 2
+
+            else:
+                state = (state + 1) % 6
 
     def hasNext(self):
 
