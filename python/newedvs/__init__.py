@@ -72,18 +72,18 @@ class EDVS:
             if f == 0 and state == 0:
                 state = 1
 
+            # First byte; store X
+            if state == 0:
+                x = v
+                state = 1
+
             # Second byte; record event
-            if state == 1:
+            elif state == 1:
                 y = v
                 p = 2*f-1  # Convert event polarity from 0,1 to -1,+1
                 self.queue[self.qpos] = (x, y, p)
                 self._advance()
-
-            # First byte; store X
-            else:
-                x = v
-
-            state = 0 if state == 1 else 0
+                state = 0
 
     def hasNext(self):
 
