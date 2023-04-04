@@ -50,7 +50,6 @@ class EDVS:
 
         # Every other byte represents a completed event
         x = None
-        gotx = False
         state = 0
 
         # Flag will be set on main thread when user quits
@@ -59,19 +58,16 @@ class EDVS:
             # Read a byte from the sensor
             b = ord(self.port.read())
 
-            v, p = self.byte2event(b)
+            if state == 0:
+                x, _ = self.byte2event(b)
+                state = 1
 
             # Second byte; record event
-            if state == 1:
-                state = 0
-                y = v
+            elif state == 1:
+                y, p = self.byte2event(b)
                 self.queue[self.qpos] = (x, y, p)
                 self._advance()
-
-            # First byte; store X
-            else:
-                state = 1
-                x = v
+                state = 0
 
     def hasNext(self):
 
