@@ -57,7 +57,7 @@ def main():
 
                     cv2.imshow(args.filename, bigimage)
 
-                    image = np.zeros((128, 128))
+                    image = np.zeros(image.shape)
 
                     if cv2.waitKey(1) == 27:
                         break
