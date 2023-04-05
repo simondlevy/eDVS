@@ -2,7 +2,7 @@
 DVS event filtersing
 
 Adapted from Java code in
-  https://github.com/SensorsINI/jaer/tree/master/src/net/sf/jaer/eventprocessing/filter
+  https:#github.com/SensorsINI/jaer/tree/master/src/net/sf/jaer/eventprocessing/filter
 
 Copyright (C) 2023 Simon D. Levy
 
@@ -13,9 +13,15 @@ import numpy as np
 
 class SpatioTemporalCorrelationFilter:
 
-    def __init__(self):
+    DEFAULT_TIMESTAMP = 0
+
+    def __init__(self, subsample_by=1):
+
+        self.subsample_by = subsample_by
 
         self.total_event_count = 0
+
+        self.timestamp_image = np.zeros((128,128))
 
     def step(self, e):
 
@@ -23,12 +29,11 @@ class SpatioTemporalCorrelationFilter:
 
         ts = e.timestamp
 
+        # subsampling address
+        x = e.x >> self.subsample_by
+        y = e.y >> self.subsample_by
+
 '''
-    final int x = (e.x >> subsampleBy), y = (e.y >> subsampleBy); // subsampling address
-    if ((x < 0) || (x > ssx) || (y < 0) || (y > ssy)) { // out of bounds, discard (maybe bad USB or something)
-        filterOut(e);
-        continue;
-    }
     if (timestampImage[x][y] == DEFAULT_TIMESTAMP) {
         timestampImage[x][y] = ts;
         if (letFirstEventThrough) {
@@ -40,7 +45,7 @@ class SpatioTemporalCorrelationFilter:
         }
     }
 
-    // finally the real denoising starts here
+    # finally the real denoising starts here
     int ncorrelated = 0;
     nnbRange.compute(x, y, ssx, ssy);
     outerloop:
@@ -48,15 +53,15 @@ class SpatioTemporalCorrelationFilter:
         final int[] col = timestampImage[xx];
         for (int yy = nnbRange.y0; yy <= nnbRange.y1; yy++) {
             if (fhp && xx == x && yy == y) {
-                continue; // like BAF, don't correlate with ourself
+                continue; # like BAF, don't correlate with ourself
             }
             final int lastT = col[yy];
-            final int deltaT = (ts - lastT); // note deltaT will be very negative for DEFAULT_TIMESTAMP because of overflow
+            final int deltaT = (ts - lastT); # note deltaT will be very negative for DEFAULT_TIMESTAMP because of overflow
 
-            if (deltaT < dt && lastT != DEFAULT_TIMESTAMP) { // ignore correlations for DEFAULT_TIMESTAMP that are neighbors which never got event so far
+            if (deltaT < dt && lastT != DEFAULT_TIMESTAMP) { # ignore correlations for DEFAULT_TIMESTAMP that are neighbors which never got event so far
                 ncorrelated++;
                 if (ncorrelated >= numMustBeCorrelated) {
-                    break outerloop; // csn stop checking now
+                    break outerloop; # csn stop checking now
                 }
             }
         }
