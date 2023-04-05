@@ -10,6 +10,7 @@ MIT License
 from dv import AedatFile
 import numpy as np
 import argparse
+import cv2
 
 
 def main():
@@ -21,13 +22,20 @@ def main():
 
     args = argparser.parse_args()
 
+    image = np.zeros((128, 128))
+
     with AedatFile(args.filename) as f:
 
         try:
 
             for e in f['events']:
 
-                print(e)
+                image[e.y, e.x] = 255
+
+                cv2.imshow(args.filename, image)
+
+                if cv2.waitKey(1) == 27:
+                    break
 
         except KeyboardInterrupt:
 
