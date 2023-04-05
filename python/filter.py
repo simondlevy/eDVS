@@ -45,7 +45,8 @@ def main():
 
                     time_prev = time()
 
-                    bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
+                    bigimage = cv2.resize(image,
+                                          (128*args.scaleup, 128*args.scaleup))
 
                     cv2.imshow(args.filename, bigimage)
 
@@ -58,5 +59,5 @@ def main():
 
             exit(0)
 
-main()
 
+main()
