@@ -34,14 +34,14 @@ def main():
     argparser.add_argument('-s', '--scaleup', default=2, type=int,
                            help='Scale-up factor')
 
-    argparser.add_argument('-e', '--event-format', default='0',
-                           choices=['0', '1', '2', '3', '4'],
+    argparser.add_argument('-e', '--event-format', type=int, default=0,
+                           choices=[0, 1, 2, 3, 4],
                            help='Event format')
 
     args = argparser.parse_args()
 
     # Connect to sensor
-    edvs = EDVS(args.port, args.baud)
+    edvs = EDVS(args.port, args.baud, event_format=args.event_format)
 
     # Display firmware version
     print(edvs.version())
