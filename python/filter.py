@@ -7,7 +7,7 @@ Copyright (C) 2023 Simon D. Levy
 MIT License
 '''
 
-import dv
+from dv import AedatFile
 import numpy as np
 import argparse
 
@@ -20,6 +20,9 @@ def main():
     argparser.add_argument('filename')
 
     args = argparser.parse_args()
+
+    with AedatFile(args.filename) as f:
+        print('loaded!')
 
 main()
 
