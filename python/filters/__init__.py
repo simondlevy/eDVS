@@ -11,15 +11,46 @@ MIT License
 
 import numpy as np
 
+class _NnbRange:
+
+    def __init__(self):
+
+        self.x0 = 0
+        self.x1 = 0
+        self.y0 = 0
+        self.y1 = 0
+
+    def compute(self, x,  y,  ssx,  ssy, sigma_dist_pixels):
+
+        d = sigma_dist_pixels
+
+        self.x0 = 0 if x < d else x - d
+        self.y0 = 0 if y < d else y - d
+        self.x1 = ssx - d if x >= (ssx - d) else x + d
+        self.y1 = ssy - d if y >= (ssy - d) else y + d
+
+
 class SpatioTemporalCorrelationFilter:
 
     DEFAULT_TIMESTAMP = 0
 
-    def __init__(self, subsample_by=1, let_first_event_through=True):
+    def __init__(
+            self, 
+            size_x=128,
+            size_y=128,
+            subsample_by=1,
+            sigma_dist_pixels=1,
+            let_first_event_through=True):
+
+        self.sxm1 = size_x - 1
+        self.sym1 = size_y - 1
+
+        self.ssx = self.sxm1 >> subsample_by
+        self.ssy = self.sym1 >> subsample_by
 
         self.subsample_by = subsample_by
-
         self.let_first_event_through = let_first_event_through
+        self.sigma_dist_pixels = sigma_dist_pixels
 
         self.total_event_count = 0
 
@@ -35,51 +66,42 @@ class SpatioTemporalCorrelationFilter:
         x = e.x >> self.subsample_by
         y = e.y >> self.subsample_by
 
+        # special handling for first event
         if self.timestamp_image[x][y] == self.DEFAULT_TIMESTAMP:
-
             self.timestamp_image[x][y] = ts
-
             if self.total_event_count == 1:
-
                 return self.let_first_event_through
 
+        # ly the real denoising starts here
+
+        ncorrelated = 0
+       
+        nnb_range = _NnbRange()
+        nnb_range.compute(x, y, self.ssx, self.ssy, self.sigma_dist_pixels)
+        
 
 '''
-    if (self.timestamp_image[x][y] == DEFAULT_TIMESTAMP) {
-        self.timestamp_image[x][y] = ts;
-        if (letFirstEventThrough) {
-            filterIn(e);
-            continue;
-        } else {
-            filterOut(e);
-            continue;
-        }
-    }
+        outerloop:
+        for (int xx = nnbRange.x0 xx <= nnbRange.x1 xx++) {
+             int[] col = self.timestamp_image[xx]
+            for (int yy = nnbRange.y0 yy <= nnbRange.y1 yy++) {
+                if (fhp && xx == x && yy == y) {
+                    continue # like BAF, don't correlate with ourself
+                }
+                 int lastT = col[yy]
+                 int deltaT = (ts - lastT) # note deltaT will be very negative for DEFAULT_TIMESTAMP because of overflow
 
-    # finally the real denoising starts here
-    int ncorrelated = 0;
-    nnbRange.compute(x, y, ssx, ssy);
-    outerloop:
-    for (int xx = nnbRange.x0; xx <= nnbRange.x1; xx++) {
-        final int[] col = self.timestamp_image[xx];
-        for (int yy = nnbRange.y0; yy <= nnbRange.y1; yy++) {
-            if (fhp && xx == x && yy == y) {
-                continue; # like BAF, don't correlate with ourself
-            }
-            final int lastT = col[yy];
-            final int deltaT = (ts - lastT); # note deltaT will be very negative for DEFAULT_TIMESTAMP because of overflow
-
-            if (deltaT < dt && lastT != DEFAULT_TIMESTAMP) { # ignore correlations for DEFAULT_TIMESTAMP that are neighbors which never got event so far
-                ncorrelated++;
-                if (ncorrelated >= numMustBeCorrelated) {
-                    break outerloop; # csn stop checking now
+                if (deltaT < dt && lastT != DEFAULT_TIMESTAMP) { # ignore correlations for DEFAULT_TIMESTAMP that are neighbors which never got event so far
+                    ncorrelated++
+                    if (ncorrelated >= numMustBeCorrelated) {
+                        break outerloop # csn stop checking now
+                    }
                 }
             }
         }
-    }
-    if (ncorrelated < numMustBeCorrelated) {
-        filterOut(e);
-    } else {
-        filterIn(e);
-    }
+        if (ncorrelated < numMustBeCorrelated) {
+            filterOut(e)
+        } else {
+            filterIn(e)
+        }
 '''
