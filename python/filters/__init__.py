@@ -98,8 +98,8 @@ class SpatioTemporalCorrelationFilter:
 
                 last_t = col[yy]
 
-                # deltaT will be very negative for DEFAULT_TIMESTAMP because of overflow
-                deltaT = ts - last_t
+                # delta_t will be very negative for DEFAULT_TIMESTAMP because of overflow
+                delta_t = ts - last_t
 '''
         outerloop:
         for (int xx = nnbRange.x0 xx <= nnbRange.x1 xx++) {
@@ -109,9 +109,9 @@ class SpatioTemporalCorrelationFilter:
                     continue # like BAF, don't correlate with ourself
                 }
                  int last_t = col[yy]
-                 int deltaT = (ts - last_t) # note deltaT will be very negative for DEFAULT_TIMESTAMP because of overflow
+                 int delta_t = (ts - last_t) # note delta_t will be very negative for DEFAULT_TIMESTAMP because of overflow
 
-                if (deltaT < dt && last_t != DEFAULT_TIMESTAMP) { # ignore correlations for DEFAULT_TIMESTAMP that are neighbors which never got event so far
+                if (delta_t < dt && last_t != DEFAULT_TIMESTAMP) { # ignore correlations for DEFAULT_TIMESTAMP that are neighbors which never got event so far
                     ncorrelated++
                     if (ncorrelated >= numMustBeCorrelated) {
                         break outerloop # csn stop checking now
