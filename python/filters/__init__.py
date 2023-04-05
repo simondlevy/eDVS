@@ -15,12 +15,15 @@ class SpatioTemporalCorrelationFilter:
 
     def __init__(self):
 
-        pass
+        self.total_event_count = 0
 
+    def step(self, e):
+
+        self.total_event_count += 1
+
+        ts = e.timestamp
 
 '''
-    totalEventCount++;
-    int ts = e.timestamp;
     final int x = (e.x >> subsampleBy), y = (e.y >> subsampleBy); // subsampling address
     if ((x < 0) || (x > ssx) || (y < 0) || (y > ssy)) { // out of bounds, discard (maybe bad USB or something)
         filterOut(e);

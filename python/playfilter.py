@@ -35,11 +35,15 @@ def main():
 
     time_prev = 0
 
+    stcf = SpatioTemporalCorrelationFilter()
+
     with AedatFile(args.filename) as f:
 
         try:
 
             for e in f['events']:
+
+                stcf.step(e)
 
                 image[e.y, e.x] = 255
 
