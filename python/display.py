@@ -21,14 +21,22 @@ def main():
 
     argparser.add_argument('-p', '--port', default='/dev/ttyUSB0',
                            help='Port (/dev/ttyUSB0, COM5, etc.')
+
     argparser.add_argument('-b', '--baud', default=2000000, type=int,
                            help='Baud rate')
+
     argparser.add_argument('-i', '--interval', default=0.02, type=float,
                            help='Fade-out interval for events')
+
     argparser.add_argument('-c', '--color', action='store_true',
                            help='Display in color')
+
     argparser.add_argument('-s', '--scaleup', default=2, type=int,
                            help='Scale-up factor')
+
+    argparser.add_argument('-e', '--event-format', default='0',
+                           choices=['0', '1', '2', '3', '4'],
+                           help='Event format')
 
     args = argparser.parse_args()
 
