@@ -23,6 +23,8 @@ class EDVS:
 
         self.port = serial.Serial(port=port, baudrate=baudrate)
 
+        self.event_format = event_format
+
         # Circular event queue
         self.queue = [None] * self.QSIZE
         self.qpos = 0
@@ -44,8 +46,8 @@ class EDVS:
         # Enable event sending
         self._send('E+')
 
-        # Specify event format (no timestamp or 32-bit timestamp)
-        self._send('!E4')
+        # Specify event format 
+        self._send('!E%d' % (self.event_format))
 
         # We need an initial X coordinate to kick things off
         x = 0
