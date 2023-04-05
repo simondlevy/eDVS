@@ -35,7 +35,7 @@ def main():
                            help='Scale-up factor')
 
     argparser.add_argument('-e', '--event-format', type=int, default=4,
-                           choices=(0, 1, 2, 3, 4),
+                           choices=(0, 2, 3, 4),
                            help='Event format')
 
     args = argparser.parse_args()

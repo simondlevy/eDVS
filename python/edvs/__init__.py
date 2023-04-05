@@ -77,11 +77,19 @@ class EDVS:
             elif state == 1:
                 y = self.byte2coord(b)
                 t = 0
-                state = 2
+
+                if self.event_format == 0:
+                    p = 2 * b0 - 1  # Convert event polarity from 0,1 to -1,+1
+                    self.queue[self.qpos] = (x, y, p)
+                    self._advance()
+                    state = 0
+                else:
+                    state = 2
+
 
             else:
                 t = (t << 8) | b
-                state = (state + 1) % 6
+                state = (state + 1) % (self.event_format + 2)
                 if state == 0:
                     p = 2 * b0 - 1  # Convert event polarity from 0,1 to -1,+1
                     self.queue[self.qpos] = (x, y, p)
