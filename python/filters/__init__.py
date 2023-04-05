@@ -15,9 +15,11 @@ class SpatioTemporalCorrelationFilter:
 
     DEFAULT_TIMESTAMP = 0
 
-    def __init__(self, subsample_by=1):
+    def __init__(self, subsample_by=1, let_first_event_through=True):
 
         self.subsample_by = subsample_by
+
+        self.let_first_event_through = let_first_event_through
 
         self.total_event_count = 0
 
@@ -33,9 +35,18 @@ class SpatioTemporalCorrelationFilter:
         x = e.x >> self.subsample_by
         y = e.y >> self.subsample_by
 
+        if self.timestamp_image[x][y] == self.DEFAULT_TIMESTAMP:
+
+            self.timestamp_image[x][y] = ts
+
+            if self.total_event_count == 1:
+
+                return self.let_first_event_through
+
+
 '''
-    if (timestampImage[x][y] == DEFAULT_TIMESTAMP) {
-        timestampImage[x][y] = ts;
+    if (self.timestamp_image[x][y] == DEFAULT_TIMESTAMP) {
+        self.timestamp_image[x][y] = ts;
         if (letFirstEventThrough) {
             filterIn(e);
             continue;
@@ -50,7 +61,7 @@ class SpatioTemporalCorrelationFilter:
     nnbRange.compute(x, y, ssx, ssy);
     outerloop:
     for (int xx = nnbRange.x0; xx <= nnbRange.x1; xx++) {
-        final int[] col = timestampImage[xx];
+        final int[] col = self.timestamp_image[xx];
         for (int yy = nnbRange.y0; yy <= nnbRange.y1; yy++) {
             if (fhp && xx == x && yy == y) {
                 continue; # like BAF, don't correlate with ourself
