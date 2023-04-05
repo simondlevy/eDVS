@@ -12,6 +12,7 @@ import numpy as np
 import argparse
 import cv2
 
+SCALEUP = 2
 
 def main():
 
@@ -32,7 +33,9 @@ def main():
 
                 image[e.y, e.x] = 255
 
-                cv2.imshow(args.filename, image)
+                bigimage = cv2.resize(image, (128*SCALEUP, 128*SCALEUP))
+
+                cv2.imshow(args.filename, bigimage)
 
                 if cv2.waitKey(1) == 27:
                     break
