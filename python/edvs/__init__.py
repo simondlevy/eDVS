@@ -31,9 +31,14 @@ class EDVS:
 
         self.done = False
 
-    def byte2coord(self, b):
+    def _byte2coord(self, b):
 
         return b & 0b01111111
+
+    def _enqueue(self, b0, x, y):
+        p = 2 * b0 - 1  # Convert event polarity from 0,1 to -1,+1
+        self.queue[self.qpos] = (x, y, p)
+        self._advance()
 
     def start(self):
         '''
@@ -70,18 +75,16 @@ class EDVS:
 
             # First byte; store X
             if state == 0:
-                x = self.byte2coord(b)
+                x = self._byte2coord(b)
                 state = 1
 
             # Second byte; record event
             elif state == 1:
-                y = self.byte2coord(b)
+                y = self._byte2coord(b)
                 t = 0
 
                 if self.event_format == 0:
-                    p = 2 * b0 - 1  # Convert event polarity from 0,1 to -1,+1
-                    self.queue[self.qpos] = (x, y, p)
-                    self._advance()
+                    self._enqueue(b0, x, y)
                     state = 0
                 else:
                     state = 2
@@ -91,9 +94,7 @@ class EDVS:
                 t = (t << 8) | b
                 state = (state + 1) % (self.event_format + 2)
                 if state == 0:
-                    p = 2 * b0 - 1  # Convert event polarity from 0,1 to -1,+1
-                    self.queue[self.qpos] = (x, y, p)
-                    self._advance()
+                    self._enqueue(b0, x, y)
 
 
     def hasNext(self):
