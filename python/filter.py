@@ -11,8 +11,10 @@ from dv import AedatFile
 import numpy as np
 import argparse
 import cv2
+from time import time
 
 SCALEUP = 2
+
 
 def main():
 
@@ -25,6 +27,8 @@ def main():
 
     image = np.zeros((128, 128))
 
+    prev = 0
+
     with AedatFile(args.filename) as f:
 
         try:
@@ -33,12 +37,18 @@ def main():
 
                 image[e.y, e.x] = 255
 
-                bigimage = cv2.resize(image, (128*SCALEUP, 128*SCALEUP))
+                if time() - prev > .033:
 
-                cv2.imshow(args.filename, bigimage)
+                    prev = time()
 
-                if cv2.waitKey(1) == 27:
-                    break
+                    bigimage = cv2.resize(image, (128*SCALEUP, 128*SCALEUP))
+
+                    cv2.imshow(args.filename, bigimage)
+
+                    image = np.zeros((128, 128))
+
+                    if cv2.waitKey(1) == 27:
+                        break
 
         except KeyboardInterrupt:
 
