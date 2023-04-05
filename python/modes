@@ -1,5 +1,0 @@
- !E0   - 2 bytes per event, binary 1YYYYYYY.pXXXXXXX (no time stamp!)
- !E1   - ? bytes per event (as E0, followed by delta time stamp)
- !E2   - 4 bytes per event (as E0, followed by 16bit time stamp)
- !E3   - 5 bytes per event (as E0, followed by 24bit time stamp)
- !E4   - 6 bytes per event (as E0, followed by 32bit time stamp)
