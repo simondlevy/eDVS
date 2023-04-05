@@ -22,7 +22,16 @@ def main():
     args = argparser.parse_args()
 
     with AedatFile(args.filename) as f:
-        print('loaded!')
+
+        try:
+
+            for e in f['events']:
+
+                print(e)
+
+        except KeyboardInterrupt:
+
+            exit(0)
 
 main()
 
