@@ -38,6 +38,7 @@ class SpatioTemporalCorrelationFilter:
             self, 
             size_x=128,
             size_y=128,
+            filter_hot_pixels=True,
             subsample_by=1,
             sigma_dist_pixels=1,
             let_first_event_through=True):
@@ -48,6 +49,7 @@ class SpatioTemporalCorrelationFilter:
         self.ssx = self.sxm1 >> subsample_by
         self.ssy = self.sym1 >> subsample_by
 
+        self.fhp = filter_hot_pixels
         self.subsample_by = subsample_by
         self.let_first_event_through = let_first_event_through
         self.sigma_dist_pixels = sigma_dist_pixels
@@ -89,7 +91,10 @@ class SpatioTemporalCorrelationFilter:
 
             col = self.timestamp_image[xx]
 
-            print(col.shape)
+            for yy in range(nnb_range.y0, nnb_range.y1 + 1):
+
+                if self.fhp and xx == x and yy == y:
+                    continue # like BAF, don't correlate with ourself
 
 '''
         outerloop:
