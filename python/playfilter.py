@@ -15,11 +15,6 @@ from time import time
 
 from filters import SpatioTemporalCorrelationFilter
 
-def new_image():
-    image = np.zeros((128, 256))
-    image[:,127] = 255
-    return image
-
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -35,7 +30,7 @@ def main():
 
     args = argparser.parse_args()
 
-    image = new_image()
+    image = np.zeros((128, 256))
 
     time_prev = 0
 
@@ -59,10 +54,11 @@ def main():
                                           (image.shape[1]*args.scaleup,
                                            image.shape[0]*args.scaleup))
 
-                    cv2.imshow(args.filename, bigimage)
-                    # cv2.imshow(args.filename, image)
+                    bigimage[:,128*args.scaleup] = 255
 
-                    image = new_image()
+                    cv2.imshow(args.filename, bigimage)
+
+                    image = np.zeros((128, 256))
 
                     if cv2.waitKey(1) == 27:
                         break
