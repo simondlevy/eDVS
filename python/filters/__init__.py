@@ -41,10 +41,13 @@ class SpatioTemporalCorrelationFilter:
             filter_hot_pixels=True,
             subsample_by=1,
             sigma_dist_pixels=1,
+            correlation_time_s=25e-3,
             let_first_event_through=True):
 
         self.sxm1 = size_x - 1
         self.sym1 = size_y - 1
+
+        self.dt = int(correlation_time_s * 1e6)
 
         self.ssx = self.sxm1 >> subsample_by
         self.ssy = self.sym1 >> subsample_by
@@ -100,6 +103,12 @@ class SpatioTemporalCorrelationFilter:
 
                 # delta_t will be very negative for DEFAULT_TIMESTAMP because of overflow
                 delta_t = ts - last_t
+
+                # ignore correlations for DEFAULT_TIMESTAMP that are neighbors
+                # which never got event so far
+                if delta_t < self.dt and last_t != self.DEFAULT_TIMESTAMP:
+
+                    ncorrelated += 1
 '''
         outerloop:
         for (int xx = nnbRange.x0 xx <= nnbRange.x1 xx++) {
