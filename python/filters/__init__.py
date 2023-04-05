@@ -85,11 +85,11 @@ class SpatioTemporalCorrelationFilter:
         nnb_range.compute(x, y, self.ssx, self.ssy, self.sigma_dist_pixels)
         
 
-        breakouter = False
+        break_outer_loop = False
 
         for xx in range(nnb_range.x0, nnb_range.x1 + 1):
 
-            if breakouter:
+            if break_outer_loop:
                 break
 
             col = self.timestamp_image[xx]
@@ -109,18 +109,22 @@ class SpatioTemporalCorrelationFilter:
                 if delta_t < self.dt and last_t != self.DEFAULT_TIMESTAMP:
 
                     ncorrelated += 1
+
+                    #if ncorrelated >= numMustBeCorrelated:
+                    #    break_outer_loop = True # csn stop checking now
+                    #    break
 '''
         outerloop:
         for (int xx = nnbRange.x0 xx <= nnbRange.x1 xx++) {
              int[] col = self.timestamp_image[xx]
             for (int yy = nnbRange.y0 yy <= nnbRange.y1 yy++) {
                 if (fhp && xx == x && yy == y) {
-                    continue # like BAF, don't correlate with ourself
+                    continue 
                 }
                  int last_t = col[yy]
-                 int delta_t = (ts - last_t) # note delta_t will be very negative for DEFAULT_TIMESTAMP because of overflow
+                 int delta_t = (ts - last_t) 
 
-                if (delta_t < dt && last_t != DEFAULT_TIMESTAMP) { # ignore correlations for DEFAULT_TIMESTAMP that are neighbors which never got event so far
+                if (delta_t < dt && last_t != DEFAULT_TIMESTAMP) { 
                     ncorrelated++
                     if (ncorrelated >= numMustBeCorrelated) {
                         break outerloop # csn stop checking now
@@ -128,6 +132,7 @@ class SpatioTemporalCorrelationFilter:
                 }
             }
         }
+
         if (ncorrelated < numMustBeCorrelated) {
             filterOut(e)
         } else {
