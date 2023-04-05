@@ -13,8 +13,6 @@ import argparse
 import cv2
 from time import time
 
-SCALEUP = 2
-
 
 def main():
 
@@ -23,11 +21,17 @@ def main():
 
     argparser.add_argument('filename')
 
+    argparser.add_argument('-s', '--scaleup', type=int, default=2,
+                           help='Scale-up factor for display')
+
+    argparser.add_argument('-f', '--fps', type=int, default=30,
+                           help='Frames Per Second for display')
+
     args = argparser.parse_args()
 
     image = np.zeros((128, 128))
 
-    prev = 0
+    time_prev = 0
 
     with AedatFile(args.filename) as f:
 
@@ -37,11 +41,11 @@ def main():
 
                 image[e.y, e.x] = 255
 
-                if time() - prev > .033:
+                if time() - time_prev > 1./args.fps:
 
-                    prev = time()
+                    time_prev = time()
 
-                    bigimage = cv2.resize(image, (128*SCALEUP, 128*SCALEUP))
+                    bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
 
                     cv2.imshow(args.filename, bigimage)
 
