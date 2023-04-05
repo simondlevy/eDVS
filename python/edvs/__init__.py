@@ -14,8 +14,7 @@ class EDVS:
 
     QSIZE = 1000
 
-    def __init__(self, port,
-                 baudrate=12000000, use_filter=False, use_timestamp=False):
+    def __init__(self, port, baudrate=12000000):
         '''
         Creates an EDVS object.
         params:
@@ -30,8 +29,9 @@ class EDVS:
 
         self.done = False
 
-        self.use_filter = use_filter
-        self.use_timestamp = use_timestamp
+    def byte2coord(self, b):
+
+        return b & 0b01111111
 
     def start(self):
         '''
@@ -45,11 +45,13 @@ class EDVS:
         self._send('E+')
 
         # Specify event format (no timestamp or 32-bit timestamp)
-        self._send('!E' + ('6' if self.use_timestamp else '0'))
+        self._send('!E4')
 
-        # Every other byte represents a completed event
-        x = None
-        gotx = False
+        # We need an initial X coordinate to kick things off
+        x = 0
+
+        # We run a finite-state machine to parse the incoming bytes
+        state = 0
 
         # Flag will be set on main thread when user quits
         while not self.done:
@@ -57,28 +59,32 @@ class EDVS:
             # Read a byte from the sensor
             b = ord(self.port.read())
 
-            # Value is in rightmost seven bits
-            v = b & 0b01111111
-
             # Isolate first bit
-            f = b >> 7
+            b0 = b >> 7
 
             # Correct for misaligned bytes
-            if f == 0 and not gotx:
-                gotx = True
-
-            # Second byte; record event
-            if gotx:
-                y = v
-                p = 2*f-1  # Convert event polarity from 0,1 to -1,+1
-                self.queue[self.qpos] = (x, y, p)
-                self._advance()
+            if b0 == 0 and state == 0:
+                state = 1
 
             # First byte; store X
-            else:
-                x = v
+            if state == 0:
+                x = self.byte2coord(b)
+                state = 1
 
-            gotx = not gotx
+            # Second byte; record event
+            elif state == 1:
+                y = self.byte2coord(b)
+                t = 0
+                state = 2
+
+            else:
+                t = (t << 8) | b
+                state = (state + 1) % 6
+                if state == 0:
+                    p = 2 * b0 - 1  # Convert event polarity from 0,1 to -1,+1
+                    self.queue[self.qpos] = (x, y, p)
+                    self._advance()
+
 
     def hasNext(self):
 

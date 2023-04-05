@@ -27,18 +27,13 @@ def main():
                            help='Fade-out interval for events')
     argparser.add_argument('-c', '--color', action='store_true',
                            help='Display in color')
-    argparser.add_argument('-t', '--timestamp', action='store_true',
-                           help='Use timestamp')
-    argparser.add_argument('-f', '--filter', action='store_true',
-                           help='Run filter')
     argparser.add_argument('-s', '--scaleup', default=2, type=int,
                            help='Scale-up factor')
 
     args = argparser.parse_args()
 
     # Connect to sensor
-    edvs = EDVS(args.port, args.baud,
-                use_filter=args.filter, use_timestamp=args.timestamp)
+    edvs = EDVS(args.port, args.baud)
 
     # Display firmware version
     print(edvs.version())
