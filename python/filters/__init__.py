@@ -72,13 +72,24 @@ class SpatioTemporalCorrelationFilter:
             if self.total_event_count == 1:
                 return self.let_first_event_through
 
-        # ly the real denoising starts here
+        # the real denoising starts here
 
         ncorrelated = 0
        
         nnb_range = _NnbRange()
         nnb_range.compute(x, y, self.ssx, self.ssy, self.sigma_dist_pixels)
         
+
+        breakouter = False
+
+        for xx in range(nnb_range.x0, nnb_range.x1 + 1):
+
+            if breakouter:
+                break
+
+            col = self.timestamp_image[xx]
+
+            print(col.shape)
 
 '''
         outerloop:
