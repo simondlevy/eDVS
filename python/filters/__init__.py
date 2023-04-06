@@ -42,6 +42,7 @@ class SpatioTemporalCorrelationFilter:
             subsample_by=1,
             sigma_dist_pixels=1,
             correlation_time_s=25e-3,
+            num_must_be_correlated=3,
             let_first_event_through=True):
 
         self.sxm1 = size_x - 1
@@ -56,12 +57,16 @@ class SpatioTemporalCorrelationFilter:
         self.subsample_by = subsample_by
         self.let_first_event_through = let_first_event_through
         self.sigma_dist_pixels = sigma_dist_pixels
+        self.num_must_be_correlated = num_must_be_correlated
 
         self.total_event_count = 0
 
         self.timestamp_image = np.zeros((128,128))
 
-    def step(self, e):
+    def check(self, e):
+        '''
+        Return True if event e passes filter, False otherwise
+        '''
 
         self.total_event_count += 1
 
@@ -110,32 +115,8 @@ class SpatioTemporalCorrelationFilter:
 
                     ncorrelated += 1
 
-                    #if ncorrelated >= numMustBeCorrelated:
-                    #    break_outer_loop = True # csn stop checking now
-                    #    break
-'''
-        outerloop:
-        for (int xx = nnbRange.x0 xx <= nnbRange.x1 xx++) {
-             int[] col = self.timestamp_image[xx]
-            for (int yy = nnbRange.y0 yy <= nnbRange.y1 yy++) {
-                if (fhp && xx == x && yy == y) {
-                    continue 
-                }
-                 int last_t = col[yy]
-                 int delta_t = (ts - last_t) 
+                    if ncorrelated >= self.num_must_be_correlated:
+                        break_outer_loop = True # can stop checking now
+                        break
 
-                if (delta_t < dt && last_t != DEFAULT_TIMESTAMP) { 
-                    ncorrelated++
-                    if (ncorrelated >= numMustBeCorrelated) {
-                        break outerloop # csn stop checking now
-                    }
-                }
-            }
-        }
-
-        if (ncorrelated < numMustBeCorrelated) {
-            filterOut(e)
-        } else {
-            filterIn(e)
-        }
-'''
+        return ncorrelated >= self.num_must_be_correlated

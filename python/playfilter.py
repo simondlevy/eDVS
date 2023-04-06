@@ -42,7 +42,7 @@ def main():
 
             for e in f['events']:
 
-                stcf.step(e)
+                stcf.check(e)
 
                 image[e.y, e.x] = 255
 
