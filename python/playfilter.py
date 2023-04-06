@@ -15,6 +15,7 @@ from time import time
 
 from filters.dvsnoise import SpatioTemporalCorrelationFilter
 
+
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -42,10 +43,14 @@ def main():
 
             for e in f['events']:
 
-                stcf.step(e)
-
+                # Add event to unfiltered image
                 image[e.y, e.x] = 255
 
+                # Add event to filtered image if event passes the filter
+                if stcf.check(e):
+                    image[e.y, e.x + 128] = 255
+
+                # Update images periodically
                 if time() - time_prev > 1./args.fps:
 
                     time_prev = time()
@@ -54,7 +59,7 @@ def main():
                                           (image.shape[1]*args.scaleup,
                                            image.shape[0]*args.scaleup))
 
-                    bigimage[:,128*args.scaleup] = 255
+                    bigimage[:, 128*args.scaleup] = 255
 
                     cv2.imshow(args.filename, bigimage)
 

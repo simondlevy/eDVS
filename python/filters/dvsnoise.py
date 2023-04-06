@@ -11,6 +11,7 @@ MIT License
 
 import numpy as np
 
+
 class _NnbRange:
 
     def __init__(self):
@@ -35,13 +36,14 @@ class SpatioTemporalCorrelationFilter:
     DEFAULT_TIMESTAMP = 0
 
     def __init__(
-            self, 
+            self,
             size_x=128,
             size_y=128,
-            filter_hot_pixels=True,
+            filter_hot_pixels=False,
             subsample_by=1,
-            sigma_dist_pixels=1,
+            sigma_dist_pixels=8,
             correlation_time_s=25e-3,
+            num_must_be_correlated=3,
             let_first_event_through=True):
 
         self.sxm1 = size_x - 1
@@ -56,12 +58,19 @@ class SpatioTemporalCorrelationFilter:
         self.subsample_by = subsample_by
         self.let_first_event_through = let_first_event_through
         self.sigma_dist_pixels = sigma_dist_pixels
+        self.num_must_be_correlated = num_must_be_correlated
 
         self.total_event_count = 0
 
-        self.timestamp_image = np.zeros((128,128))
+        self.timestamp_image = np.zeros((128, 128))
 
-    def step(self, e):
+    def _test_filter_out_shot_noise_opposite_polarity(self, x, y, e):
+        return False
+
+    def check(self, e):
+        '''
+        Return True if event e passes filter, False otherwise
+        '''
 
         self.total_event_count += 1
 
@@ -71,19 +80,22 @@ class SpatioTemporalCorrelationFilter:
         x = e.x >> self.subsample_by
         y = e.y >> self.subsample_by
 
-        # special handling for first event
+        # out of bounds, discard (maybe bad USB or something)
+        if x < 0 or x > self.ssx or y < 0 or y > self.ssy:
+            return False
+
         if self.timestamp_image[x][y] == self.DEFAULT_TIMESTAMP:
             self.timestamp_image[x][y] = ts
+
             if self.total_event_count == 1:
                 return self.let_first_event_through
 
         # the real denoising starts here
 
         ncorrelated = 0
-       
+
         nnb_range = _NnbRange()
         nnb_range.compute(x, y, self.ssx, self.ssy, self.sigma_dist_pixels)
-        
 
         break_outer_loop = False
 
@@ -97,11 +109,12 @@ class SpatioTemporalCorrelationFilter:
             for yy in range(nnb_range.y0, nnb_range.y1 + 1):
 
                 if self.fhp and xx == x and yy == y:
-                    continue # like BAF, don't correlate with ourself
+                    continue  # like BAF, don't correlate with ourself
 
                 last_t = col[yy]
 
-                # delta_t will be very negative for DEFAULT_TIMESTAMP because of overflow
+                # delta_t will be very negative for DEFAULT_TIMESTAMP because
+                # of overflow
                 delta_t = ts - last_t
 
                 # ignore correlations for DEFAULT_TIMESTAMP that are neighbors
@@ -110,32 +123,9 @@ class SpatioTemporalCorrelationFilter:
 
                     ncorrelated += 1
 
-                    #if ncorrelated >= numMustBeCorrelated:
-                    #    break_outer_loop = True # csn stop checking now
-                    #    break
-'''
-        outerloop:
-        for (int xx = nnbRange.x0 xx <= nnbRange.x1 xx++) {
-             int[] col = self.timestamp_image[xx]
-            for (int yy = nnbRange.y0 yy <= nnbRange.y1 yy++) {
-                if (fhp && xx == x && yy == y) {
-                    continue 
-                }
-                 int last_t = col[yy]
-                 int delta_t = (ts - last_t) 
+                    if ncorrelated >= self.num_must_be_correlated:
+                        break_outer_loop = True  # can stop checking now
+                        break
 
-                if (delta_t < dt && last_t != DEFAULT_TIMESTAMP) { 
-                    ncorrelated++
-                    if (ncorrelated >= numMustBeCorrelated) {
-                        break outerloop # csn stop checking now
-                    }
-                }
-            }
-        }
-
-        if (ncorrelated < numMustBeCorrelated) {
-            filterOut(e)
-        } else {
-            filterIn(e)
-        }
-'''
+        return (False if ncorrelated < self.num_must_be_correlated
+                else not self._test_filter_out_shot_noise_opposite_polarity(x, y, e))
