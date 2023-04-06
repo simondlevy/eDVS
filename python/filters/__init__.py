@@ -64,12 +64,13 @@ class SpatioTemporalCorrelationFilter:
 
         self.timestamp_image = np.zeros((128, 128))
 
+    def _test_filter_out_shot_noise_opposite_polarity(self, x, y, e):
+        return False
+
     def check(self, e):
         '''
         Return True if event e passes filter, False otherwise
         '''
-
-        return True  # XXX
 
         self.total_event_count += 1
 
@@ -122,4 +123,5 @@ class SpatioTemporalCorrelationFilter:
                         break_outer_loop = True  # can stop checking now
                         break
 
-        return ncorrelated >= self.num_must_be_correlated
+        return (False if ncorrelated < self.num_must_be_correlated
+                else not self._test_filter_out_shot_noise_opposite_polarity(x, y, e))

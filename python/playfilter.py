@@ -43,11 +43,14 @@ def main():
 
             for e in f['events']:
 
+                # Add event to unfiltered image
+                image[e.y, e.x] = 255
+
+                # Add event to filtered image if event passes the filter
                 if stcf.check(e):
                     image[e.y, e.x + 128] = 255
 
-                image[e.y, e.x] = 255
-
+                # Update images periodically
                 if time() - time_prev > 1./args.fps:
 
                     time_prev = time()
