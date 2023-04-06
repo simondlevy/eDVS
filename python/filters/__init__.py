@@ -41,7 +41,7 @@ class SpatioTemporalCorrelationFilter:
             size_y=128,
             filter_hot_pixels=True,
             subsample_by=1,
-            sigma_dist_pixels=1,
+            sigma_dist_pixels=8,
             correlation_time_s=25e-3,
             num_must_be_correlated=3,
             let_first_event_through=True):
@@ -122,6 +122,8 @@ class SpatioTemporalCorrelationFilter:
                     if ncorrelated >= self.num_must_be_correlated:
                         break_outer_loop = True  # can stop checking now
                         break
+
+        print(ncorrelated, self.num_must_be_correlated)
 
         return (False if ncorrelated < self.num_must_be_correlated
                 else not self._test_filter_out_shot_noise_opposite_polarity(x, y, e))
