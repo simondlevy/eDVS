@@ -69,7 +69,7 @@ class SpatioTemporalCorrelationFilter:
 
     def check(self, e):
         '''
-        Return True if event e passes filter, False otherwise
+        Returns True if event e passes filter, False otherwise
         '''
 
         self.total_event_count += 1

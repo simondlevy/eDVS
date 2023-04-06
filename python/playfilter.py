@@ -14,6 +14,7 @@ import cv2
 from time import time
 
 from filters.dvsnoise import SpatioTemporalCorrelationFilter
+from filters.knoise import ONFilter
 
 
 def main():
@@ -26,8 +27,12 @@ def main():
     argparser.add_argument('-s', '--scaleup', type=int, default=2,
                            help='Scale-up factor for display')
 
-    argparser.add_argument('-f', '--fps', type=int, default=30,
-                           help='Frames Per Second for display')
+    argparser.add_argument('-r', '--rate', type=int, default=30,
+                           help='Frame rate per second for display')
+
+    argparser.add_argument('-f', '--filter', default='dvsnoise',
+                           choices=('dvsknoise', 'knoise'),
+                           help='Filter choice')
 
     args = argparser.parse_args()
 
@@ -35,7 +40,7 @@ def main():
 
     time_prev = 0
 
-    stcf = SpatioTemporalCorrelationFilter()
+    stcf = ONFilter() if args.filter == 'knoise' else SpatioTemporalCorrelationFilter() 
 
     with AedatFile(args.filename) as f:
 
@@ -51,7 +56,7 @@ def main():
                     image[e.y, e.x + 128] = 255
 
                 # Update images periodically
-                if time() - time_prev > 1./args.fps:
+                if time() - time_prev > 1./args.rate:
 
                     time_prev = time()
 
