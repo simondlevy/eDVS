@@ -17,6 +17,13 @@ from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import ONFilter
 
 
+class _PassThruFilter:
+
+    def check(self, e):
+
+        return True
+
+
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -30,8 +37,8 @@ def main():
     argparser.add_argument('-r', '--rate', type=int, default=30,
                            help='Frame rate per second for display')
 
-    argparser.add_argument('-f', '--filter', default='dvsnoise',
-                           choices=('dvsknoise', 'knoise'),
+    argparser.add_argument('-f', '--filter', default='none',
+                           choices=('dvsknoise', 'knoise', 'none'),
                            help='Filter choice')
 
     args = argparser.parse_args()
@@ -40,7 +47,9 @@ def main():
 
     time_prev = 0
 
-    stcf = ONFilter() if args.filter == 'knoise' else SpatioTemporalCorrelationFilter() 
+    filt = (ONFilter() if args.filter == 'knoise'
+            else SpatioTemporalCorrelationFilter() if args.filter == 'dvsnoise' 
+            else _PassThruFilter())
 
     with AedatFile(args.filename) as f:
 
@@ -52,7 +61,7 @@ def main():
                 image[e.y, e.x] = 255
 
                 # Add event to filtered image if event passes the filter
-                if stcf.check(e):
+                if filt.check(e):
                     image[e.y, e.x + 128] = 255
 
                 # Update images periodically

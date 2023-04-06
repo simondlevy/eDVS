@@ -27,7 +27,8 @@ class ONFilter:
         self.last_row_ts = self.DEFAULT_TIMESTAMP * np.ones(sy)
         self.last_col_ts = self.DEFAULT_TIMESTAMP * np.ones(sx)
 
-        self.last_x_bye_row = np.zeros(128)
+        self.last_x_by_row = np.zeros(sx)
+        self.last_y_by_col = np.zeros(sy)
 
     def check(self, e):
         '''
@@ -35,9 +36,9 @@ class ONFilter:
         '''
 
         # assume all edge events are noise and filter out
-        if e.x <= 0 or e.y <= 0 or e.x >= self.sx - 1 or e.y >= self.sy - 1:
+        if (e.x <= 0 or e.y <= 0
+            or e.x >= self.sx - self.supporters or e.y >= self.sy - self.supporters):
             return False
-
 
         # first check rows around us, if any adjancent row has event then
         # filter in
@@ -51,9 +52,9 @@ class ONFilter:
 
         # now do same for columns
         for x in range(-self.supporters, self.supporters+1):
-            if (self.last_col_ts[e.x + x] != self.DEFAULT_TIMESTAMP and
-                e.timestamp - self.last_col_ts[e.x + x] < self.dt_usec and
-                abs(self.last_y_by_col[e.x + x] - e.y) <= 1):
+            if (self.last_col_ts[e.x + x] != self.DEFAULT_TIMESTAMP
+                and e.timestamp - self.last_col_ts[e.x + x] < self.dt_usec
+                and abs(self.last_y_by_col[e.x + x] - e.y) <= 1):
                 return True
 
         return False
