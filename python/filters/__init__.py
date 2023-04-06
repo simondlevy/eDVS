@@ -39,7 +39,7 @@ class SpatioTemporalCorrelationFilter:
             self,
             size_x=128,
             size_y=128,
-            filter_hot_pixels=True,
+            filter_hot_pixels=False,
             subsample_by=1,
             sigma_dist_pixels=8,
             correlation_time_s=25e-3,
@@ -80,9 +80,13 @@ class SpatioTemporalCorrelationFilter:
         x = e.x >> self.subsample_by
         y = e.y >> self.subsample_by
 
-        # special handling for first event
+        # out of bounds, discard (maybe bad USB or something)
+        if x < 0 or x > self.ssx or y < 0 or y > self.ssy:
+            return False
+
         if self.timestamp_image[x][y] == self.DEFAULT_TIMESTAMP:
             self.timestamp_image[x][y] = ts
+
             if self.total_event_count == 1:
                 return self.let_first_event_through
 
@@ -122,8 +126,6 @@ class SpatioTemporalCorrelationFilter:
                     if ncorrelated >= self.num_must_be_correlated:
                         break_outer_loop = True  # can stop checking now
                         break
-
-        print(ncorrelated, self.num_must_be_correlated)
 
         return (False if ncorrelated < self.num_must_be_correlated
                 else not self._test_filter_out_shot_noise_opposite_polarity(x, y, e))
