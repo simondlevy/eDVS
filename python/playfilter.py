@@ -15,6 +15,7 @@ from time import time
 
 from filters import SpatioTemporalCorrelationFilter
 
+
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -54,7 +55,7 @@ def main():
                                           (image.shape[1]*args.scaleup,
                                            image.shape[0]*args.scaleup))
 
-                    bigimage[:,128*args.scaleup] = 255
+                    bigimage[:, 128*args.scaleup] = 255
 
                     cv2.imshow(args.filename, bigimage)
 
