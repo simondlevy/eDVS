@@ -16,9 +16,10 @@ class ONFilter:
 
     DEFAULT_TIMESTAMP = 0
 
-    def __init__(self):
+    def __init__(self, delta_t_msec=1, supporters=1):
 
-        pass
+        self.delta_t_msec = delta_t_msec
+        self.supporters = supporters
 
 
     def check(self, e):
