@@ -13,7 +13,7 @@ import argparse
 import cv2
 from time import time
 
-from filters import SpatioTemporalCorrelationFilter
+from filters.dvsnoise import SpatioTemporalCorrelationFilter
 
 def main():
 
