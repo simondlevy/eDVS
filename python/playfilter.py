@@ -43,7 +43,8 @@ def main():
 
             for e in f['events']:
 
-                stcf.check(e)
+                if stcf.check(e):
+                    image[e.y, e.x + 128] = 255
 
                 image[e.y, e.x] = 255
 

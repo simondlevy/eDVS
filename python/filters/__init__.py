@@ -69,6 +69,8 @@ class SpatioTemporalCorrelationFilter:
         Return True if event e passes filter, False otherwise
         '''
 
+        return True  # XXX
+
         self.total_event_count += 1
 
         ts = e.timestamp
