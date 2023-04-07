@@ -2,13 +2,13 @@
 DVS Knoise event filtering. Runs filter in O(N), N = sensor resolution.
 
 Adapted from Java code in
-  https:#github.com/SensorsINI/jaer/tree/master/src/net/sf/jaer/eventprocessing/filter
+https:#github.com/SensorsINI/jaer/tree/master/src/net/sf/jaer/eventprocessing/filter
 
 
 Copyright (C) 2023 Simon D. Levy
 
 MIT License
-*/
+ */
 
 #include <limits.h>
 
@@ -71,26 +71,34 @@ class OrderNbackgroundActivityFilter {
             }
         }
 
-    bool check_row_or_col(
-            const EDVS::event_t & e,
-            const uint32_t ts[], 
-            const uint8_t x_or_y[], 
-            const uint8_t coord, 
-            const uint8_t other)
-    {
-        /*
-        for k in range(-self.supporters, self.supporters+1):
-            if (ts[coord + k] != self.DEFAULT_TIMESTAMP
-                and e.timestamp - ts[coord + k] < self.dt_usec
-                and abs(x_or_y[coord + k] - other) <= 1):
-                # if there was event (ts!=DEFAULT_TIMESTAMP), and the timestamp
-                # is recent enough, and the column was adjacent, then filter in
-                self._save_event(e)
-                return true;
-                */
+        bool check_row_or_col(
+                const EDVS::event_t & e,
+                const uint32_t ts[], 
+                const uint8_t x_or_y[], 
+                const uint8_t coord, 
+                const uint8_t other)
+        {
+            for (uint8_t k=-_supporters; k<=_supporters; ++k) {
 
-        return false;
-    }
+                if (
+                        // if there was event (ts!=DEFAULT_TIMESTAMP), and the timestamp
+                        // is recent enough, and the column was adjacent, then filter in
+                        ts[coord + k] != DEFAULT_TIMESTAMP &&
+                        e.timestamp - ts[coord + k] < _dt_usec &&
+                        abs(x_or_y[coord + k] - other) <= 1) {
+
+                    save_event(e);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        void save_event(const EDVS::event_t & e)
+        {
+            (void)e;
+        }
 
     public:
 
