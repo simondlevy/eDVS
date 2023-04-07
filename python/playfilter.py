@@ -62,6 +62,9 @@ def main():
                            choices=('dvsknoise', 'knoise', 'none'),
                            help='Denoising filter choice')
 
+    argparser.add_argument('-t', '--maxtime', type=float,
+                           help='Maximum time to play in seconds')
+
     args = argparser.parse_args()
 
     image = np.zeros((128, 256))
@@ -79,9 +82,10 @@ def main():
 
     raw_total = 0
     filt_total = 0
-    frame_count = 0
+    frames_this_second = 0
     raw_per_second = 0
     filt_per_second = 0
+    total_time = 0
 
     with AedatFile(args.filename) as f:
 
@@ -102,6 +106,7 @@ def main():
                 # Update images periodically
                 if time() - time_prev > 1./args.fps:
 
+
                     time_prev = time()
 
                     bigimage = cv2.resize(image,
@@ -110,21 +115,26 @@ def main():
 
                     bigimage[:, 128*args.scaleup] = 255
 
-                    frame_count += 1
+                    frames_this_second += 1
 
                     if raw_per_second > 0:
                         _show_events_per_second(bigimage, 50, raw_per_second)
                         _show_events_per_second(bigimage, 300, filt_per_second)
 
                     # Update events-per-second totals every second
-                    if frame_count == args.fps:
+                    if frames_this_second == args.fps:
+
+                        total_time += 1
+
+                        if args.maxtime is not None and total_time >= args.maxtime:
+                            break
 
                         raw_per_second = raw_total
                         filt_per_second = filt_total
 
                         raw_total = 0
                         filt_total = 0
-                        frame_count = 0
+                        frames_this_second = 0
 
                     cv2.imshow(args.filename, bigimage)
 
