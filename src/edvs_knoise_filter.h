@@ -84,7 +84,7 @@ class OrderNbackgroundActivityFilter {
                         // if there was event (ts!=DEFAULT_TIMESTAMP), and the timestamp
                         // is recent enough, and the column was adjacent, then filter in
                         ts[coord + k] != DEFAULT_TIMESTAMP &&
-                        e.timestamp - ts[coord + k] < _dt_usec &&
+                        e.t- ts[coord + k] < _dt_usec &&
                         abs(x_or_y[coord + k] - other) <= 1) {
 
                     save_event(e);
@@ -99,8 +99,8 @@ class OrderNbackgroundActivityFilter {
         {
             _last_x_by_row[e.y] = e.x;
             _last_y_by_col[e.x] = e.y;
-            _last_col_ts[e.x] = e.timestamp;
-            _last_row_ts[e.y] = e.timestamp;
+            _last_col_ts[e.x] = e.t;
+            _last_row_ts[e.y] = e.t;
         }
 
     public:
