@@ -12,7 +12,7 @@ MIT License
 import numpy as np
 
 
-class ONFilter:
+class OrderNbackgroundActivityFilter:
 
     DEFAULT_TIMESTAMP = 0
 

@@ -14,7 +14,7 @@ import cv2
 from time import time
 
 from filters.dvsnoise import SpatioTemporalCorrelationFilter
-from filters.knoise import ONFilter
+from filters.knoise import OrderNbackgroundActivityFilter
 
 
 class _PassThruFilter:
@@ -47,7 +47,9 @@ def main():
 
     time_prev = 0
 
-    filt = (ONFilter() if args.filter == 'knoise'
+
+
+    filt = (OrderNbackgroundActivityFilter() if args.filter == 'knoise'
             else SpatioTemporalCorrelationFilter() if args.filter == 'dvsnoise' 
             else _PassThruFilter())
 
