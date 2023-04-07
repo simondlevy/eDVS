@@ -35,13 +35,13 @@ def _show_events_per_second(bigimage, xpos, value):
     lineType               = 2
 
     cv2.putText(bigimage,
-            '%d events/frame' % value,
-            bottomLeftCornerOfText,
-            font,
-            fontScale,
-            fontColor,
-            thickness,
-            lineType)
+                '%d events/second' % value,
+                bottomLeftCornerOfText,
+                font,
+                fontScale,
+                fontColor,
+                thickness,
+                lineType)
 
 
 
@@ -55,12 +55,12 @@ def main():
     argparser.add_argument('-s', '--scaleup', type=int, default=2,
                            help='Scale-up factor for display')
 
-    argparser.add_argument('-r', '--rate', type=int, default=30,
+    argparser.add_argument('-f', '--fps', type=int, default=30,
                            help='Frame rate per second for display')
 
-    argparser.add_argument('-f', '--filter', default='none',
+    argparser.add_argument('-d', '--denoising', default='none',
                            choices=('dvsknoise', 'knoise', 'none'),
-                           help='Filter choice')
+                           help='Denoising filter choice')
 
     args = argparser.parse_args()
 
@@ -73,12 +73,15 @@ def main():
     packets = [packet for packet in decoder]
     last_timestamp = packets[-1]['events'][-1][0]
 
-    filt = (OrderNbackgroundActivityFilter(last_timestamp) if args.filter == 'knoise'
-            else SpatioTemporalCorrelationFilter() if args.filter == 'dvsnoise' 
+    filt = (OrderNbackgroundActivityFilter(last_timestamp) if args.denoising == 'knoise'
+            else SpatioTemporalCorrelationFilter() if args.denoising == 'dvsnoise' 
             else _PassThruFilter())
 
     raw_count = 0
     filt_count = 0
+    frame_count = 0
+    raw_total = 0
+    filt_total = 0
 
     with AedatFile(args.filename) as f:
 
@@ -97,7 +100,7 @@ def main():
                     filt_count += 1
 
                 # Update images periodically
-                if time() - time_prev > 1./args.rate:
+                if time() - time_prev > 1./args.fps:
 
                     time_prev = time()
 
@@ -107,15 +110,25 @@ def main():
 
                     bigimage[:, 128*args.scaleup] = 255
 
-                    _show_events_per_second(bigimage, 50, raw_count)
-                    _show_events_per_second(bigimage, 300, filt_count)
+                    frame_count += 1
+
+                    if frame_count == args.fps:
+
+                        raw_total = raw_count
+                        filt_total = filt_count
+
+                        raw_count = 0
+                        filt_count = 0
+                        frame_count = 0
+
+                    if raw_total > 0:
+                        _show_events_per_second(bigimage, 50, raw_total)
+                        _show_events_per_second(bigimage, 300, filt_total)
 
                     cv2.imshow(args.filename, bigimage)
 
                     image = np.zeros((128, 256))
 
-                    raw_count = 0
-                    filt_count = 0
 
                     if cv2.waitKey(1) == 27:
                         break
