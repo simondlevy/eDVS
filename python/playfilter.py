@@ -77,8 +77,8 @@ def main():
             else SpatioTemporalCorrelationFilter() if args.denoising == 'dvsnoise' 
             else _PassThruFilter())
 
-    raw_per_frame = 0
-    filt_per_frame = 0
+    raw_total = 0
+    filt_total = 0
     frame_count = 0
     raw_per_second = 0
     filt_per_second = 0
@@ -92,12 +92,12 @@ def main():
                 # Add event to unfiltered image
                 image[e.y, e.x] = 255
 
-                raw_per_frame += 1
+                raw_total += 1
 
                 # Add event to filtered image if event passes the filter
                 if filt.check(e):
                     image[e.y, e.x + 128] = 255
-                    filt_per_frame += 1
+                    filt_total += 1
 
                 # Update images periodically
                 if time() - time_prev > 1./args.fps:
@@ -112,18 +112,19 @@ def main():
 
                     frame_count += 1
 
-                    if frame_count == args.fps:
-
-                        raw_per_second = raw_per_frame
-                        filt_per_second = filt_per_frame
-
-                        raw_per_frame = 0
-                        filt_per_frame = 0
-                        frame_count = 0
-
                     if raw_per_second > 0:
                         _show_events_per_second(bigimage, 50, raw_per_second)
                         _show_events_per_second(bigimage, 300, filt_per_second)
+
+                    # Update events-per-second totals every second
+                    if frame_count == args.fps:
+
+                        raw_per_second = raw_total
+                        filt_per_second = filt_total
+
+                        raw_total = 0
+                        filt_total = 0
+                        frame_count = 0
 
                     cv2.imshow(args.filename, bigimage)
 
