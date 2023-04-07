@@ -44,7 +44,6 @@ def _show_events_per_second(bigimage, xpos, value):
                 lineType)
 
 
-
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -64,6 +63,9 @@ def main():
 
     argparser.add_argument('-t', '--maxtime', type=float,
                            help='Maximum time to play in seconds')
+
+    argparser.add_argument('-v', '--video', default=None,
+                           help='Name of video file to save')
 
     args = argparser.parse_args()
 
@@ -87,7 +89,11 @@ def main():
     filt_per_second = 0
     total_time = 0
     
-    out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (512,256))
+    video_out = (cv2.VideoWriter(args.video,
+                          cv2.VideoWriter_fourcc('M','J','P','G'),
+                          30,
+                          (512,256))
+           if args.video is not None else None)
 
     with AedatFile(args.filename) as f:
 
@@ -140,22 +146,21 @@ def main():
 
                     cv2.imshow(args.filename, bigimage)
 
-                    bigimage = cv2.cvtColor(bigimage, cv2.COLOR_GRAY2BGR)
-
-                    print(bigimage.shape)
-
-                    out.write(bigimage)
+                    if video_out is not None:
+                        video_out.write(cv2.cvtColor(bigimage, cv2.COLOR_GRAY2BGR))
 
                     image = np.zeros((128, 256), dtype=np.uint8)
 
                     if cv2.waitKey(1) == 27:
                         break
 
-            out.release()
+            if video_out is not None:
+                video_out.release()
 
         except KeyboardInterrupt:
 
-            out.release()
+            if video_out is not None:
+                video_out.release()
 
             exit(0)
 
