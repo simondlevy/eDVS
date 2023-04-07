@@ -1,5 +1,5 @@
 '''
-DVS event filtersing
+DVS event filtering
 
 Adapted from Java code in
   https:#github.com/SensorsINI/jaer/tree/master/src/net/sf/jaer/eventprocessing/filter
