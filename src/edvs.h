@@ -29,6 +29,16 @@ class EDVS {
 
         } event_t;
 
+        typedef enum {
+
+            FORMAT_MINIMAL, // 2 bytes per event, binary 1YYYYYYY.pXXXXXXX (no time stamp
+            FORMAT_DELTA,   // ? bytes per event (as E0, followed by delta time stamp)
+            FORMAT_16,      // 4 bytes per event (as E0, followed by 16bit time stamp)
+            FORMAT_24,      // 5 bytes per event (as E0, followed by 24bit time stamp)
+            FORMAT_32,      // 6 bytes per event (as E0, followed by 32bit time stamp)
+
+        } format_e;
+
         EDVS(const uint16_t qsize=1000)
         {
             _qsize = qsize;
