@@ -97,7 +97,10 @@ class OrderNbackgroundActivityFilter {
 
         void save_event(const EDVS::event_t & e)
         {
-            (void)e;
+            _last_x_by_row[e.y] = e.x;
+            _last_y_by_col[e.x] = e.y;
+            _last_col_ts[e.x] = e.timestamp;
+            _last_row_ts[e.y] = e.timestamp;
         }
 
     public:
