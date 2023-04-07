@@ -59,10 +59,6 @@ def main():
     packets = [packet for packet in decoder]
     final_timestamp = packets[-1]['events'][-1][0]
 
-    print(final_timestamp)
-
-    exit(0)
-
     with AedatFile(args.filename) as f:
 
         try:

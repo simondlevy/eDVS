@@ -30,7 +30,7 @@ class OrderNbackgroundActivityFilter:
         self.last_x_by_row = np.zeros(sx)
         self.last_y_by_col = np.zeros(sy)
 
-        # self.initialize_last_times_map_for_noise_rate()
+        self.initialize_last_times_map_for_noise_rate()
 
     def check(self, e):
         '''
@@ -70,8 +70,8 @@ class OrderNbackgroundActivityFilter:
         self.last_row_ts[e.y] = e.timestamp
 
     def initialize_last_times_map_for_noise_rate(self,
-                                                 noise_rate_hz,
-                                                 last_timestamp_us):
+                                                 noise_rate_hz=10,
+                                                 last_timestamp_us=np.inf):
         ''''
         Fills 1d arrays with random events with waiting times drawn from
         Poisson process with rate noise_rate_hz
