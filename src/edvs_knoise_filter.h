@@ -71,8 +71,6 @@ class OrderNbackgroundActivityFilter {
             }
         }
 
-
-
     public:
 
         OrderNbackgroundActivityFilter(
@@ -98,9 +96,15 @@ class OrderNbackgroundActivityFilter {
             initialize_last_times_map_for_noise_rate(last_timestamp);
         }
 
-        bool check(EDVS::event_t e)
+        bool check(EDVS::event_t & e)
         {
-            (void)e;
+            // assume all edge events are noise and filter out
+            if (e.x <= 0 || e.y <= 0 ||
+                e.x >= _sx - _supporters || e.y >= _sy - _supporters) {
+
+                return false;
+            }
+
             return false;
         }
 
