@@ -92,7 +92,7 @@ def main():
     video_out = (cv2.VideoWriter(args.video,
                           cv2.VideoWriter_fourcc('M','J','P','G'),
                           30,
-                          (512,256))
+                          (args.scaleup * 256, args.scaleup * 128))
            if args.video is not None else None)
 
     with AedatFile(args.filename) as f:
