@@ -30,7 +30,7 @@ class OrderNbackgroundActivityFilter:
         self.last_x_by_row = np.zeros(sx)
         self.last_y_by_col = np.zeros(sy)
 
-        self.initialize_last_times_map_for_noise_rate(last_timestamp)
+        self._initialize_last_times_map_for_noise_rate(last_timestamp)
 
     def check(self, e):
         '''
@@ -69,7 +69,7 @@ class OrderNbackgroundActivityFilter:
         self.last_col_ts[e.x] = e.timestamp
         self.last_row_ts[e.y] = e.timestamp
 
-    def initialize_last_times_map_for_noise_rate(self,
+    def _initialize_last_times_map_for_noise_rate(self,
                                                  last_timestamp_us,
                                                  noise_rate_hz=.1):
         ''''
@@ -82,16 +82,17 @@ class OrderNbackgroundActivityFilter:
         before this time
         '''
 
-        for i in range(len(self.last_row_ts)):
+        self._initialize_row_or_col(self.last_row_ts, self.last_x_by_row, self.sx, 
+                                    noise_rate_hz, last_timestamp_us)
+
+
+        self._initialize_row_or_col(self.last_col_ts, self.last_y_by_col, self.sy, 
+                                    noise_rate_hz, last_timestamp_us)
+
+    def _initialize_row_or_col(self, ts, x_or_y, s, noise_rate_hz, last_timestamp_us):
+        for i in range(len(ts)):
             p = np.random.random()
             t = -noise_rate_hz * np.log(1 - p)
             tUs = int((1000000 * t))
-            self.last_row_ts[i] = last_timestamp_us - tUs
-            self.last_x_by_row[i] = np.random.randint(self.sy)
-
-        for i in range(len(self.last_col_ts)):
-            p = np.random.random()
-            t = -noise_rate_hz * np.log(1 - p)
-            tUs = int(1000000 * t)
-            self.last_col_ts[i] = last_timestamp_us - tUs
-            self.last_y_by_col[i] = np.random.randint(self.sx)
+            ts[i] = last_timestamp_us - tUs
+            x_or_y[i] = np.random.randint(s)
