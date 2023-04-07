@@ -26,13 +26,49 @@ class OrderNbackgroundActivityFilter {
         uint32_t _last_row_ts[128];
         uint32_t _last_col_ts[128];
 
-        uint32_t _last_x_by_row[128];
-        uint32_t _last_y_by_col[128];
+        uint8_t _last_x_by_row[128];
+        uint8_t _last_y_by_col[128];
 
-        void initialize_last_times_map_for_noise_rate(const uint32_t last_timestamp)
+        void initialize_last_times_map_for_noise_rate(
+                const uint32_t last_timestamp_us,
+                const float noise_rate_hz = 0.1)
         {
-            (void)last_timestamp;
+            /*
+               Fills 1d arrays with random events with waiting times drawn from
+               Poisson process with rate noise_rate_hz
+
+               @param noise_rate_hz rate in Hz
+
+               @param last_timestamp_us the last timestamp; waiting times are created
+               before this time
+             */
+
+            initialize_row_or_col(_last_row_ts, _last_x_by_row, _sx, 
+                    noise_rate_hz, last_timestamp_us);
+
+
+            initialize_row_or_col(_last_col_ts, _last_y_by_col, _sy, 
+                    noise_rate_hz, last_timestamp_us);
         }
+
+        void initialize_row_or_col(
+                uint32_t ts[],
+                uint8_t x_or_y[], 
+                const uint8_t s, 
+                const float noise_rate_hz, 
+                const uint32_t last_timestamp_us)
+        {
+            /*
+               for i in range(len(ts)):
+               p = np.random.random()
+               t = -noise_rate_hz * np.log(1 - p)
+               tUs = int((1000000 * t))
+               ts[i] = last_timestamp_us - tUs
+               x_or_y[i] = np.random.randint(s)
+             */
+        }
+
+
 
     public:
 
