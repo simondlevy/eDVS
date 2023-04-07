@@ -71,6 +71,27 @@ class OrderNbackgroundActivityFilter {
             }
         }
 
+    bool check_row_or_col(
+            const EDVS::event_t & e,
+            const uint32_t ts[], 
+            const uint8_t x_or_y[], 
+            const uint8_t coord, 
+            const uint8_t other)
+    {
+        /*
+        for k in range(-self.supporters, self.supporters+1):
+            if (ts[coord + k] != self.DEFAULT_TIMESTAMP
+                and e.timestamp - ts[coord + k] < self.dt_usec
+                and abs(x_or_y[coord + k] - other) <= 1):
+                # if there was event (ts!=DEFAULT_TIMESTAMP), and the timestamp
+                # is recent enough, and the column was adjacent, then filter in
+                self._save_event(e)
+                return true;
+                */
+
+        return false;
+    }
+
     public:
 
         OrderNbackgroundActivityFilter(
@@ -96,16 +117,17 @@ class OrderNbackgroundActivityFilter {
             initialize_last_times_map_for_noise_rate(last_timestamp);
         }
 
-        bool check(EDVS::event_t & e)
+        bool check(const EDVS::event_t & e)
         {
             // assume all edge events are noise and filter out
             if (e.x <= 0 || e.y <= 0 ||
-                e.x >= _sx - _supporters || e.y >= _sy - _supporters) {
+                    e.x >= _sx - _supporters || e.y >= _sy - _supporters) {
 
                 return false;
             }
 
-            return false;
+            return 
+                check_row_or_col(e, _last_row_ts, _last_x_by_row, e.y, e.x) ||
+                check_row_or_col(e, _last_col_ts, _last_y_by_col, e.x, e.y);
         }
-
 };
