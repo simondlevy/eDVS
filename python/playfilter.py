@@ -67,7 +67,7 @@ def main():
 
     args = argparser.parse_args()
 
-    image = np.zeros((128, 256))
+    image = np.zeros((128, 256), dtype=np.uint8)
 
     time_prev = 0
 
@@ -86,6 +86,8 @@ def main():
     raw_per_second = 0
     filt_per_second = 0
     total_time = 0
+    
+    out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (512,256))
 
     with AedatFile(args.filename) as f:
 
@@ -138,13 +140,22 @@ def main():
 
                     cv2.imshow(args.filename, bigimage)
 
-                    image = np.zeros((128, 256))
+                    bigimage = cv2.cvtColor(bigimage, cv2.COLOR_GRAY2BGR)
 
+                    print(bigimage.shape)
+
+                    out.write(bigimage)
+
+                    image = np.zeros((128, 256), dtype=np.uint8)
 
                     if cv2.waitKey(1) == 27:
                         break
 
+            out.release()
+
         except KeyboardInterrupt:
+
+            out.release()
 
             exit(0)
 
