@@ -25,6 +25,26 @@ class _PassThruFilter:
         return True
 
 
+def _show_events_per_second(bigimage, xpos, value):
+
+    font                   = cv2.FONT_HERSHEY_SIMPLEX
+    bottomLeftCornerOfText = (xpos, 25)
+    fontScale              = 0.5 
+    fontColor              = (255, 255, 255)
+    thickness              = 1
+    lineType               = 2
+
+    cv2.putText(bigimage,
+            '%d events/frame' % value,
+            bottomLeftCornerOfText,
+            font,
+            fontScale,
+            fontColor,
+            thickness,
+            lineType)
+
+
+
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -57,6 +77,9 @@ def main():
             else SpatioTemporalCorrelationFilter() if args.filter == 'dvsnoise' 
             else _PassThruFilter())
 
+    raw_count = 0
+    filt_count = 0
+
     with AedatFile(args.filename) as f:
 
         try:
@@ -66,9 +89,12 @@ def main():
                 # Add event to unfiltered image
                 image[e.y, e.x] = 255
 
+                raw_count += 1
+
                 # Add event to filtered image if event passes the filter
                 if filt.check(e):
                     image[e.y, e.x + 128] = 255
+                    filt_count += 1
 
                 # Update images periodically
                 if time() - time_prev > 1./args.rate:
@@ -81,9 +107,15 @@ def main():
 
                     bigimage[:, 128*args.scaleup] = 255
 
+                    _show_events_per_second(bigimage, 50, raw_count)
+                    _show_events_per_second(bigimage, 300, filt_count)
+
                     cv2.imshow(args.filename, bigimage)
 
                     image = np.zeros((128, 256))
+
+                    raw_count = 0
+                    filt_count = 0
 
                     if cv2.waitKey(1) == 27:
                         break
