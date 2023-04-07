@@ -10,6 +10,8 @@ Copyright (C) 2023 Simon D. Levy
 MIT License
 */
 
+#include <limits.h>
+
 #include "edvs.h"
 
 class OrderNbackgroundActivityFilter {
@@ -58,14 +60,15 @@ class OrderNbackgroundActivityFilter {
                 const float noise_rate_hz, 
                 const uint32_t last_timestamp_us)
         {
-            /*
-               for i in range(len(ts)):
-               p = np.random.random()
-               t = -noise_rate_hz * np.log(1 - p)
-               tUs = int((1000000 * t))
-               ts[i] = last_timestamp_us - tUs
-               x_or_y[i] = np.random.randint(s)
-             */
+            for (uint8_t i=0; i<128; ++i) {
+
+                const float p = (float)random() / LONG_MAX;
+                const float t = -noise_rate_hz * log(1 - p);
+                const uint32_t tUs = (int)(1000000 * t);
+
+                ts[i] = last_timestamp_us - tUs;
+                x_or_y[i] = random(s);
+            }
         }
 
 
