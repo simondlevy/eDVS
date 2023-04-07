@@ -16,7 +16,7 @@ class OrderNbackgroundActivityFilter:
 
     DEFAULT_TIMESTAMP = 0
 
-    def __init__(self, last_timestamp=4294967295, sx=128, sy=128, dt_msec=10,
+    def __init__(self, last_timestamp=2**32-1, sx=128, sy=128, dt_msec=10,
                  supporters=10):
 
         self.sx = sx
