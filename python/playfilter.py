@@ -72,9 +72,7 @@ def main():
 
     time_prev = 0
 
-    last_timestamp = 4294967295
-
-    filt = (OrderNbackgroundActivityFilter(last_timestamp) if args.denoising == 'knoise'
+    filt = (OrderNbackgroundActivityFilter() if args.denoising == 'knoise'
             else SpatioTemporalCorrelationFilter() if args.denoising == 'dvsnoise' 
             else _PassThruFilter())
 
