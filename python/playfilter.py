@@ -8,6 +8,7 @@ MIT License
 '''
 
 from dv import AedatFile
+import aedat
 import numpy as np
 import argparse
 import cv2
@@ -52,6 +53,15 @@ def main():
     filt = (OrderNbackgroundActivityFilter() if args.filter == 'knoise'
             else SpatioTemporalCorrelationFilter() if args.filter == 'dvsnoise' 
             else _PassThruFilter())
+
+    # Get final timestamp
+    decoder = aedat.Decoder(args.filename)
+    packets = [packet for packet in decoder]
+    final_timestamp = packets[-1]['events'][-1][0]
+
+    print(final_timestamp)
+
+    exit(0)
 
     with AedatFile(args.filename) as f:
 
