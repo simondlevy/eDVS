@@ -42,26 +42,10 @@ class OrderNbackgroundActivityFilter:
             or e.x >= self.sx - self.supporters or e.y >= self.sy - self.supporters):
             return False
 
-        # first check rows around us, if any adjancent row has event then
-        # filter in
-        for y in range(-self.supporters, self.supporters+1):
-            if (self.last_row_ts[e.y + y] != self.DEFAULT_TIMESTAMP
-                and e.timestamp - self.last_row_ts[e.y + y] < self.dt_usec
-                and abs(self.last_x_by_row[e.y + y] - e.x) <= 1):
-                # if there was event (ts!=DEFAULT_TIMESTAMP), and the timestamp
-                # is recent enough, and the column was adjacent, then filter in
-                self._save_event(e)
-                return True
-
-        # now do same for columns
-        for x in range(-self.supporters, self.supporters+1):
-            if (self.last_col_ts[e.x + x] != self.DEFAULT_TIMESTAMP
-                and e.timestamp - self.last_col_ts[e.x + x] < self.dt_usec
-                and abs(self.last_y_by_col[e.x + x] - e.y) <= 1):
-                self._save_event(e)
-                return True
-
-        return False
+        return (
+                self._check_row_or_col(e, self.last_row_ts, self.last_x_by_row, e.y, e.x) 
+                or 
+                self._check_row_or_col(e, self.last_col_ts, self.last_y_by_col, e.x, e.y)) 
 
     def _save_event(self, e):
         self.last_x_by_row[e.y] = e.x
@@ -70,9 +54,9 @@ class OrderNbackgroundActivityFilter:
         self.last_row_ts[e.y] = e.timestamp
 
     def _initialize_last_times_map_for_noise_rate(self,
-                                                 last_timestamp_us,
-                                                 noise_rate_hz=.1):
-        ''''
+                                                  last_timestamp_us,
+                                                  noise_rate_hz=.1):
+        '''
         Fills 1d arrays with random events with waiting times drawn from
         Poisson process with rate noise_rate_hz
 
@@ -96,3 +80,16 @@ class OrderNbackgroundActivityFilter:
             tUs = int((1000000 * t))
             ts[i] = last_timestamp_us - tUs
             x_or_y[i] = np.random.randint(s)
+
+    def _check_row_or_col(self, e, ts, x_or_y, coord, other):
+
+        for k in range(-self.supporters, self.supporters+1):
+            if (ts[coord + k] != self.DEFAULT_TIMESTAMP
+                and e.timestamp - ts[coord + k] < self.dt_usec
+                and abs(x_or_y[coord + k] - other) <= 1):
+                # if there was event (ts!=DEFAULT_TIMESTAMP), and the timestamp
+                # is recent enough, and the column was adjacent, then filter in
+                self._save_event(e)
+                return True
+
+        return False
