@@ -48,16 +48,14 @@ def main():
 
     time_prev = 0
 
-
-
-    filt = (OrderNbackgroundActivityFilter() if args.filter == 'knoise'
-            else SpatioTemporalCorrelationFilter() if args.filter == 'dvsnoise' 
-            else _PassThruFilter())
-
     # Get final timestamp
     decoder = aedat.Decoder(args.filename)
     packets = [packet for packet in decoder]
-    final_timestamp = packets[-1]['events'][-1][0]
+    last_timestamp = packets[-1]['events'][-1][0]
+
+    filt = (OrderNbackgroundActivityFilter(last_timestamp) if args.filter == 'knoise'
+            else SpatioTemporalCorrelationFilter() if args.filter == 'dvsnoise' 
+            else _PassThruFilter())
 
     with AedatFile(args.filename) as f:
 

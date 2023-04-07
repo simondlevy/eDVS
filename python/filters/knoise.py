@@ -16,12 +16,12 @@ class OrderNbackgroundActivityFilter:
 
     DEFAULT_TIMESTAMP = 0
 
-    def __init__(self, sx=128, sy=128, delta_t_msec=1, supporters=1):
+    def __init__(self, last_timestamp, sx=128, sy=128, dt_msec=10, supporters=10):
 
         self.sx = sx
         self.sy = sy
 
-        self.delta_t_usec = 1000 * delta_t_msec
+        self.dt_usec = 1000 * dt_msec
         self.supporters = supporters
 
         self.last_row_ts = self.DEFAULT_TIMESTAMP * np.ones(sy)
@@ -30,7 +30,7 @@ class OrderNbackgroundActivityFilter:
         self.last_x_by_row = np.zeros(sx)
         self.last_y_by_col = np.zeros(sy)
 
-        self.initialize_last_times_map_for_noise_rate()
+        self.initialize_last_times_map_for_noise_rate(last_timestamp)
 
     def check(self, e):
         '''
@@ -70,8 +70,8 @@ class OrderNbackgroundActivityFilter:
         self.last_row_ts[e.y] = e.timestamp
 
     def initialize_last_times_map_for_noise_rate(self,
-                                                 noise_rate_hz=10,
-                                                 last_timestamp_us=np.inf):
+                                                 last_timestamp_us,
+                                                 noise_rate_hz=.1):
         ''''
         Fills 1d arrays with random events with waiting times drawn from
         Poisson process with rate noise_rate_hz
@@ -82,14 +82,14 @@ class OrderNbackgroundActivityFilter:
         before this time
         '''
 
-        for i in range(len(self.last_row_ts.length)):
+        for i in range(len(self.last_row_ts)):
             p = np.random.random()
             t = -noise_rate_hz * np.log(1 - p)
             tUs = int((1000000 * t))
             self.last_row_ts[i] = last_timestamp_us - tUs
             self.last_x_by_row[i] = np.random.randint(self.sy)
 
-        for i in range(len(self.last_col_ts.length)):
+        for i in range(len(self.last_col_ts)):
             p = np.random.random()
             t = -noise_rate_hz * np.log(1 - p)
             tUs = int(1000000 * t)
