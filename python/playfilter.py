@@ -76,13 +76,19 @@ def main():
             else SpatioTemporalCorrelationFilter() if args.denoising == 'dvsnoise' 
             else _PassThruFilter())
 
+    # Helps group events into frames
+    frames_this_second = 0
+
+    # Supports the -t (quit after specified time) option
+    total_time = 0
+
+    # Supports statistics reporting
     raw_total = 0
     filt_total = 0
-    frames_this_second = 0
     raw_per_second = 0
     filt_per_second = 0
-    total_time = 0
     
+    # Open video output file if indicated
     video_out = (cv2.VideoWriter(args.video,
                           cv2.VideoWriter_fourcc('M','J','P','G'),
                           30,
@@ -111,19 +117,22 @@ def main():
 
                     time_prev = time()
 
+                    # Make big image from raw/filtered image frame
                     bigimage = cv2.resize(image,
                                           (image.shape[1]*args.scaleup,
                                            image.shape[0]*args.scaleup))
 
+                    # Draw a line down the middle of the big image to separate
+                    # raw from filtered
                     bigimage[:, 128*args.scaleup] = 255
 
-                    frames_this_second += 1
-
+                    # Report events per second every second
                     if raw_per_second > 0:
                         _show_events_per_second(bigimage, 50, raw_per_second)
                         _show_events_per_second(bigimage, 300, filt_per_second)
 
                     # Update events-per-second totals every second
+                    frames_this_second += 1
                     if frames_this_second == args.fps:
 
                         total_time += 1
