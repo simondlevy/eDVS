@@ -29,10 +29,10 @@ def _show_events_per_second(bigimage, xpos, value):
                 '%d events/second' % value,
                 (xpos, 25),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,              # scale
-                (255, 255, 255),  # color
-                1,                # thickness
-                2)                # line type
+                0.5,            # scale
+                (0, 255, 255),  # color
+                1,              # thickness
+                2)              # line type
 
 
 def main():
@@ -108,20 +108,6 @@ def main():
                 # Update images periodically
                 if e.timestamp - timestamp_prev > 1e6 / args.fps:
 
-                    # Make big image from raw/filtered image frame
-                    bigimage = cv2.resize(image,
-                                          (image.shape[1]*args.scaleup,
-                                           image.shape[0]*args.scaleup))
-
-                    # Draw a line down the middle of the big image to separate
-                    # raw from filtered
-                    bigimage[:, 128*args.scaleup] = 255
-
-                    # Report events per second every second
-                    if raw_per_second > 0:
-                        _show_events_per_second(bigimage, 50, raw_per_second)
-                        _show_events_per_second(bigimage, 300, filt_per_second)
-
                     # Update events-per-second totals every second
                     frames_this_second += 1
                     if frames_this_second == args.fps:
@@ -139,6 +125,23 @@ def main():
                         filt_total = 0
                         frames_this_second = 0
 
+                    # Make big image from raw/filtered image frame
+                    bigimage = cv2.resize(image,
+                                          (image.shape[1]*args.scaleup,
+                                           image.shape[0]*args.scaleup))
+
+                    # Draw a line down the middle of the big image to separate
+                    # raw from filtered
+                    bigimage[:, 128*args.scaleup] = 255
+
+                    # Convert big image to color
+                    bigimage = cv2.cvtColor(bigimage, cv2.COLOR_GRAY2BGR)
+
+                    # Overlay events per second on big image every second
+                    if raw_per_second > 0:
+                        _show_events_per_second(bigimage, 50, raw_per_second)
+                        _show_events_per_second(bigimage, 300, filt_per_second)
+
                     # Show big image, quitting on ESC
                     cv2.imshow(args.filename, bigimage)
                     if cv2.waitKey(1) == 27:
@@ -146,8 +149,7 @@ def main():
 
                     # Save current big image frame if indicated
                     if video_out is not None:
-                        video_out.write(cv2.cvtColor(bigimage,
-                                                     cv2.COLOR_GRAY2BGR))
+                        video_out.write(bigimage, cv2.COLOR_GRAY2BGR)
 
                     image = np.zeros((128, 256), dtype=np.uint8)
                     timestamp_prev = e.timestamp
