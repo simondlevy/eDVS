@@ -114,7 +114,6 @@ def main():
                 # Update images periodically
                 if time() - time_prev > 1./args.fps:
 
-
                     time_prev = time()
 
                     # Make big image from raw/filtered image frame
@@ -135,27 +134,29 @@ def main():
                     frames_this_second += 1
                     if frames_this_second == args.fps:
 
+                        # Quit after specified time if indicated
                         total_time += 1
-
                         if args.maxtime is not None and total_time >= args.maxtime:
                             break
 
+                        # Update stats for reporting
                         raw_per_second = raw_total
                         filt_per_second = filt_total
-
                         raw_total = 0
                         filt_total = 0
                         frames_this_second = 0
 
+                    # Show big image, quitting on ESC
                     cv2.imshow(args.filename, bigimage)
+                    if cv2.waitKey(1) == 27:
+                        break
 
+                    # Save current big image frame if indicated
                     if video_out is not None:
                         video_out.write(cv2.cvtColor(bigimage, cv2.COLOR_GRAY2BGR))
 
+                    # Start over with a new empty frame
                     image = np.zeros((128, 256), dtype=np.uint8)
-
-                    if cv2.waitKey(1) == 27:
-                        break
 
             if video_out is not None:
                 video_out.release()
