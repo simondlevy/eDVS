@@ -11,7 +11,6 @@ from dv import AedatFile
 import numpy as np
 import argparse
 import cv2
-from time import time
 
 from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import OrderNbackgroundActivityFilter
@@ -30,10 +29,10 @@ def _show_events_per_second(bigimage, xpos, value):
                 '%d events/second' % value,
                 (xpos, 25),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,             # scale
-                (255, 255, 255), # color
-                1,               # thickness
-                2)               # line type
+                0.5,              # scale
+                (255, 255, 255),  # color
+                1,                # thickness
+                2)                # line type
 
 
 def main():
