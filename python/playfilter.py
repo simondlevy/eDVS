@@ -26,21 +26,14 @@ class _PassThruFilter:
 
 def _show_events_per_second(bigimage, xpos, value):
 
-    font                   = cv2.FONT_HERSHEY_SIMPLEX
-    bottomLeftCornerOfText = (xpos, 25)
-    fontScale              = 0.5 
-    fontColor              = (255, 255, 255)
-    thickness              = 1
-    lineType               = 2
-
     cv2.putText(bigimage,
                 '%d events/second' % value,
-                bottomLeftCornerOfText,
-                font,
-                fontScale,
-                fontColor,
-                thickness,
-                lineType)
+                (xpos, 25),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,             # scale
+                (255, 255, 255), # color
+                1,               # thickness
+                2)               # line type
 
 
 def main():
@@ -70,10 +63,10 @@ def main():
 
     image = np.zeros((128, 256), dtype=np.uint8)
 
-    time_prev = 0
-
-    filt = (OrderNbackgroundActivityFilter() if args.denoising == 'knoise'
-            else SpatioTemporalCorrelationFilter() if args.denoising == 'dvsnoise' 
+    filt = (OrderNbackgroundActivityFilter()
+            if args.denoising == 'knoise'
+            else SpatioTemporalCorrelationFilter()
+            if args.denoising == 'dvsnoise'
             else _PassThruFilter())
 
     # Helps group events into frames
@@ -87,13 +80,13 @@ def main():
     filt_total = 0
     raw_per_second = 0
     filt_per_second = 0
-    
+
     # Open video output file if indicated
     video_out = (cv2.VideoWriter(args.video,
-                          cv2.VideoWriter_fourcc('M','J','P','G'),
-                          30,
-                          (args.scaleup * 256, args.scaleup * 128))
-           if args.video is not None else None)
+                                 cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+                                 30,
+                                 (args.scaleup * 256, args.scaleup * 128))
+                 if args.video is not None else None)
 
     with AedatFile(args.filename) as f:
 
@@ -136,8 +129,9 @@ def main():
 
                         # Quit after specified time if indicated
                         total_time += 1
-                        if args.maxtime is not None and total_time >= args.maxtime:
-                            break
+                        if args.maxtime is not None:
+                            if total_time >= args.maxtime:
+                                break
 
                         # Update stats for reporting
                         raw_per_second = raw_total
@@ -153,11 +147,12 @@ def main():
 
                     # Save current big image frame if indicated
                     if video_out is not None:
-                        video_out.write(cv2.cvtColor(bigimage, cv2.COLOR_GRAY2BGR))
+                        video_out.write(cv2.cvtColor(bigimage,
+                                                     cv2.COLOR_GRAY2BGR))
 
                     image = np.zeros((128, 256), dtype=np.uint8)
-                    timestamp_prev = e.timestamp 
- 
+                    timestamp_prev = e.timestamp
+
             if video_out is not None:
                 video_out.release()
 
