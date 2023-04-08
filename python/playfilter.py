@@ -99,6 +99,8 @@ def main():
 
         try:
 
+            timestamp_prev = 0
+
             for e in f['events']:
 
                 # Add event to unfiltered image
@@ -112,9 +114,7 @@ def main():
                     filt_total += 1
 
                 # Update images periodically
-                if time() - time_prev > 1./args.fps:
-
-                    time_prev = time()
+                if e.timestamp - timestamp_prev > 1e6 / args.fps:
 
                     # Make big image from raw/filtered image frame
                     bigimage = cv2.resize(image,
@@ -155,9 +155,9 @@ def main():
                     if video_out is not None:
                         video_out.write(cv2.cvtColor(bigimage, cv2.COLOR_GRAY2BGR))
 
-                    # Start over with a new empty frame
                     image = np.zeros((128, 256), dtype=np.uint8)
-
+                    timestamp_prev = e.timestamp 
+ 
             if video_out is not None:
                 video_out.release()
 
