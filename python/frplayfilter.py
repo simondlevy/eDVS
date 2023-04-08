@@ -26,22 +26,14 @@ class _PassThruFilter:
 
 def _show_events_per_second(bigimage, xpos, value):
 
-    font                   = cv2.FONT_HERSHEY_SIMPLEX
-    bottomLeftCornerOfText = (xpos, 25)
-    fontScale              = 0.5 
-    fontColor              = (255, 255, 255)
-    thickness              = 1
-    lineType               = 2
-
     cv2.putText(bigimage,
                 '%d events/second' % value,
-                bottomLeftCornerOfText,
-                font,
-                fontScale,
-                fontColor,
-                thickness,
-                lineType)
-
+                (xpos, 25),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,            # scale
+                (0, 255, 255),  # color
+                1,              # thickness
+                2)              # line type
 
 def main():
 
@@ -125,7 +117,10 @@ def main():
                     # raw from filtered
                     bigimage[:, 128*args.scaleup] = 255
 
-                    # Report events per second every second
+                    # Convert big image to color
+                    bigimage = cv2.cvtColor(bigimage, cv2.COLOR_GRAY2BGR)
+
+                     # Report events per second every second
                     if raw_per_second > 0:
                         _show_events_per_second(bigimage, 50, raw_per_second)
                         _show_events_per_second(bigimage, 300, filt_per_second)
@@ -153,7 +148,7 @@ def main():
 
                     # Save current big image frame if indicated
                     if video_out is not None:
-                        video_out.write(cv2.cvtColor(bigimage, cv2.COLOR_GRAY2BGR))
+                        video_out.write(bigimage, cv2.COLOR_GRAY2BGR)
 
                     # Start over with a new empty frame
                     image = np.zeros((128, 256), dtype=np.uint8)
