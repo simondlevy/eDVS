@@ -12,7 +12,7 @@ from threading import Thread
 import cv2
 import numpy as np
 import argparse
-
+from time import time
 
 class _PassThruFilter:
 
@@ -54,6 +54,16 @@ def main():
     argparser.add_argument('-c', '--color', action='store_true',
                            help='Display in color')
 
+    argparser.add_argument('-d', '--denoising', default='none',
+                           choices=('dvsknoise', 'knoise', 'none'),
+                           help='Denoising filter choice')
+
+    argparser.add_argument('-t', '--maxtime', type=float,
+                           help='Maximum time to play in seconds')
+
+    argparser.add_argument('-v', '--video', default=None,
+                           help='Name of video file to save')
+
     argparser.add_argument('-s', '--scaleup', default=2, type=int,
                            help='Scale-up factor')
 
@@ -79,6 +89,15 @@ def main():
     # Compute number of iterations before events should disappear, based on
     # 1msec display assumption
     ageout = int(1./args.fps * 1000)
+
+    # Open video output file if indicated
+    video_out = (cv2.VideoWriter(args.video,
+                          cv2.VideoWriter_fourcc('M','J','P','G'),
+                          30,
+                          (args.scaleup * 256, args.scaleup * 128))
+           if args.video is not None else None)
+
+    time_start = time()
 
     while(True):
 
@@ -106,7 +125,18 @@ def main():
         if cv2.waitKey(1) == 27:
             break
 
+        # Save current big image frame if indicated
+        if video_out is not None:
+            video_out.write(bigimage)
+
+        # Quit after specified time if indicated
+        if args.maxtime is not None and time() - time_start >= args.maxtime:
+            break
+
     cv2.destroyAllWindows()
+
+    if video_out is not None:
+        video_out.release()
 
     edvs.stop()
 
