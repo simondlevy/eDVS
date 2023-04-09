@@ -37,7 +37,16 @@ def parse_args(argparser):
     argparser.add_argument('-s', '--scaleup', type=int, default=2,
                            help='Scale-up factor for display')
 
-    return argparser.parse_args()
+    args = argparser.parse_args()
+
+    # Open video output file if indicated
+    video_out = (cv2.VideoWriter(args.video,
+                                 cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+                                 30,
+                                 (args.scaleup * 256, args.scaleup * 128))
+                 if args.video is not None else None)
+
+    return args, video_out
 
 
 def add_events_per_second(bigimage, xpos, value):

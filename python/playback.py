@@ -31,7 +31,7 @@ def main():
 
     argparser.add_argument('filename')
 
-    args = parse_args(argparser)
+    args, video_out = parse_args(argparser)
 
     image = new_image()
 
@@ -54,13 +54,6 @@ def main():
     filt_total = 0
     raw_per_second = 0
     filt_per_second = 0
-
-    # Open video output file if indicated
-    video_out = (cv2.VideoWriter(args.video,
-                                 cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
-                                 30,
-                                 (args.scaleup * 256, args.scaleup * 128))
-                 if args.video is not None else None)
 
     with AedatFile(args.filename) as f:
 

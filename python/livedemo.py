@@ -32,7 +32,7 @@ def main():
                            choices=(0, 2, 3, 4),
                            help='Event format')
 
-    args = parse_args(argparser)
+    args, video_out = parse_args(argparser)
 
     # Connect to sensor
     edvs = EDVS(args.port, args.baud, event_format=args.event_format)
@@ -54,13 +54,6 @@ def main():
     # Compute number of iterations before events should disappear, based on
     # 1msec display assumption
     ageout = int(1./args.fps * 1000)
-
-    # Open video output file if indicated
-    video_out = (cv2.VideoWriter(args.video,
-                                 cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
-                                 30,
-                                 (args.scaleup * 256, args.scaleup * 128))
-                 if args.video is not None else None)
 
     time_start = time()
 
