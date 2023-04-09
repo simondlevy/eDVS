@@ -16,6 +16,28 @@ class PassThruFilter:
         return True
 
 
+def add_args(argparser):
+
+    argparser.add_argument('-f', '--fps', type=int, default=30,
+                           help='Frame rate per second for display')
+
+    argparser.add_argument('-c', '--color', action='store_true',
+                           help='Display in color')
+
+    argparser.add_argument('-d', '--denoising', default='none',
+                           choices=('dvsknoise', 'knoise', 'none'),
+                           help='Denoising filter choice')
+
+    argparser.add_argument('-t', '--maxtime', type=float,
+                           help='Maximum time to play in seconds')
+
+    argparser.add_argument('-v', '--video', default=None,
+                           help='Name of video file to save')
+
+    argparser.add_argument('-s', '--scaleup', type=int, default=2,
+                           help='Scale-up factor for display')
+
+
 def add_events_per_second(bigimage, xpos, value):
 
     cv2.putText(bigimage,
