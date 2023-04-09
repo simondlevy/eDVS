@@ -78,7 +78,7 @@ def main():
         # Scale up the image for visibility
         bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
 
-        if not show_big_image('eDVS', bigimage, video_out):
+        if not show_big_image('mini-eDVS', bigimage, video_out):
             break
 
         # Quit after specified time if indicated

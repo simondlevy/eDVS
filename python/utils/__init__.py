@@ -9,6 +9,7 @@ MIT License
 import numpy as np
 import cv2
 
+
 class PassThruFilter:
 
     def check(self, e):
@@ -60,6 +61,7 @@ def add_events_per_second(bigimage, xpos, value):
                 1,              # thickness
                 2)              # line type
 
+
 def new_image():
 
     return np.zeros((128, 256, 3), dtype=np.uint8)
@@ -70,10 +72,11 @@ def polarity2color(x, y, p, args):
     return (((0, 0, 255) if p else (0, 255, 0))
             if args.color else (255, 255, 255))
 
+
 def show_big_image(name, bigimage, video_out):
 
     # Show big image, quitting on ESC
-    cv2.imshow('Mini eDVS', bigimage)
+    cv2.imshow(name, bigimage)
     if cv2.waitKey(1) == 27:
         return False
 

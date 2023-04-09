@@ -16,8 +16,8 @@ from time import time
 from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import OrderNbackgroundActivityFilter
 
-from utils import PassThruFilter, add_events_per_second, polarity2color, parse_args
-from utils import show_big_image, close_video
+from utils import PassThruFilter, add_events_per_second, polarity2color
+from utils import parse_args, show_big_image, close_video
 
 
 def new_image():
@@ -98,8 +98,8 @@ def main():
 
                         # Quit after specified time if indicated
                         total_time += 1
-                        if (args.maxtime is not None
-                            and total_time >= args.maxtime):
+                        if (args.maxtime is not None and
+                                total_time >= args.maxtime):
                             break
 
                         # Update stats for reporting
