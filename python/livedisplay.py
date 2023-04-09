@@ -177,7 +177,7 @@ def main():
                         frames_this_second = 0
 
                     # Show big image, quitting on ESC
-                    cv2.imshow(args.filename, bigimage)
+                    cv2.imshow('Mini eDVS', bigimage)
                     if cv2.waitKey(1) == 27:
                         break
 
