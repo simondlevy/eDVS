@@ -40,6 +40,11 @@ def new_image():
     return np.zeros((128, 256, 3), dtype=np.uint8)
 
 
+def polarity2color(e, args):
+
+    return (((0, 0, 255) if e.polarity else (0, 255, 0))
+            if args.color else (255, 255, 255))
+
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -102,14 +107,13 @@ def main():
             for e in f['events']:
 
                 # Add event to unfiltered image
-                image[e.y, e.x] = (((0, 0, 255) if e.polarity else (0, 255, 0))
-                               if args.color else (255, 255, 255))
+                image[e.y, e.x] = polarity2color(e, args)
 
                 raw_total += 1
 
                 # Add event to filtered image if event passes the filter
                 if filt.check(e):
-                    image[e.y, e.x + 128] = 255
+                    image[e.y, e.x+128] = polarity2color(e, args)
                     filt_total += 1
 
                 # Update images periodically
