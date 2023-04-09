@@ -93,10 +93,18 @@ def main():
     thread.daemon = True
     thread.start()
 
-    while True:
+    try:
 
-        # Get events from DVS
-        if edvs.hasNext():
-            x, y, p = edvs.next()
+        while True:
+
+            # Get events from DVS
+            if edvs.hasNext():
+                print(edvs)
+                # x, y, p = edvs.next()
+
+    except KeyboardInterrupt:
+
+        edvs.reset()
+        exit(0)
 
 main()

@@ -40,13 +40,17 @@ class EDVS:
         self.queue[self.qpos] = (x, y, p)
         self._advance()
 
+    def reset(self):
+
+        self._send('R')
+
     def start(self):
         '''
         Initiates communication with the EDVS.
         '''
 
         # Reset board
-        self._send('R')
+        self.reset()
 
         # Enable event sending
         self._send('E+')
