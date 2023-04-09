@@ -17,6 +17,7 @@ from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import OrderNbackgroundActivityFilter
 
 from utils import PassThruFilter, add_events_per_second, polarity2color, parse_args
+from utils import show_big_image
 
 
 def new_image():
@@ -108,14 +109,8 @@ def main():
                         filt_total = 0
                         frames_this_second = 0
 
-                    # Show big image, quitting on ESC
-                    cv2.imshow(args.filename, bigimage)
-                    if cv2.waitKey(1) == 27:
+                    if not show_big_image(args.filename, bigimage, video_out):
                         break
-
-                    # Save current big image frame if indicated
-                    if video_out is not None:
-                        video_out.write(bigimage, cv2.COLOR_GRAY2BGR)
 
                     # Start over with a new empty frame
                     image = new_image()
