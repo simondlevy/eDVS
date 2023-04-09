@@ -93,17 +93,49 @@ def main():
     thread.daemon = True
     thread.start()
 
+    image = new_image()
+
+    time_prev = 0
+
+    filt = (OrderNbackgroundActivityFilter() if args.denoising == 'knoise'
+            else SpatioTemporalCorrelationFilter() if args.denoising == 'dvsnoise' 
+            else PassThruFilter())
+
+    # Helps group events into frames
+    frames_this_second = 0
+
+    # Supports the -t (quit after specified time) option
+    total_time = 0
+
+    # Supports statistics reporting
+    raw_total = 0
+    filt_total = 0
+    raw_per_second = 0
+    filt_per_second = 0
+    
+    # Open video output file if indicated
+    video_out = (cv2.VideoWriter(args.video,
+                          cv2.VideoWriter_fourcc('M','J','P','G'),
+                          30,
+                          (args.scaleup * 256, args.scaleup * 128))
+           if args.video is not None else None)
+ 
     try:
 
         while True:
 
             # Get events from DVS
             if edvs.hasNext():
+
                 x, y, p = edvs.next()
+
+                # Add event to unfiltered image
+                image[y, x] = polarity2color(x, y, p, args)
+
                 print(x, y, p)
 
             # Yield to sensor thread
-            sleep(.0001)
+            sleep(1e-6)
 
     except KeyboardInterrupt:
 
