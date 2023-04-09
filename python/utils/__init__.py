@@ -69,3 +69,17 @@ def polarity2color(x, y, p, args):
 
     return (((0, 0, 255) if p else (0, 255, 0))
             if args.color else (255, 255, 255))
+
+def show_big_image(name, bigimage, video_out):
+
+    # Show big image, quitting on ESC
+    cv2.imshow('Mini eDVS', bigimage)
+    if cv2.waitKey(1) == 27:
+        return False
+
+    # Save current big image frame if indicated
+    if video_out is not None:
+        video_out.write(bigimage)
+
+    return True
+

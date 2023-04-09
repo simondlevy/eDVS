@@ -14,7 +14,7 @@ import numpy as np
 import argparse
 from time import time
 
-from utils import polarity2color, parse_args
+from utils import polarity2color, parse_args, show_big_image
 
 
 def main():
@@ -57,7 +57,7 @@ def main():
 
     time_start = time()
 
-    while(True):
+    while True:
 
         # Get events from DVS
         while edvs.hasNext():
@@ -78,14 +78,8 @@ def main():
         # Scale up the image for visibility
         bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
 
-        # Show big image, quitting on ESC
-        cv2.imshow('Mini eDVS', bigimage)
-        if cv2.waitKey(1) == 27:
+        if not show_big_image('eDVS', bigimage, video_out):
             break
-
-        # Save current big image frame if indicated
-        if video_out is not None:
-            video_out.write(bigimage)
 
         # Quit after specified time if indicated
         if args.maxtime is not None and time() - time_start >= args.maxtime:
