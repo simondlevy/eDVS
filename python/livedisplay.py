@@ -14,28 +14,8 @@ import numpy as np
 import argparse
 from time import time
 
-class _PassThruFilter:
+from utils import polarity2color
 
-    def check(self, e):
-
-        return True
-
-
-def _show_events_per_second(bigimage, xpos, value):
-
-    cv2.putText(bigimage,
-                '%d events/second' % value,
-                (xpos, 25),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,            # scale
-                (0, 255, 255),  # color
-                1,              # thickness
-                2)              # line type
-
-def polarity2color(x, y, p, args):
-
-    return (((0, 0, 255) if p else (0, 255, 0))
-            if args.color else (255, 255, 255))
 
 def main():
 
@@ -111,12 +91,8 @@ def main():
 
             x, y, p = edvs.next()
 
-            #image[x, y] = (((0, 255, 0) if p == -1 else (0, 0, 255))
-            #               if args.color else (255, 255, 255))
-
             image[x, y] = polarity2color(x, y, p == -1, args)
                          
-
             counts[x, y] = 1
 
         # Zero out events older than a certain time before now
