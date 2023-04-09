@@ -14,7 +14,7 @@ import numpy as np
 import argparse
 from time import time
 
-from utils import polarity2color, add_args
+from utils import polarity2color, parse_args
 
 
 def main():
@@ -32,9 +32,7 @@ def main():
                            choices=(0, 2, 3, 4),
                            help='Event format')
 
-    add_args(argparser)
-
-    args = argparser.parse_args()
+    args = parse_args(argparser)
 
     # Connect to sensor
     edvs = EDVS(args.port, args.baud, event_format=args.event_format)
@@ -87,10 +85,8 @@ def main():
         # Scale up the image for visibility
         bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
 
-        # Display the large color image
+        # Show big image, quitting on ESC
         cv2.imshow('Mini eDVS', bigimage)
-
-        # Quit on ESCape
         if cv2.waitKey(1) == 27:
             break
 

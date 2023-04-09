@@ -16,7 +16,7 @@ from time import time
 from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import OrderNbackgroundActivityFilter
 
-from utils import PassThruFilter, add_events_per_second, polarity2color, add_args
+from utils import PassThruFilter, add_events_per_second, polarity2color, parse_args
 
 
 def new_image():
@@ -31,9 +31,7 @@ def main():
 
     argparser.add_argument('filename')
 
-    add_args(argparser)
-
-    args = argparser.parse_args()
+    args = parse_args(argparser)
 
     image = new_image()
 

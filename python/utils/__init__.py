@@ -16,7 +16,7 @@ class PassThruFilter:
         return True
 
 
-def add_args(argparser):
+def parse_args(argparser):
 
     argparser.add_argument('-f', '--fps', type=int, default=30,
                            help='Frame rate per second for display')
@@ -36,6 +36,8 @@ def add_args(argparser):
 
     argparser.add_argument('-s', '--scaleup', type=int, default=2,
                            help='Scale-up factor for display')
+
+    return argparser.parse_args()
 
 
 def add_events_per_second(bigimage, xpos, value):
