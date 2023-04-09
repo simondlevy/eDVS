@@ -176,6 +176,10 @@ def main():
                         filt_total = 0
                         frames_this_second = 0
 
+                    # Show big image, quitting on ESC
+                    cv2.imshow(args.filename, bigimage)
+                    if cv2.waitKey(1) == 27:
+                        break
 
             # Yield to sensor thread
             sleep(1e-6)
@@ -185,8 +189,9 @@ def main():
         edvs.reset()
         exit(0)
 
-    except Exception:
+    except Exception as e:
 
+        print(e)
         edvs.reset()
         exit(0)
 
