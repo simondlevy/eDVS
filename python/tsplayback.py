@@ -16,14 +16,14 @@ from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import OrderNbackgroundActivityFilter
 
 
-class _PassThruFilter:
+class PassThruFilter:
 
     def check(self, e):
 
         return True
 
 
-def _show_events_per_second(bigimage, xpos, value):
+def add_events_per_second(bigimage, xpos, value):
 
     cv2.putText(bigimage,
                 '%d events/second' % value,
@@ -34,6 +34,14 @@ def _show_events_per_second(bigimage, xpos, value):
                 1,              # thickness
                 2)              # line type
 
+def new_image():
+
+    return np.zeros((128, 256, 3), dtype=np.uint8)
+
+def polarity2color(e, args):
+
+    return (((0, 0, 255) if e.polarity else (0, 255, 0))
+            if args.color else (255, 255, 255))
 
 def main():
 
@@ -42,11 +50,11 @@ def main():
 
     argparser.add_argument('filename')
 
-    argparser.add_argument('-s', '--scaleup', type=int, default=2,
-                           help='Scale-up factor for display')
-
     argparser.add_argument('-f', '--fps', type=int, default=30,
                            help='Frame rate per second for display')
+
+    argparser.add_argument('-c', '--color', action='store_true',
+                           help='Display in color')
 
     argparser.add_argument('-d', '--denoising', default='none',
                            choices=('dvsknoise', 'knoise', 'none'),
@@ -58,15 +66,16 @@ def main():
     argparser.add_argument('-v', '--video', default=None,
                            help='Name of video file to save')
 
+    argparser.add_argument('-s', '--scaleup', type=int, default=2,
+                           help='Scale-up factor for display')
+
     args = argparser.parse_args()
 
-    image = np.zeros((128, 256), dtype=np.uint8)
+    image = new_image()
 
-    filt = (OrderNbackgroundActivityFilter()
-            if args.denoising == 'knoise'
-            else SpatioTemporalCorrelationFilter()
-            if args.denoising == 'dvsnoise'
-            else _PassThruFilter())
+    filt = (OrderNbackgroundActivityFilter() if args.denoising == 'knoise'
+            else SpatioTemporalCorrelationFilter() if args.denoising == 'dvsnoise' 
+            else PassThruFilter())
 
     # Helps group events into frames
     frames_this_second = 0
@@ -96,13 +105,13 @@ def main():
             for e in f['events']:
 
                 # Add event to unfiltered image
-                image[e.y, e.x] = 255
+                image[e.y, e.x] = polarity2color(e, args)
 
                 raw_total += 1
 
                 # Add event to filtered image if event passes the filter
                 if filt.check(e):
-                    image[e.y, e.x + 128] = 255
+                    image[e.y, e.x+128] = polarity2color(e, args)
                     filt_total += 1
 
                 # Update images periodically
@@ -134,13 +143,10 @@ def main():
                     # raw from filtered
                     bigimage[:, 128*args.scaleup] = 255
 
-                    # Convert big image to color
-                    bigimage = cv2.cvtColor(bigimage, cv2.COLOR_GRAY2BGR)
-
                     # Overlay events per second on big image every second
                     if raw_per_second > 0:
-                        _show_events_per_second(bigimage, 50, raw_per_second)
-                        _show_events_per_second(bigimage, 300, filt_per_second)
+                        add_events_per_second(bigimage, 50, raw_per_second)
+                        add_events_per_second(bigimage, 300, filt_per_second)
 
                     # Show big image, quitting on ESC
                     cv2.imshow(args.filename, bigimage)
@@ -151,7 +157,8 @@ def main():
                     if video_out is not None:
                         video_out.write(bigimage, cv2.COLOR_GRAY2BGR)
 
-                    image = np.zeros((128, 256), dtype=np.uint8)
+                    image = new_image()
+
                     timestamp_prev = e.timestamp
 
             if video_out is not None:
