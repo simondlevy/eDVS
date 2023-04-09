@@ -16,7 +16,11 @@ class OrderNbackgroundActivityFilter:
 
     DEFAULT_TIMESTAMP = 0
 
-    def __init__(self, last_timestamp=2**32-1, sx=128, sy=128, dt_msec=10,
+    def __init__(self,
+                 last_timestamp=4294967295,
+                 sx=128,
+                 sy=128,
+                 dt_msec=10,
                  supporters=10):
 
         self.sx = sx
@@ -75,10 +79,13 @@ class OrderNbackgroundActivityFilter:
                                     noise_rate_hz, last_timestamp_us)
 
     def _initialize_row_or_col(self, ts, x_or_y, s, noise_rate_hz, last_timestamp_us):
+
         for i in range(len(ts)):
+
             p = np.random.random()
             t = -noise_rate_hz * np.log(1 - p)
             tUs = int((1000000 * t))
+
             ts[i] = last_timestamp_us - tUs
             x_or_y[i] = np.random.randint(s)
 

@@ -16,6 +16,45 @@ MIT License
 
 class OrderNbackgroundActivityFilter {
 
+    public:
+
+        OrderNbackgroundActivityFilter(
+                const uint32_t last_timestamp=4294967295,
+                const uint8_t sx=128, 
+                const uint8_t sy=128, 
+                const uint32_t dt_msec=10,
+                const uint8_t supporters=10)
+        {
+            _sx = sx;
+            _sy = sy;
+            _supporters = supporters;
+
+            _dt_usec = 1000 * dt_msec;
+
+            for (uint8_t k=0; k<128; ++k) {
+                _last_row_ts[k] = DEFAULT_TIMESTAMP;
+                _last_col_ts[k] = DEFAULT_TIMESTAMP;
+                _last_x_by_row[k] = 0;
+                _last_y_by_col[k] = 0;
+            }
+
+            initialize_last_times_map_for_noise_rate(last_timestamp);
+        }
+
+        bool check(const EDVS::event_t & e)
+        {
+            // assume all edge events are noise and filter out
+            if (e.x <= 0 || e.y <= 0 ||
+                    e.x >= _sx - _supporters || e.y >= _sy - _supporters) {
+
+                return false;
+            }
+
+            return 
+                check_row_or_col(e, _last_row_ts, _last_x_by_row, e.y, e.x) ||
+                check_row_or_col(e, _last_col_ts, _last_y_by_col, e.x, e.y);
+        }
+
     private:
 
         static const uint32_t DEFAULT_TIMESTAMP = 0;
@@ -45,8 +84,11 @@ class OrderNbackgroundActivityFilter {
                before this time
              */
 
-            initialize_row_or_col(_last_row_ts, _last_x_by_row, _sx, 
-                    noise_rate_hz, last_timestamp_us);
+            while (true) {
+                initialize_row_or_col(_last_row_ts, _last_x_by_row, _sx, 
+                        noise_rate_hz, last_timestamp_us);
+                delay(100);
+            }
 
 
             initialize_row_or_col(_last_col_ts, _last_y_by_col, _sy, 
@@ -78,6 +120,8 @@ class OrderNbackgroundActivityFilter {
                 const uint8_t coord, 
                 const uint8_t other)
         {
+            return true;
+
             for (uint8_t k=-_supporters; k<=_supporters; ++k) {
 
                 if (
@@ -101,44 +145,5 @@ class OrderNbackgroundActivityFilter {
             _last_y_by_col[e.x] = e.y;
             _last_col_ts[e.x] = e.t;
             _last_row_ts[e.y] = e.t;
-        }
-
-    public:
-
-        OrderNbackgroundActivityFilter(
-                const uint8_t sx=128, 
-                const uint8_t sy=128, 
-                const uint32_t dt_msec=10,
-                const uint8_t supporters=10,
-                const uint32_t last_timestamp=4294967295)
-        {
-            _sx = sx;
-            _sy = sy;
-            _supporters = supporters;
-
-            _dt_usec = 1000 * dt_msec;
-
-            for (uint8_t k=0; k<128; ++k) {
-                _last_row_ts[k] = DEFAULT_TIMESTAMP;
-                _last_col_ts[k] = DEFAULT_TIMESTAMP;
-                _last_x_by_row[k] = 0;
-                _last_y_by_col[k] = 0;
-            }
-
-            initialize_last_times_map_for_noise_rate(last_timestamp);
-        }
-
-        bool check(const EDVS::event_t & e)
-        {
-            // assume all edge events are noise and filter out
-            if (e.x <= 0 || e.y <= 0 ||
-                    e.x >= _sx - _supporters || e.y >= _sy - _supporters) {
-
-                return false;
-            }
-
-            return 
-                check_row_or_col(e, _last_row_ts, _last_x_by_row, e.y, e.x) ||
-                check_row_or_col(e, _last_col_ts, _last_y_by_col, e.x, e.y);
         }
 };

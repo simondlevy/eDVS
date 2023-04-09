@@ -21,7 +21,12 @@ void serialEvent1(void)
 
             const uint8_t coords[2] = {e.x, e.y};
 
-            Serial.write(coords, 2);
+            static OrderNbackgroundActivityFilter filter;
+
+            if (filter.check(e)) {
+
+                Serial.write(coords, 2);
+            }
         }
     }
 }
