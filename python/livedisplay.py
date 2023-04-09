@@ -14,7 +14,7 @@ import numpy as np
 import argparse
 from time import time
 
-from utils import polarity2color
+from utils import polarity2color, add_args
 
 
 def main():
@@ -32,24 +32,7 @@ def main():
                            choices=(0, 2, 3, 4),
                            help='Event format')
 
-    argparser.add_argument('-f', '--fps', type=int, default=30,
-                           help='Frame rate per second for display')
-
-    argparser.add_argument('-c', '--color', action='store_true',
-                           help='Display in color')
-
-    argparser.add_argument('-d', '--denoising', default='none',
-                           choices=('dvsknoise', 'knoise', 'none'),
-                           help='Denoising filter choice')
-
-    argparser.add_argument('-t', '--maxtime', type=float,
-                           help='Maximum time to play in seconds')
-
-    argparser.add_argument('-v', '--video', default=None,
-                           help='Name of video file to save')
-
-    argparser.add_argument('-s', '--scaleup', default=2, type=int,
-                           help='Scale-up factor')
+    add_args(argparser)
 
     args = argparser.parse_args()
 
