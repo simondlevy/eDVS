@@ -12,7 +12,7 @@ from threading import Thread
 import cv2
 import numpy as np
 import argparse
-from time import time
+from time import time, sleep
 
 from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import OrderNbackgroundActivityFilter
@@ -99,8 +99,11 @@ def main():
 
             # Get events from DVS
             if edvs.hasNext():
-                print(edvs)
-                # x, y, p = edvs.next()
+                x, y, p = edvs.next()
+                print(x, y, p)
+
+            # Yield to sensor thread
+            sleep(.0001)
 
     except KeyboardInterrupt:
 
