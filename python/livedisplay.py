@@ -32,6 +32,11 @@ def _show_events_per_second(bigimage, xpos, value):
                 1,              # thickness
                 2)              # line type
 
+def polarity2color(x, y, p, args):
+
+    return (((0, 0, 255) if p else (0, 255, 0))
+            if args.color else (255, 255, 255))
+
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -103,9 +108,15 @@ def main():
 
         # Get events from DVS
         while edvs.hasNext():
+
             x, y, p = edvs.next()
-            image[x, y] = (((0, 255, 0) if p == -1 else (0, 0, 255))
-                           if args.color else (255, 255, 255))
+
+            #image[x, y] = (((0, 255, 0) if p == -1 else (0, 0, 255))
+            #               if args.color else (255, 255, 255))
+
+            image[x, y] = polarity2color(x, y, p == -1, args)
+                         
+
             counts[x, y] = 1
 
         # Zero out events older than a certain time before now
