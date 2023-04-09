@@ -17,7 +17,7 @@ from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import OrderNbackgroundActivityFilter
 
 from utils import PassThruFilter, add_events_per_second, polarity2color, parse_args
-from utils import show_big_image
+from utils import show_big_image, close_video
 
 
 def new_image():
@@ -115,13 +115,11 @@ def main():
                     # Start over with a new empty frame
                     image = new_image()
 
-            if video_out is not None:
-                video_out.release()
+            close_video(video_out)
 
         except KeyboardInterrupt:
 
-            if video_out is not None:
-                video_out.release()
+            close_video(video_out)
 
             exit(0)
 

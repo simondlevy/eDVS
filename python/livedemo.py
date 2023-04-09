@@ -14,7 +14,7 @@ import numpy as np
 import argparse
 from time import time
 
-from utils import polarity2color, parse_args, show_big_image
+from utils import polarity2color, parse_args, show_big_image, close_video
 
 
 def main():
@@ -87,8 +87,7 @@ def main():
 
     cv2.destroyAllWindows()
 
-    if video_out is not None:
-        video_out.release()
+    close_video(video_out)
 
     edvs.stop()
 

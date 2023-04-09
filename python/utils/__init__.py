@@ -83,3 +83,7 @@ def show_big_image(name, bigimage, video_out):
 
     return True
 
+
+def close_video(video_out):
+    if video_out is not None:
+        video_out.release()
