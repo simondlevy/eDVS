@@ -129,10 +129,8 @@ def main():
 
                 x, y, p = edvs.next()
 
-                print(x, y, p)
-
                 # Add event to unfiltered image
-                image[y, x] = polarity2color(x, y, p, args)
+                image[x, y] = polarity2color(x, y, p, args)
 
                 raw_total += 1
 
@@ -180,6 +178,13 @@ def main():
                     cv2.imshow('Mini eDVS', bigimage)
                     if cv2.waitKey(1) == 27:
                         break
+
+                    # Save current big image frame if indicated
+                    if video_out is not None:
+                        video_out.write(bigimage, cv2.COLOR_GRAY2BGR)
+
+                    # Start over with a new empty frame
+                    image = new_image()
 
             # Yield to sensor thread
             sleep(1e-6)
