@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 '''
-Experiments with DVS filtering
+Simple demo of the iniVation Mini eDVS via FTDI adapter
 
-Copyright (C) 2023 Simon D. Levy
+Copyright (C) 2020 Simon D. Levy
 
 MIT License
 '''
@@ -12,20 +12,16 @@ from threading import Thread
 import cv2
 import numpy as np
 import argparse
-from time import time, sleep
+from time import time
 
-from filters.dvsnoise import SpatioTemporalCorrelationFilter
-from filters.knoise import OrderNbackgroundActivityFilter
-
-
-class PassThruFilter:
+class _PassThruFilter:
 
     def check(self, e):
 
         return True
 
 
-def add_events_per_second(bigimage, xpos, value):
+def _show_events_per_second(bigimage, xpos, value):
 
     cv2.putText(bigimage,
                 '%d events/second' % value,
@@ -35,16 +31,6 @@ def add_events_per_second(bigimage, xpos, value):
                 (0, 255, 255),  # color
                 1,              # thickness
                 2)              # line type
-
-def new_image():
-
-    return np.zeros((128, 256, 3), dtype=np.uint8)
-
-
-def polarity2color(x, y, p, args):
-
-    return (((0, 0, 255) if p else (0, 255, 0))
-            if args.color else (255, 255, 255))
 
 def main():
 
@@ -60,6 +46,7 @@ def main():
     argparser.add_argument('-e', '--event-format', type=int, default=4,
                            choices=(0, 2, 3, 4),
                            help='Event format')
+
 
     argparser.add_argument('-f', '--fps', type=int, default=30,
                            help='Frame rate per second for display')
@@ -77,8 +64,8 @@ def main():
     argparser.add_argument('-v', '--video', default=None,
                            help='Name of video file to save')
 
-    argparser.add_argument('-s', '--scaleup', type=int, default=2,
-                           help='Scale-up factor for display')
+    argparser.add_argument('-s', '--scaleup', default=2, type=int,
+                           help='Scale-up factor')
 
     args = argparser.parse_args()
 
@@ -93,128 +80,69 @@ def main():
     thread.daemon = True
     thread.start()
 
-    image = new_image()
+    # Track time so we can stop displaying old events
+    counts = np.zeros((128, 128)).astype('uint8')
 
-    time_prev = 0
+    # Start with an empty image
+    image = np.zeros((128, 128, 3)).astype('uint8')
 
-    filt = (OrderNbackgroundActivityFilter() if args.denoising == 'knoise'
-            else SpatioTemporalCorrelationFilter() if args.denoising == 'dvsnoise' 
-            else PassThruFilter())
+    # Compute number of iterations before events should disappear, based on
+    # 1msec display assumption
+    ageout = int(1./args.fps * 1000)
 
-    # Helps group events into frames
-    frames_this_second = 0
-
-    # Supports the -t (quit after specified time) option
-    total_time = 0
-
-    # Supports statistics reporting
-    raw_total = 0
-    filt_total = 0
-    raw_per_second = 0
-    filt_per_second = 0
-    
     # Open video output file if indicated
     video_out = (cv2.VideoWriter(args.video,
                           cv2.VideoWriter_fourcc('M','J','P','G'),
                           30,
                           (args.scaleup * 256, args.scaleup * 128))
            if args.video is not None else None)
- 
-    try:
 
-        while True:
+    time_start = time()
 
-            # Get events from DVS
-            if edvs.hasNext():
+    while(True):
 
-                x, y, p = edvs.next()
+        # Get events from DVS
+        while edvs.hasNext():
+            x, y, p = edvs.next()
+            image[x, y] = (((0, 255, 0) if p == -1 else (0, 0, 255))
+                           if args.color else (255, 255, 255))
+            counts[x, y] = 1
 
-                # Add event to unfiltered image
-                image[x, y] = polarity2color(x, y, p, args)
+        # Zero out events older than a certain time before now
+        image[counts == ageout] = 0
+        counts[counts == ageout] = 0
 
-                raw_total += 1
+        # Increase age for events
+        counts[counts > 0] += 1
 
-                # Add event to filtered image if event passes the filter
-                #if filt.check(e):
-                #    image[y, x + 128] = polarity2color(x, y, p, args)
-                #    filt_total += 1
+        # Scale up the image for visibility
+        bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
 
-                # Update images periodically
-                if time() - time_prev > 1./args.fps:
+        # Display the large color image
+        cv2.imshow('Mini eDVS', bigimage)
 
-                    time_prev = time()
+        # Quit on ESCape
+        if cv2.waitKey(1) == 27:
+            break
 
-                    # Make big image from raw/filtered image frame
-                    bigimage = cv2.resize(image,
-                                          (image.shape[1]*args.scaleup,
-                                           image.shape[0]*args.scaleup))
+        # Save current big image frame if indicated
+        if video_out is not None:
+            video_out.write(bigimage)
 
-                    # Draw a line down the middle of the big image to separate
-                    # raw from filtered
-                    bigimage[:, 128*args.scaleup] = 255
+        # Quit after specified time if indicated
+        if args.maxtime is not None and time() - time_start >= args.maxtime:
+            break
 
-                    # Report events per second every second
-                    if raw_per_second > 0:
-                        add_events_per_second(bigimage, 50, raw_per_second)
-                        add_events_per_second(bigimage, 300, filt_per_second)
+    cv2.destroyAllWindows()
 
-                    # Update events-per-second totals every second
-                    frames_this_second += 1
-                    if frames_this_second == args.fps:
+    if video_out is not None:
+        video_out.release()
 
-                        # Quit after specified time if indicated
-                        total_time += 1
-                        if args.maxtime is not None and total_time >= args.maxtime:
-                            break
+    edvs.stop()
 
-                        # Update stats for reporting
-                        raw_per_second = raw_total
-                        filt_per_second = filt_total
-                        raw_total = 0
-                        filt_total = 0
-                        frames_this_second = 0
-
-                    # Show big image, quitting on ESC
-                    cv2.imshow('Mini eDVS', bigimage)
-                    if cv2.waitKey(1) == 27:
-                        break
-
-                    # Save current big image frame if indicated
-                    if video_out is not None:
-                        video_out.write(bigimage, cv2.COLOR_GRAY2BGR)
-
-                    # Start over with a new empty frame
-                    image = new_image()
-
-            # Yield to sensor thread
-            sleep(1e-6)
-
-    except KeyboardInterrupt:
-
-        edvs.reset()
-        exit(0)
-
-    except Exception as e:
-
-        print(e)
-        edvs.reset()
-        exit(0)
-
-main()
+    thread.join()
 
 
+if __name__ == '__main__':
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    main()
