@@ -129,10 +129,18 @@ def main():
 
                 x, y, p = edvs.next()
 
+                print(x, y, p)
+
                 # Add event to unfiltered image
                 image[y, x] = polarity2color(x, y, p, args)
 
-                print(x, y, p)
+                raw_total += 1
+
+                # Add event to filtered image if event passes the filter
+                #if filt.check(e):
+                #    image[y, x + 128] = polarity2color(x, y, p, args)
+                #    filt_total += 1
+
 
             # Yield to sensor thread
             sleep(1e-6)
@@ -142,4 +150,17 @@ def main():
         edvs.reset()
         exit(0)
 
+    except Exception:
+
+        edvs.reset()
+        exit(0)
+
 main()
+
+
+
+
+
+
+
+
