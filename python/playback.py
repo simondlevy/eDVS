@@ -56,8 +56,10 @@ def main():
 
     time_prev = 0
 
-    filt = (OrderNbackgroundActivityFilter() if args.denoising == 'knoise'
-            else SpatioTemporalCorrelationFilter() if args.denoising == 'dvsnoise' 
+    filt = (OrderNbackgroundActivityFilter()
+            if args.denoising == 'knoise'
+            else SpatioTemporalCorrelationFilter()
+            if args.denoising == 'dvsnoise'
             else PassThruFilter())
 
     # Helps group events into frames
@@ -71,13 +73,13 @@ def main():
     filt_total = 0
     raw_per_second = 0
     filt_per_second = 0
-    
+
     # Open video output file if indicated
     video_out = (cv2.VideoWriter(args.video,
-                          cv2.VideoWriter_fourcc('M','J','P','G'),
-                          30,
-                          (args.scaleup * 256, args.scaleup * 128))
-           if args.video is not None else None)
+                                 cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+                                 30,
+                                 (args.scaleup * 256, args.scaleup * 128))
+                 if args.video is not None else None)
 
     with AedatFile(args.filename) as f:
 
@@ -92,7 +94,8 @@ def main():
 
                 # Add event to filtered image if event passes the filter
                 if filt.check(e):
-                    image[e.y, e.x + 128] = polarity2color(e.x, e.y, e.polarity, args)
+                    image[e.y, e.x + 128] = \
+                            polarity2color(e.x, e.y, e.polarity, args)
                     filt_total += 1
 
                 # Update images periodically
@@ -109,7 +112,7 @@ def main():
                     # raw from filtered
                     bigimage[:, 128*args.scaleup] = 255
 
-                     # Report events per second every second
+                    # Report events per second every second
                     if raw_per_second > 0:
                         add_events_per_second(bigimage, 50, raw_per_second)
                         add_events_per_second(bigimage, 300, filt_per_second)
@@ -120,7 +123,8 @@ def main():
 
                         # Quit after specified time if indicated
                         total_time += 1
-                        if args.maxtime is not None and total_time >= args.maxtime:
+                        if (args.maxtime is not None
+                            and total_time >= args.maxtime):
                             break
 
                         # Update stats for reporting

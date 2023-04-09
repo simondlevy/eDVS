@@ -32,7 +32,6 @@ def main():
                            choices=(0, 2, 3, 4),
                            help='Event format')
 
-
     argparser.add_argument('-f', '--fps', type=int, default=30,
                            help='Frame rate per second for display')
 
@@ -77,10 +76,10 @@ def main():
 
     # Open video output file if indicated
     video_out = (cv2.VideoWriter(args.video,
-                          cv2.VideoWriter_fourcc('M','J','P','G'),
-                          30,
-                          (args.scaleup * 256, args.scaleup * 128))
-           if args.video is not None else None)
+                                 cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+                                 30,
+                                 (args.scaleup * 256, args.scaleup * 128))
+                 if args.video is not None else None)
 
     time_start = time()
 
@@ -92,7 +91,7 @@ def main():
             x, y, p = edvs.next()
 
             image[x, y] = polarity2color(x, y, p == -1, args)
-                         
+
             counts[x, y] = 1
 
         # Zero out events older than a certain time before now
