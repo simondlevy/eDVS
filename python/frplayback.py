@@ -42,9 +42,6 @@ def main():
 
     argparser.add_argument('filename')
 
-    argparser.add_argument('-s', '--scaleup', type=int, default=2,
-                           help='Scale-up factor for display')
-
     argparser.add_argument('-f', '--fps', type=int, default=30,
                            help='Frame rate per second for display')
 
@@ -57,6 +54,9 @@ def main():
 
     argparser.add_argument('-v', '--video', default=None,
                            help='Name of video file to save')
+
+    argparser.add_argument('-s', '--scaleup', type=int, default=2,
+                           help='Scale-up factor for display')
 
     args = argparser.parse_args()
 

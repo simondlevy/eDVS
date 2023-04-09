@@ -14,6 +14,24 @@ import numpy as np
 import argparse
 
 
+class _PassThruFilter:
+
+    def check(self, e):
+
+        return True
+
+
+def _show_events_per_second(bigimage, xpos, value):
+
+    cv2.putText(bigimage,
+                '%d events/second' % value,
+                (xpos, 25),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,            # scale
+                (0, 255, 255),  # color
+                1,              # thickness
+                2)              # line type
+
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -25,18 +43,19 @@ def main():
     argparser.add_argument('-b', '--baud', default=2000000, type=int,
                            help='Baud rate')
 
-    argparser.add_argument('-i', '--interval', default=0.02, type=float,
-                           help='Fade-out interval for events')
+    argparser.add_argument('-e', '--event-format', type=int, default=4,
+                           choices=(0, 2, 3, 4),
+                           help='Event format')
+
+
+    argparser.add_argument('-f', '--fps', type=int, default=30,
+                           help='Frame rate per second for display')
 
     argparser.add_argument('-c', '--color', action='store_true',
                            help='Display in color')
 
     argparser.add_argument('-s', '--scaleup', default=2, type=int,
                            help='Scale-up factor')
-
-    argparser.add_argument('-e', '--event-format', type=int, default=4,
-                           choices=(0, 2, 3, 4),
-                           help='Event format')
 
     args = argparser.parse_args()
 
@@ -59,7 +78,7 @@ def main():
 
     # Compute number of iterations before events should disappear, based on
     # 1msec display assumption
-    ageout = int(args.interval * 1000)
+    ageout = int(1./args.fps * 1000)
 
     while(True):
 
