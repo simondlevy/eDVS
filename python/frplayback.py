@@ -50,6 +50,9 @@ def main():
     argparser.add_argument('-f', '--fps', type=int, default=30,
                            help='Frame rate per second for display')
 
+    argparser.add_argument('-c', '--color', action='store_true',
+                           help='Display in color')
+
     argparser.add_argument('-d', '--denoising', default='none',
                            choices=('dvsknoise', 'knoise', 'none'),
                            help='Denoising filter choice')
@@ -99,7 +102,8 @@ def main():
             for e in f['events']:
 
                 # Add event to unfiltered image
-                image[e.y, e.x] = 255
+                image[e.y, e.x] = (((0, 0, 255) if e.polarity else (0, 255, 0))
+                               if args.color else (255, 255, 255))
 
                 raw_total += 1
 
