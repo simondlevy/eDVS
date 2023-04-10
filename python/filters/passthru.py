@@ -160,7 +160,7 @@ class Display:
 
     def _polarity2color(self, e):
 
-        return (((0, 255, 0) if e.polarity else (0, 0, 255))
+        return (((0, 0, 255) if e.polarity else (0, 255, 0))
                 if self.color else (255, 255, 255))
 
     def _add_events_per_second(self, image, xpos, value):
