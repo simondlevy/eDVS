@@ -43,14 +43,16 @@ class OrderNbackgroundActivityFilter:
         '''
 
         # assume all edge events are noise and filter out
-        if (e.x <= 0 or e.y <= 0
-            or e.x >= self.sx - self.supporters or e.y >= self.sy - self.supporters):
+        if (e.x <= 0 or e.y <= 0 or
+                e.x >= self.sx - self.supporters or
+                e.y >= self.sy - self.supporters):
             return False
 
         return (
-                self._check_row_or_col(e, self.last_row_ts, self.last_x_by_row, e.y, e.x) 
-                or 
-                self._check_row_or_col(e, self.last_col_ts, self.last_y_by_col, e.x, e.y)) 
+                self._check_row_or_col(
+                    e, self.last_row_ts, self.last_x_by_row, e.y, e.x) or
+                self._check_row_or_col(
+                    e, self.last_col_ts, self.last_y_by_col, e.x, e.y))
 
     def _save_event(self, e):
         self.last_x_by_row[e.y] = e.x
@@ -71,14 +73,22 @@ class OrderNbackgroundActivityFilter:
         before this time
         '''
 
-        self._initialize_row_or_col(self.last_row_ts, self.last_x_by_row, self.sx, 
-                                    noise_rate_hz, last_timestamp_us)
+        self._initialize_row_or_col(
+                self.last_row_ts,
+                self.last_x_by_row,
+                self.sx,
+                noise_rate_hz,
+                last_timestamp_us)
 
+        self._initialize_row_or_col(
+                self.last_col_ts,
+                self.last_y_by_col,
+                self.sy,
+                noise_rate_hz,
+                last_timestamp_us)
 
-        self._initialize_row_or_col(self.last_col_ts, self.last_y_by_col, self.sy, 
-                                    noise_rate_hz, last_timestamp_us)
-
-    def _initialize_row_or_col(self, ts, x_or_y, s, noise_rate_hz, last_timestamp_us):
+    def _initialize_row_or_col(
+            self, ts, x_or_y, s, noise_rate_hz, last_timestamp_us):
 
         for i in range(len(ts)):
 
@@ -92,9 +102,9 @@ class OrderNbackgroundActivityFilter:
     def _check_row_or_col(self, e, ts, x_or_y, coord, other):
 
         for k in range(-self.supporters, self.supporters+1):
-            if (ts[coord + k] != self.DEFAULT_TIMESTAMP
-                and e.timestamp - ts[coord + k] < self.dt_usec
-                and abs(x_or_y[coord + k] - other) <= 1):
+            if (ts[coord + k] != self.DEFAULT_TIMESTAMP and
+                    e.timestamp - ts[coord + k] < self.dt_usec
+                    and abs(x_or_y[coord + k] - other) <= 1):
                 # if there was event (ts!=DEFAULT_TIMESTAMP), and the timestamp
                 # is recent enough, and the column was adjacent, then filter in
                 self._save_event(e)
