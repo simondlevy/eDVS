@@ -45,14 +45,19 @@ class Display:
         Returns False on quit, True otherwise
         '''
 
-        if not show_big_image(
-                self.name,
-                args.scaleup,
-                self.raw_image,
-                self.raw_per_second,
-                self.flt_image,
-                self.flt_per_second,
-                video_out):
+        big_image = np.hstack((_enlarge(self.raw_image, args.scaleup),
+                               _enlarge(self.flt_image, args.scaleup)))
+
+        # Draw a line down the middle of the big image to separate
+        # raw from filtered
+        big_image[:, 128*args.scaleup] = 255
+
+        add_events_per_second(big_image, 50, self.raw_per_second)
+        add_events_per_second(big_image, 300, self.flt_per_second)
+
+        # Show big image, quitting on ESC
+        cv2.imshow(self.name, big_image)
+        if cv2.waitKey(1) == 27:
             return False
 
         # Update events-per-second totals every second
@@ -150,41 +155,11 @@ def polarity2color(e, args):
             if args.color else (255, 255, 255))
 
 
-def _enlarge(image, factor):
-
-    return cv2.resize(image, (128*factor, 128*factor))
-
-
-def show_big_image(name,
-                   scaleup,
-                   raw_image,
-                   raw_per_second,
-                   flt_image,
-                   flt_per_second,
-                   video_out):
-
-    big_image = np.hstack((_enlarge(raw_image, scaleup),
-                           _enlarge(flt_image, scaleup)))
-
-    # Draw a line down the middle of the big image to separate
-    # raw from filtered
-    big_image[:, 128*scaleup] = 255
-
-    add_events_per_second(big_image, 50, raw_per_second)
-    add_events_per_second(big_image, 300, flt_per_second)
-
-    # Show big image, quitting on ESC
-    cv2.imshow(name, big_image)
-    if cv2.waitKey(1) == 27:
-        return False
-
-    # Save current big image frame if indicated
-    if video_out is not None:
-        video_out.write(big_image)
-
-    return True
-
-
 def close_video(video_out):
     if video_out is not None:
         video_out.release()
+
+
+def _enlarge(image, factor):
+
+    return cv2.resize(image, (128*factor, 128*factor))

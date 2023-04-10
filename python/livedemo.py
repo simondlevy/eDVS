@@ -20,6 +20,7 @@ from utils import Display
 
 def run(edvs, args, denoise, video_out):
 
+    # Create a display window for the events
     display = Display('mini-eDVS')
 
     # Display firmware version
