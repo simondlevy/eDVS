@@ -38,12 +38,23 @@ class OrderNbackgroundActivityFilter {
                 _last_y_by_col[k] = 0;
             }
 
-            // initialize_last_times_map_for_noise_rate(last_timestamp);
+            initialize_last_times_map_for_noise_rate(last_timestamp);
         }
 
         bool check(const EDVS::event_t & e)
         {
             return true;
+
+            // assume all edge events are noise and filter out
+            if (e.x <= 0 || e.y <= 0 ||
+                    e.x >= _sx - _supporters || e.y >= _sy - _supporters) {
+
+                return false;
+            }
+
+            return true;
+                check_row_or_col(e, _last_row_ts, _last_x_by_row, e.y, e.x) ||
+                check_row_or_col(e, _last_col_ts, _last_y_by_col, e.x, e.y);
         }
 
     private:
@@ -75,12 +86,8 @@ class OrderNbackgroundActivityFilter {
                before this time
              */
 
-            while (true) {
-                initialize_row_or_col(_last_row_ts, _last_x_by_row, _sx, 
-                        noise_rate_hz, last_timestamp_us);
-                delay(100);
-            }
-
+            initialize_row_or_col(_last_row_ts, _last_x_by_row, _sx, 
+                    noise_rate_hz, last_timestamp_us);
 
             initialize_row_or_col(_last_col_ts, _last_y_by_col, _sy, 
                     noise_rate_hz, last_timestamp_us);
@@ -104,4 +111,37 @@ class OrderNbackgroundActivityFilter {
             }
         }
 
+        bool check_row_or_col(
+                const EDVS::event_t & e,
+                const uint32_t ts[], 
+                const uint8_t x_or_y[], 
+                const uint8_t coord, 
+                const uint8_t other)
+        {
+            return true;
+
+            for (uint8_t k=-_supporters; k<=_supporters; ++k) {
+
+                if (
+                        // if there was event (ts!=DEFAULT_TIMESTAMP), and the timestamp
+                        // is recent enough, and the column was adjacent, then filter in
+                        ts[coord + k] != DEFAULT_TIMESTAMP &&
+                        e.t- ts[coord + k] < _dt_usec &&
+                        abs(x_or_y[coord + k] - other) <= 1) {
+
+                    save_event(e);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        void save_event(const EDVS::event_t & e)
+        {
+            _last_x_by_row[e.y] = e.x;
+            _last_y_by_col[e.x] = e.y;
+            _last_col_ts[e.x] = e.t;
+            _last_row_ts[e.y] = e.t;
+        }
 };
