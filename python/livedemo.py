@@ -13,38 +13,15 @@ import cv2
 import numpy as np
 import argparse
 from time import time
+import traceback
 
 from utils import polarity2color, parse_args, show_big_image, close_video, new_image
 from utils import get_filter
 
-
-def main():
-
-    argparser = argparse.ArgumentParser(
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
-    argparser.add_argument('-p', '--port', default='/dev/ttyUSB0',
-                           help='Port (/dev/ttyUSB0, COM5, etc.')
-
-    argparser.add_argument('-b', '--baud', default=2000000, type=int,
-                           help='Baud rate')
-
-    argparser.add_argument('-e', '--event-format', type=int, default=4,
-                           choices=(0, 2, 3, 4),
-                           help='Event format')
-
-    args, video_out = parse_args(argparser)
-
-    # Connect to sensor
-    edvs = EDVS(args.port, args.baud, event_format=args.event_format)
+def run(edvs, args, video_out):
 
     # Display firmware version
     print(edvs.version())
-
-    # Start sensor on its own thread
-    thread = Thread(target=edvs.start)
-    thread.daemon = True
-    thread.start()
 
     # Track time so we can stop displaying old events
     raw_counts = np.zeros((128, 128)).astype('uint8')
@@ -63,12 +40,19 @@ def main():
     # 1msec display assumption
     ageout = int(1./args.fps * 1000)
 
+    # Start sensor on its own thread
+    thread = Thread(target=edvs.start)
+    thread.daemon = True
+    thread.start()
+
     time_start = time()
 
     while True:
 
         # Get events from DVS
         while edvs.hasNext():
+
+            time_usec = int((time() - time_start) * 1e6)
 
             e = edvs.next()
 
@@ -111,6 +95,36 @@ def main():
     edvs.stop()
 
     thread.join()
+
+def main():
+
+    argparser = argparse.ArgumentParser(
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    argparser.add_argument('-p', '--port', default='/dev/ttyUSB0',
+                           help='Port (/dev/ttyUSB0, COM5, etc.')
+
+    argparser.add_argument('-b', '--baud', default=2000000, type=int,
+                           help='Baud rate')
+
+    argparser.add_argument('-e', '--event-format', type=int, default=4,
+                           choices=(0, 2, 3, 4),
+                           help='Event format')
+
+    args, video_out = parse_args(argparser)
+
+    # Connect to sensor
+    edvs = EDVS(args.port, args.baud, event_format=args.event_format)
+
+    try:
+        run(edvs, args, video_out)
+
+    # Stop streaming on error
+    except Exception as e:
+        traceback.print_exc()
+        edvs.reset()
+        exit(0)
+
 
 
 if __name__ == '__main__':

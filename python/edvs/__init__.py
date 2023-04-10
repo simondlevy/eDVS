@@ -39,14 +39,6 @@ class EDVS:
 
         self.done = False
 
-    def _byte2coord(self, b):
-
-        return b & 0b01111111
-
-    def _enqueue(self, b0, x, y):
-        self.queue[self.qpos] = Event(x, y, bool(b0))
-        self._advance()
-
     def reset(self):
 
         self._send('R')
@@ -169,3 +161,13 @@ class EDVS:
     def _advance(self):
 
         self.qpos = (self.qpos+1) % self.QSIZE
+
+    def _byte2coord(self, b):
+
+        return b & 0b01111111
+
+    def _enqueue(self, b0, x, y):
+        self.queue[self.qpos] = Event(x, y, bool(b0))
+        self._advance()
+
+
