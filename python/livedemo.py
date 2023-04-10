@@ -15,6 +15,7 @@ import argparse
 from time import time
 
 from utils import polarity2color, parse_args, show_big_image, close_video, new_image
+from utils import PassThruFilter
 
 
 def main():
@@ -46,11 +47,15 @@ def main():
     thread.start()
 
     # Track time so we can stop displaying old events
-    counts = np.zeros((128, 128)).astype('uint8')
+    raw_counts = np.zeros((128, 128)).astype('uint8')
+    flt_counts = np.zeros((128, 128)).astype('uint8')
 
     # Start with empty images
     raw_image = new_image()
     flt_image = new_image()
+
+    raw_per_second = 0
+    flt_per_second = 0
 
     # Compute number of iterations before events should disappear, based on
     # 1msec display assumption
@@ -58,26 +63,29 @@ def main():
 
     time_start = time()
 
-    raw_per_second = 0
-    flt_per_second = 0
+    denoise = (OrderNbackgroundActivityFilter()
+               if args.denoising == 'knoise'
+               else SpatioTemporalCorrelationFilter()
+               if args.denoising == 'dvsnoise'
+               else PassThruFilter())
 
     while True:
 
         # Get events from DVS
         while edvs.hasNext():
 
-            x, y, p = edvs.next()
+            e = edvs.next()
 
-            raw_image[x, y] = polarity2color(x, y, p == -1, args)
+            raw_image[e.x, e.y] = polarity2color(e.x, e.y, e.p, args)
 
-            counts[x, y] = 1
+            raw_counts[e.x, e.y] = 1
 
         # Zero out events older than a certain time before now
-        raw_image[counts == ageout] = 0
-        counts[counts == ageout] = 0
+        raw_image[raw_counts == ageout] = 0
+        raw_counts[raw_counts == ageout] = 0
 
         # Increase age for events
-        counts[counts > 0] += 1
+        raw_counts[raw_counts > 0] += 1
 
         if not show_big_image(
                 'mini-eDVS', 

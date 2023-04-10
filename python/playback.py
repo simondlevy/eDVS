@@ -34,11 +34,11 @@ def main():
 
     time_prev = 0
 
-    filt = (OrderNbackgroundActivityFilter()
-            if args.denoising == 'knoise'
-            else SpatioTemporalCorrelationFilter()
-            if args.denoising == 'dvsnoise'
-            else PassThruFilter())
+    denoise = (OrderNbackgroundActivityFilter()
+               if args.denoising == 'knoise'
+               else SpatioTemporalCorrelationFilter()
+               if args.denoising == 'dvsnoise'
+               else PassThruFilter())
 
     # Helps group events into frames
     frames_this_second = 0
@@ -64,7 +64,7 @@ def main():
                 raw_total += 1
 
                 # Add event to filtered image if event passes the filter
-                if filt.check(e):
+                if denoise.check(e):
                     flt_image[e.y, e.x] = polarity2color(e.x, e.y, e.polarity, args)
                     flt_total += 1
 

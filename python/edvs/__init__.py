@@ -9,6 +9,14 @@ MIT License
 import serial
 import time
 
+class Event:
+
+    def __init__(self, x, y, p, t=0):
+
+        self.x = x
+        self.y = y
+        self.p = p
+        self.timestamp = t
 
 class EDVS:
 
@@ -36,8 +44,7 @@ class EDVS:
         return b & 0b01111111
 
     def _enqueue(self, b0, x, y):
-        p = 2 * b0 - 1  # Convert event polarity from 0,1 to -1,+1
-        self.queue[self.qpos] = (x, y, p)
+        self.queue[self.qpos] = Event(x, y, bool(b0))
         self._advance()
 
     def reset(self):
