@@ -168,7 +168,7 @@ class Display:
                         cv2.FONT_HERSHEY_SIMPLEX,
                         0.5,            # scale
                         (0, 255, 255),  # color
-                        1,              # thickness
+                        2,              # thickness
                         2)              # line type
 
 

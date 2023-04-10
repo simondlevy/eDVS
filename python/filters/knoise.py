@@ -20,7 +20,7 @@ class OrderNbackgroundActivityFilter:
                  last_timestamp=4294967295,
                  sx=128,
                  sy=128,
-                 dt_msec=10,
+                 dt_msec=100,
                  supporters=10):
 
         self.sx = sx
