@@ -102,9 +102,11 @@ class OrderNbackgroundActivityFilter:
     def _check_row_or_col(self, e, ts, x_or_y, coord, other):
 
         for k in range(-self.supporters, self.supporters+1):
+
             if (ts[coord + k] != self.DEFAULT_TIMESTAMP and
                     e.timestamp - ts[coord + k] < self.dt_usec
                     and abs(x_or_y[coord + k] - other) <= 1):
+
                 # if there was event (ts!=DEFAULT_TIMESTAMP), and the timestamp
                 # is recent enough, and the column was adjacent, then filter in
                 self._save_event(e)
