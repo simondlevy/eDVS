@@ -22,8 +22,8 @@ void serialEvent1(void)
 
             const uint8_t coords[2] = {e.x, e.y};
 
-            // static OrderNbackgroundActivityFilter filter;
-            static PassThruFilter filter;
+            static OrderNbackgroundActivityFilter filter;
+            //static PassThruFilter filter;
 
             if (filter.check(e)) {
 

@@ -66,10 +66,14 @@ def main():
                 event_count += n
                 if time() - time_prev > 1:
                     if time_prev > 0:
-                        print(('%6d events per second; %d frames ' +
-                              'per second; %d events per frame') %
-                              (event_count, frame_count,
-                               event_count/frame_count))
+                        if frame_count > 0:
+                            print(('%6d events per second; %d frames ' +
+                                  'per second; %d events per frame') %
+                                  (event_count, frame_count,
+                                   event_count/frame_count))
+                        else:
+                            print('No events in over one second; quitting')
+                            exit(0)
                     time_prev = time()
                     event_count = 0
                     frame_count = 0

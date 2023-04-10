@@ -50,7 +50,7 @@ class OrderNbackgroundActivityFilter {
                 return false;
             }
 
-            return 
+            return true;
                 check_row_or_col(e, _last_row_ts, _last_x_by_row, e.y, e.x) ||
                 check_row_or_col(e, _last_col_ts, _last_y_by_col, e.x, e.y);
         }
