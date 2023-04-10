@@ -8,6 +8,7 @@ MIT License
 
 #include "edvs.h"
 #include "filters/knoise.h"
+#include "filters/passthru.h"
 
 static EDVS edvs; 
 
@@ -21,7 +22,8 @@ void serialEvent1(void)
 
             const uint8_t coords[2] = {e.x, e.y};
 
-            static OrderNbackgroundActivityFilter filter;
+            // static OrderNbackgroundActivityFilter filter;
+            static PassThruFilter filter;
 
             if (filter.check(e)) {
 
