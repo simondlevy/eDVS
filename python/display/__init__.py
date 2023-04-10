@@ -12,6 +12,7 @@ from time import time
 
 from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import OrderNbackgroundActivityFilter
+from filters.passthru import PassThruFilter
 
 
 class Display:
@@ -45,7 +46,7 @@ class Display:
                         if args.denoising == 'knoise'
                         else SpatioTemporalCorrelationFilter()
                         if args.denoising == 'dvsnoise'
-                        else self._PassThruFilter())
+                        else PassThruFilter())
 
         self.video_out = (self._video_writer(args)
                           if args.video is not None else None)
@@ -136,12 +137,6 @@ class Display:
 
         self.raw_image = self._new_image()
         self.flt_image = self._new_image()
-
-    class _PassThruFilter:
-
-        def check(self, e):
-
-            return True
 
     def _video_writer(self, args):
 
