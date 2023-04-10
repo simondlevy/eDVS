@@ -7,12 +7,13 @@
  */
 
 #include "edvs.h"
+#include "filter.h"
 
-class PassThruFilter {
+class PassThruFilter : public NoiseFilter{
 
     public:
 
-        bool check(const EDVS::event_t & e)
+        bool check(const EDVS::event_t & e) override
         {
             (void)e;
             return true;

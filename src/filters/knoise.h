@@ -37,6 +37,8 @@ class OrderNbackgroundActivityFilter {
                 _last_x_by_row[k] = 0;
                 _last_y_by_col[k] = 0;
             }
+
+            // initialize_last_times_map_for_noise_rate(last_timestamp);
         }
 
         bool check(const EDVS::event_t & e)
@@ -59,4 +61,47 @@ class OrderNbackgroundActivityFilter {
         uint8_t _last_x_by_row[128];
         uint8_t _last_y_by_col[128];
 
- };
+        void initialize_last_times_map_for_noise_rate(
+                const uint32_t last_timestamp_us,
+                const float noise_rate_hz = 0.1)
+        {
+            /*
+               Fills 1d arrays with random events with waiting times drawn from
+               Poisson process with rate noise_rate_hz
+
+               @param noise_rate_hz rate in Hz
+
+               @param last_timestamp_us the last timestamp; waiting times are created
+               before this time
+             */
+
+            while (true) {
+                initialize_row_or_col(_last_row_ts, _last_x_by_row, _sx, 
+                        noise_rate_hz, last_timestamp_us);
+                delay(100);
+            }
+
+
+            initialize_row_or_col(_last_col_ts, _last_y_by_col, _sy, 
+                    noise_rate_hz, last_timestamp_us);
+        }
+
+        void initialize_row_or_col(
+                uint32_t ts[],
+                uint8_t x_or_y[], 
+                const uint8_t s, 
+                const float noise_rate_hz, 
+                const uint32_t last_timestamp_us)
+        {
+            for (uint8_t i=0; i<128; ++i) {
+
+                const float p = (float)random() / LONG_MAX;
+                const float t = -noise_rate_hz * log(1 - p);
+                const uint32_t tUs = (int)(1000000 * t);
+
+                ts[i] = last_timestamp_us - tUs;
+                x_or_y[i] = random(s);
+            }
+        }
+
+};
