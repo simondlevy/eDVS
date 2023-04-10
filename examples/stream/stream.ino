@@ -7,7 +7,7 @@ MIT License
 */
 
 #include "edvs.h"
-#include "edvs_knoise_filter.h"
+#include "filters/knoise.h"
 
 static EDVS edvs; 
 
