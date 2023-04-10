@@ -17,12 +17,7 @@ from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import OrderNbackgroundActivityFilter
 
 from utils import PassThruFilter, add_events_per_second, polarity2color
-from utils import parse_args, show_big_image, close_video
-
-
-def new_image():
-
-    return np.zeros((128, 256, 3), dtype=np.uint8)
+from utils import parse_args, show_big_image, close_video, new_image
 
 
 def main():
@@ -34,7 +29,8 @@ def main():
 
     args, video_out = parse_args(argparser)
 
-    image = new_image()
+    raw_image = new_image()
+    fltimage = new_image()
 
     time_prev = 0
 
@@ -63,14 +59,13 @@ def main():
             for e in f['events']:
 
                 # Add event to unfiltered image
-                image[e.y, e.x] = polarity2color(e.x, e.y, e.polarity, args)
+                raw_image[e.y, e.x] = polarity2color(e.x, e.y, e.polarity, args)
 
                 raw_total += 1
 
                 # Add event to filtered image if event passes the filter
                 if filt.check(e):
-                    image[e.y, e.x + 128] = \
-                            polarity2color(e.x, e.y, e.polarity, args)
+                    fltimage[e.y, e.x] = polarity2color(e.x, e.y, e.polarity, args)
                     filt_total += 1
 
                 # Update images periodically
@@ -78,19 +73,15 @@ def main():
 
                     time_prev = time()
 
-                    # Make big image from raw/filtered image frame
-                    bigimage = cv2.resize(image,
-                                          (image.shape[1]*args.scaleup,
-                                           image.shape[0]*args.scaleup))
-
-                    # Draw a line down the middle of the big image to separate
-                    # raw from filtered
-                    bigimage[:, 128*args.scaleup] = 255
-
-                    # Report events per second every second
-                    if raw_per_second > 0:
-                        add_events_per_second(bigimage, 50, raw_per_second)
-                        add_events_per_second(bigimage, 300, filt_per_second)
+                    if not show_big_image(
+                            args.filename, 
+                            args.scaleup, 
+                            raw_image, 
+                            raw_per_second,
+                            fltimage,
+                            filt_per_second,
+                            video_out):
+                        break
 
                     # Update events-per-second totals every second
                     frames_this_second += 1
@@ -109,11 +100,9 @@ def main():
                         filt_total = 0
                         frames_this_second = 0
 
-                    if not show_big_image(args.filename, bigimage, video_out):
-                        break
-
                     # Start over with a new empty frame
-                    image = new_image()
+                    raw_image = new_image()
+                    fltimage = new_image()
 
             close_video(video_out)
 

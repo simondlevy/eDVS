@@ -14,7 +14,7 @@ import numpy as np
 import argparse
 from time import time
 
-from utils import polarity2color, parse_args, show_big_image, close_video
+from utils import polarity2color, parse_args, show_big_image, close_video, new_image
 
 
 def main():
@@ -49,7 +49,7 @@ def main():
     counts = np.zeros((128, 128)).astype('uint8')
 
     # Start with an empty image
-    image = np.zeros((128, 128, 3)).astype('uint8')
+    image = new_image()
 
     # Compute number of iterations before events should disappear, based on
     # 1msec display assumption
@@ -69,14 +69,16 @@ def main():
             counts[x, y] = 1
 
         # Zero out events older than a certain time before now
-        image[counts == ageout] = 0
+        # image[counts == ageout, 0] = 0
         counts[counts == ageout] = 0
 
         # Increase age for events
         counts[counts > 0] += 1
 
-        # Scale up the image for visibility
-        bigimage = cv2.resize(image, (128*args.scaleup, 128*args.scaleup))
+        # Make big image from raw/filtered image frame
+        bigimage = cv2.resize(image,
+                              (image.shape[1]*args.scaleup,
+                               image.shape[0]*args.scaleup))
 
         if not show_big_image('mini-eDVS', bigimage, video_out):
             break

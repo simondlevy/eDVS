@@ -50,21 +50,23 @@ def parse_args(argparser):
     return args, video_out
 
 
-def add_events_per_second(bigimage, xpos, value):
+def add_events_per_second(image, xpos, value):
 
-    cv2.putText(bigimage,
-                '%d events/second' % value,
-                (xpos, 25),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,            # scale
-                (0, 255, 255),  # color
-                1,              # thickness
-                2)              # line type
+    if value > 0:
+
+        cv2.putText(image,
+                    '%d events/second' % value,
+                    (xpos, 25),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,            # scale
+                    (0, 255, 255),  # color
+                    1,              # thickness
+                    2)              # line type
 
 
 def new_image():
 
-    return np.zeros((128, 256, 3), dtype=np.uint8)
+    return np.zeros((128, 128, 3), dtype=np.uint8)
 
 
 def polarity2color(x, y, p, args):
@@ -73,16 +75,36 @@ def polarity2color(x, y, p, args):
             if args.color else (255, 255, 255))
 
 
-def show_big_image(name, bigimage, video_out):
+def _enlarge(image, factor):
+
+    return cv2.resize(image, (128*factor, 128*factor))
+
+def show_big_image(name,
+                   scaleup,
+                   raw_image,
+                   raw_per_second,
+                   flt_image,
+                   flt_per_second,
+                   video_out):
+
+
+    big_image = np.hstack((_enlarge(raw_image, scaleup), _enlarge(flt_image, scaleup)))
+
+    # Draw a line down the middle of the big image to separate
+    # raw from filtered
+    big_image[:, 128*scaleup] = 255
+
+    add_events_per_second(big_image, 50, raw_per_second)
+    add_events_per_second(big_image, 300, flt_per_second)
 
     # Show big image, quitting on ESC
-    cv2.imshow(name, bigimage)
+    cv2.imshow(name, big_image)
     if cv2.waitKey(1) == 27:
         return False
 
     # Save current big image frame if indicated
     if video_out is not None:
-        video_out.write(bigimage)
+        video_out.write(big_image)
 
     return True
 
