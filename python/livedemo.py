@@ -14,14 +14,14 @@ import numpy as np
 import argparse
 import traceback
 
-from utils import polarity2color, parse_args, close_video
+from utils import parse_args, close_video
 from utils import Display
 
 
 def run(edvs, args, denoise, video_out):
 
     # Create a display window for the events
-    display = Display('mini-eDVS', args)
+    display = Display('mini-eDVS', denoise, args)
 
     # Display firmware version
     print(edvs.version())
@@ -46,17 +46,10 @@ def run(edvs, args, denoise, video_out):
 
             e = edvs.next()
 
-            # Add event to unfiltered image
-            display.raw_total += 1
-            display.raw_image[e.y, e.x] = polarity2color(e, args)
-
-            # Add event to filtered image if event passes the filter
-            if denoise.check(e):
-                display.flt_image[e.y, e.x] = polarity2color(e, args)
-                display.flt_total += 1
-                flt_counts[e.y, e.x] = 1
-
             raw_counts[e.y, e.x] = 1
+
+            if display.addEvent(e):
+                flt_counts[e.y, e.x] = 1
 
         # Zero out events older than a certain time before now
         display.raw_image[raw_counts == ageout] = 0

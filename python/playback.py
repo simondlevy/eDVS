@@ -11,7 +11,6 @@ from dv import AedatFile
 import argparse
 from time import time
 
-from utils import polarity2color
 from utils import parse_args, close_video, new_image
 from utils import Display
 
@@ -25,7 +24,7 @@ def main():
 
     args, denoise, video_out = parse_args(argparser)
 
-    display = Display(args.filename, args)
+    display = Display(args.filename, denoise, args)
 
     time_prev = 0
 
@@ -35,15 +34,7 @@ def main():
 
             for e in f['events']:
 
-                # Add event to unfiltered image
-                display.raw_image[e.y, e.x] = polarity2color(e, args)
-
-                display.raw_total += 1
-
-                # Add event to filtered image if event passes the filter
-                if denoise.check(e):
-                    display.flt_image[e.y, e.x] = polarity2color(e, args)
-                    display.flt_total += 1
+                display.addEvent(e)
 
                 # Update images periodically
                 if time() - time_prev > 1./args.fps:

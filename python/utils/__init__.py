@@ -16,14 +16,17 @@ from filters.knoise import OrderNbackgroundActivityFilter
 
 class Display:
 
-    def __init__(self, name, args):
+    def __init__(self, name, denoise, args):
 
         # For display window
         self.name = name
 
+        self.denoise = denoise
+
         self.scaleup = args.scaleup
         self.fps = args.fps
         self.maxtime = args.maxtime
+        self.color = args.color
 
         # Start with empty images
         self.raw_image = new_image()
@@ -43,6 +46,25 @@ class Display:
 
         # Supports quitting after a specified time
         self.time_start = time()
+
+    def addEvent(self, e):
+        '''
+        Returns True if event passed denoising filter, False otherwise
+        '''
+
+        passed = False
+
+        # Add event to raw image
+        self.raw_image[e.y, e.x] = self._polarity2color(e)
+        self.raw_total += 1
+
+        # Add event to filtered image if event passes the filter
+        if self.denoise.check(e):
+            self.flt_image[e.y, e.x] = self._polarity2color(e)
+            self.flt_total += 1
+            passed = True
+
+        return passed
 
     def show(self):
         '''
@@ -87,6 +109,11 @@ class Display:
             return False
 
         return True
+
+    def _polarity2color(self, e):
+
+        return (((0, 0, 255) if e.polarity else (0, 255, 0))
+                if self.color else (255, 255, 255))
 
 
 class PassThruFilter:
@@ -151,12 +178,6 @@ def add_events_per_second(image, xpos, value):
 def new_image():
 
     return np.zeros((128, 128, 3), dtype=np.uint8)
-
-
-def polarity2color(e, args):
-
-    return (((0, 0, 255) if e.polarity else (0, 255, 0))
-            if args.color else (255, 255, 255))
 
 
 def close_video(video_out):
