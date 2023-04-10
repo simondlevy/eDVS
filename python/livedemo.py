@@ -33,6 +33,18 @@ def run(edvs, args, denoise, video_out):
     raw_per_second = 0
     flt_per_second = 0
 
+    # Helps group events into frames
+    frames_this_second = 0
+
+    # Supports the -t (quit after specified time) option
+    total_time = 0
+
+    # Supports statistics reporting
+    raw_total = 0
+    flt_total = 0
+    raw_per_second = 0
+    flt_per_second = 0
+
     # Compute number of iterations before events should disappear, based on
     # 1msec display assumption
     ageout = int(1./args.fps * 1000)
@@ -51,6 +63,8 @@ def run(edvs, args, denoise, video_out):
 
             e = edvs.next()
 
+            raw_total += 1
+
             raw_image[e.x, e.y] = polarity2color(e, args)
             raw_counts[e.x, e.y] = 1
 
@@ -58,6 +72,7 @@ def run(edvs, args, denoise, video_out):
             if denoise.check(e):
                 flt_image[e.x, e.y] = polarity2color(e, args)
                 flt_counts[e.x, e.y] = 1
+                flt_total += 1
 
         # Zero out events older than a certain time before now
         raw_image[raw_counts == ageout] = 0
@@ -78,6 +93,23 @@ def run(edvs, args, denoise, video_out):
                 flt_per_second,
                 video_out):
             break
+
+        # Update events-per-second totals every second
+        frames_this_second += 1
+        if frames_this_second == args.fps:
+
+            # Quit after specified time if indicated
+            total_time += 1
+            if (args.maxtime is not None and
+                    total_time >= args.maxtime):
+                break
+
+            # Update stats for reporting
+            raw_per_second = raw_total
+            flt_per_second = flt_total
+            raw_total = 0
+            flt_total = 0
+            frames_this_second = 0
 
         # Quit after specified time if indicated
         if args.maxtime is not None and time() - time_start >= args.maxtime:
