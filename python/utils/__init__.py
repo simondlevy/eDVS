@@ -69,9 +69,9 @@ def new_image():
     return np.zeros((128, 128, 3), dtype=np.uint8)
 
 
-def polarity2color(x, y, p, args):
+def polarity2color(e, args):
 
-    return (((0, 0, 255) if p else (0, 255, 0))
+    return (((0, 0, 255) if e.polarity else (0, 255, 0))
             if args.color else (255, 255, 255))
 
 

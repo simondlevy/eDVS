@@ -59,13 +59,13 @@ def main():
             for e in f['events']:
 
                 # Add event to unfiltered image
-                raw_image[e.y, e.x] = polarity2color(e.x, e.y, e.polarity, args)
+                raw_image[e.y, e.x] = polarity2color(e, args)
 
                 raw_total += 1
 
                 # Add event to filtered image if event passes the filter
                 if denoise.check(e):
-                    flt_image[e.y, e.x] = polarity2color(e.x, e.y, e.polarity, args)
+                    flt_image[e.y, e.x] = polarity2color(e, args)
                     flt_total += 1
 
                 # Update images periodically

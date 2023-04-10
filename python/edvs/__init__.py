@@ -15,7 +15,7 @@ class Event:
 
         self.x = x
         self.y = y
-        self.p = p
+        self.polarity = p
         self.timestamp = t
 
 class EDVS:

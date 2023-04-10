@@ -76,7 +76,7 @@ def main():
 
             e = edvs.next()
 
-            raw_image[e.x, e.y] = polarity2color(e.x, e.y, e.p, args)
+            raw_image[e.x, e.y] = polarity2color(e, args)
 
             raw_counts[e.x, e.y] = 1
 
