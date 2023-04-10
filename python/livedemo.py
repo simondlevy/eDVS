@@ -48,14 +48,18 @@ def main():
     # Track time so we can stop displaying old events
     counts = np.zeros((128, 128)).astype('uint8')
 
-    # Start with an empty image
-    image = new_image()
+    # Start with empty images
+    raw_image = new_image()
+    flt_image = new_image()
 
     # Compute number of iterations before events should disappear, based on
     # 1msec display assumption
     ageout = int(1./args.fps * 1000)
 
     time_start = time()
+
+    raw_per_second = 0
+    flt_per_second = 0
 
     while True:
 
@@ -64,23 +68,25 @@ def main():
 
             x, y, p = edvs.next()
 
-            image[x, y] = polarity2color(x, y, p == -1, args)
+            raw_image[x, y] = polarity2color(x, y, p == -1, args)
 
             counts[x, y] = 1
 
         # Zero out events older than a certain time before now
-        # image[counts == ageout, 0] = 0
+        raw_image[counts == ageout] = 0
         counts[counts == ageout] = 0
 
         # Increase age for events
         counts[counts > 0] += 1
 
-        # Make big image from raw/filtered image frame
-        bigimage = cv2.resize(image,
-                              (image.shape[1]*args.scaleup,
-                               image.shape[0]*args.scaleup))
-
-        if not show_big_image('mini-eDVS', bigimage, video_out):
+        if not show_big_image(
+                'mini-eDVS', 
+                args.scaleup, 
+                raw_image, 
+                raw_per_second,
+                flt_image,
+                flt_per_second,
+                video_out):
             break
 
         # Quit after specified time if indicated
