@@ -50,7 +50,7 @@ class OrderNbackgroundActivityFilter {
                 return false;
             }
 
-            return true;
+            return 
                 check_row_or_col(e, _last_row_ts, _last_x_by_row, e.y, e.x) ||
                 check_row_or_col(e, _last_col_ts, _last_y_by_col, e.x, e.y);
         }
@@ -116,6 +116,9 @@ class OrderNbackgroundActivityFilter {
                 const uint8_t coord, 
                 const uint8_t other)
         {
+            save_event(e);
+            return true;
+
             for (uint8_t k=-_supporters; k<=_supporters; ++k) {
 
                 if (

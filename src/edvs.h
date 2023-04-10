@@ -94,10 +94,12 @@ class EDVS {
                 _current.x = _x; 
                 _current.y = v; 
                 _current.p = 2*f-1; // Convert event polarity from 0,1 to -1,+1
+                _current.t = micros();
 
                 _queue[_qpos].x = _current.x;
                 _queue[_qpos].y = _current.y;
                 _queue[_qpos].p = _current.p;
+                _queue[_qpos].t = _current.t;
 
                 advance();
 
@@ -133,6 +135,7 @@ class EDVS {
             event.x = curr.x;
             event.y = curr.y;
             event.p = curr.p;
+            event.t = curr.t;
 
             _queue[_qpos].p = 0;         // polarity must be +1 or -1, so 0 indicates empty
             advance();
