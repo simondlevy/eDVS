@@ -22,7 +22,7 @@ class OrderNbackgroundActivityFilter {
                 const uint32_t last_timestamp=4294967295,
                 const uint8_t sx=128, 
                 const uint8_t sy=128, 
-                const uint32_t dt_msec=10,
+                const uint32_t dt_msec=100,
                 const uint8_t supporters=10)
         {
             _sx = sx;
@@ -43,8 +43,6 @@ class OrderNbackgroundActivityFilter {
 
         bool check(const EDVS::event_t & e)
         {
-            return true;
-
             // assume all edge events are noise and filter out
             if (e.x <= 0 || e.y <= 0 ||
                     e.x >= _sx - _supporters || e.y >= _sy - _supporters) {
@@ -118,8 +116,6 @@ class OrderNbackgroundActivityFilter {
                 const uint8_t coord, 
                 const uint8_t other)
         {
-            return true;
-
             for (uint8_t k=-_supporters; k<=_supporters; ++k) {
 
                 if (
