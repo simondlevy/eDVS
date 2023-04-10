@@ -7,7 +7,7 @@ MIT License
 '''
 
 import serial
-import time
+from time import time, sleep
 
 class Event:
 
@@ -63,6 +63,9 @@ class EDVS:
         # We run a finite-state machine to parse the incoming bytes
         state = 0
 
+        # Track system time for event format 0
+        time_start = time()
+
         # Flag will be set on main thread when user quits
         while not self.done:
 
@@ -83,11 +86,13 @@ class EDVS:
 
             # Second byte; record event
             elif state == 1:
+
                 y = self._byte2coord(b)
-                t = 0
+
+                t = int((time() - time_start) * 1e6)
 
                 if self.event_format == 0:
-                    self._enqueue(b0, x, y)
+                    self._enqueue(b0, x, y, t)
                     state = 0
                 else:
                     state = 2
@@ -97,7 +102,7 @@ class EDVS:
                 t = (t << 8) | b
                 state = (state + 1) % (self.event_format + 2)
                 if state == 0:
-                    self._enqueue(b0, x, y)
+                    self._enqueue(b0, x, y, t)
 
 
     def hasNext(self):
@@ -156,7 +161,7 @@ class EDVS:
     def _send(self, cmd):
 
         self.port.write((cmd + '\n').encode())
-        time.sleep(.01)
+        sleep(.01)
 
     def _advance(self):
 
@@ -166,8 +171,8 @@ class EDVS:
 
         return b & 0b01111111
 
-    def _enqueue(self, b0, x, y):
-        self.queue[self.qpos] = Event(x, y, bool(b0))
+    def _enqueue(self, b0, x, y, t):
+        self.queue[self.qpos] = Event(x, y, bool(b0), t)
         self._advance()
 
 

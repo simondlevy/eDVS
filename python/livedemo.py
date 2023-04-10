@@ -52,8 +52,6 @@ def run(edvs, args, video_out):
         # Get events from DVS
         while edvs.hasNext():
 
-            time_usec = int((time() - time_start) * 1e6)
-
             e = edvs.next()
 
             raw_image[e.x, e.y] = polarity2color(e, args)
@@ -107,7 +105,7 @@ def main():
     argparser.add_argument('-b', '--baud', default=2000000, type=int,
                            help='Baud rate')
 
-    argparser.add_argument('-e', '--event-format', type=int, default=4,
+    argparser.add_argument('-e', '--event-format', type=int, default=0,
                            choices=(0, 2, 3, 4),
                            help='Event format')
 
