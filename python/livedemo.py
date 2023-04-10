@@ -21,7 +21,7 @@ from utils import Display
 def run(edvs, args, denoise, video_out):
 
     # Create a display window for the events
-    display = Display('mini-eDVS')
+    display = Display('mini-eDVS', args)
 
     # Display firmware version
     print(edvs.version())
@@ -68,7 +68,7 @@ def run(edvs, args, denoise, video_out):
         raw_counts[raw_counts > 0] += 1
         flt_counts[flt_counts > 0] += 1
 
-        if not display.show(args, video_out):
+        if not display.show():
             break
 
     cv2.destroyAllWindows()

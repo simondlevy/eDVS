@@ -16,10 +16,14 @@ from filters.knoise import OrderNbackgroundActivityFilter
 
 class Display:
 
-    def __init__(self, name):
+    def __init__(self, name, args):
 
         # For display window
         self.name = name
+
+        self.scaleup = args.scaleup
+        self.fps = args.fps
+        self.maxtime = args.maxtime
 
         # Start with empty images
         self.raw_image = new_image()
@@ -40,17 +44,17 @@ class Display:
         # Supports quitting after a specified time
         self.time_start = time()
 
-    def show(self, args, video_out):
+    def show(self):
         '''
         Returns False on quit, True otherwise
         '''
 
-        big_image = np.hstack((_enlarge(self.raw_image, args.scaleup),
-                               _enlarge(self.flt_image, args.scaleup)))
+        big_image = np.hstack((_enlarge(self.raw_image, self.scaleup),
+                               _enlarge(self.flt_image, self.scaleup)))
 
         # Draw a line down the middle of the big image to separate
         # raw from filtered
-        big_image[:, 128*args.scaleup] = 255
+        big_image[:, 128*self.scaleup] = 255
 
         add_events_per_second(big_image, 50, self.raw_per_second)
         add_events_per_second(big_image, 300, self.flt_per_second)
@@ -62,12 +66,12 @@ class Display:
 
         # Update events-per-second totals every second
         self.frames_this_second += 1
-        if self.frames_this_second == args.fps:
+        if self.frames_this_second == self.fps:
 
             # Quit after specified time if indicated
             self.total_time += 1
-            if (args.maxtime is not None and
-                    self.total_time >= args.maxtime):
+            if (self.maxtime is not None and
+                    self.total_time >= self.maxtime):
                 return False
 
             # Update stats for reporting
@@ -78,8 +82,8 @@ class Display:
             self.frames_this_second = 0
 
         # Quit after specified time if indicated
-        if (args.maxtime is not None and
-                time() - self.time_start >= args.maxtime):
+        if (self.maxtime is not None and
+                time() - self.time_start >= self.maxtime):
             return False
 
         return True

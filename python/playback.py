@@ -25,7 +25,7 @@ def main():
 
     args, denoise, video_out = parse_args(argparser)
 
-    display = Display(args.filename)
+    display = Display(args.filename, args)
 
     time_prev = 0
 
@@ -50,7 +50,7 @@ def main():
 
                     time_prev = time()
 
-                    if not display.show(args, video_out):
+                    if not display.show():
                         break
 
                     # Start over with a new empty frame
