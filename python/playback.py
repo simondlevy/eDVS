@@ -11,8 +11,7 @@ from dv import AedatFile
 import argparse
 from time import time
 
-from utils import parse_args, close_video, new_image
-from utils import Display
+from utils import parse_args, new_image, Display
 
 
 def main():
@@ -22,9 +21,9 @@ def main():
 
     argparser.add_argument('filename')
 
-    args, denoise, video_out = parse_args(argparser)
+    args = parse_args(argparser)
 
-    display = Display(args.filename, denoise, args)
+    display = Display(args.filename, args)
 
     time_prev = 0
 
@@ -48,11 +47,11 @@ def main():
                     display.raw_image = new_image()
                     display.flt_image = new_image()
 
-            close_video(video_out)
+            display.close()
 
         except KeyboardInterrupt:
 
-            close_video(video_out)
+            display.close()
 
             exit(0)
 

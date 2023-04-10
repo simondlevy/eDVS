@@ -9,19 +9,14 @@ MIT License
 
 from edvs import EDVS
 from threading import Thread
-import cv2
 import numpy as np
 import argparse
 import traceback
 
-from utils import parse_args, close_video
-from utils import Display
+from utils import parse_args, Display
 
 
-def run(edvs, args, denoise, video_out):
-
-    # Create a display window for the events
-    display = Display('mini-eDVS', denoise, args)
+def run(edvs, display, fps):
 
     # Display firmware version
     print(edvs.version())
@@ -32,7 +27,7 @@ def run(edvs, args, denoise, video_out):
 
     # Compute number of iterations before events should disappear, based on
     # 1msec display assumption
-    ageout = int(1./args.fps * 1000)
+    ageout = int(1./fps * 1000)
 
     # Start sensor on its own thread
     thread = Thread(target=edvs.start)
@@ -46,8 +41,10 @@ def run(edvs, args, denoise, video_out):
 
             e = edvs.next()
 
+            # Update event counts for fade-out
             raw_counts[e.y, e.x] = 1
 
+            # Display.addEvent() returns True iff event passed denoising filter
             if display.addEvent(e):
                 flt_counts[e.y, e.x] = 1
 
@@ -64,9 +61,7 @@ def run(edvs, args, denoise, video_out):
         if not display.show():
             break
 
-    cv2.destroyAllWindows()
-
-    close_video(video_out)
+    display.close()
 
     edvs.stop()
 
@@ -88,13 +83,16 @@ def main():
                            choices=(0, 2, 3, 4),
                            help='Event format')
 
-    args, denoise, video_out = parse_args(argparser)
+    args = parse_args(argparser)
 
     # Connect to sensor
     edvs = EDVS(args.port, args.baud, event_format=args.event_format)
 
+    # Create a display window for the events
+    display = Display('mini-eDVS', args)
+
     try:
-        run(edvs, args, denoise, video_out)
+        run(edvs, display, args.fps)
 
     # Stop streaming on error
     except Exception:

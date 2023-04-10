@@ -16,12 +16,10 @@ from filters.knoise import OrderNbackgroundActivityFilter
 
 class Display:
 
-    def __init__(self, name, denoise, args):
+    def __init__(self, name, args):
 
         # For display window
         self.name = name
-
-        self.denoise = denoise
 
         self.scaleup = args.scaleup
         self.fps = args.fps
@@ -43,6 +41,18 @@ class Display:
         self.flt_total = 0
         self.raw_per_second = 0
         self.flt_per_second = 0
+
+        self.denoise = (OrderNbackgroundActivityFilter()
+                        if args.denoising == 'knoise'
+                        else SpatioTemporalCorrelationFilter()
+                        if args.denoising == 'dvsnoise'
+                        else PassThruFilter())
+
+        self.video_out = (cv2.VideoWriter(args.video,
+                                     cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+                                     30,
+                                     (args.scaleup * 256, args.scaleup * 128))
+                          if args.video is not None else None)
 
         # Supports quitting after a specified time
         self.time_start = time()
@@ -110,6 +120,13 @@ class Display:
 
         return True
 
+    def close(self):
+
+        cv2.destroyAllWindows()
+
+        if self.video_out is not None:
+            self.video_out.release()
+
     def _polarity2color(self, e):
 
         return (((0, 0, 255) if e.polarity else (0, 255, 0))
@@ -146,19 +163,7 @@ def parse_args(argparser):
 
     args = argparser.parse_args()
 
-    denoise = (OrderNbackgroundActivityFilter()
-               if args.denoising == 'knoise'
-               else SpatioTemporalCorrelationFilter()
-               if args.denoising == 'dvsnoise'
-               else PassThruFilter())
-
-    video_out = (cv2.VideoWriter(args.video,
-                                 cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
-                                 30,
-                                 (args.scaleup * 256, args.scaleup * 128))
-                 if args.video is not None else None)
-
-    return args, denoise, video_out
+    return args
 
 
 def add_events_per_second(image, xpos, value):
@@ -178,11 +183,6 @@ def add_events_per_second(image, xpos, value):
 def new_image():
 
     return np.zeros((128, 128, 3), dtype=np.uint8)
-
-
-def close_video(video_out):
-    if video_out is not None:
-        video_out.release()
 
 
 def _enlarge(image, factor):
