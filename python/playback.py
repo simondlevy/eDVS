@@ -26,10 +26,9 @@ def main():
 
     args, denoise, video_out = parse_args(argparser)
 
+    # Start with empty images
     raw_image = new_image()
     flt_image = new_image()
-
-    time_prev = 0
 
     # Helps group events into frames
     frames_this_second = 0
@@ -42,6 +41,8 @@ def main():
     flt_total = 0
     raw_per_second = 0
     flt_per_second = 0
+
+    time_prev = 0
 
     with AedatFile(args.filename) as f:
 

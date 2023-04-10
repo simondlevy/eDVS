@@ -13,6 +13,27 @@ from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import OrderNbackgroundActivityFilter
 
 
+class Display:
+
+    def __init__(self):
+
+        # Start with empty images
+        self.raw_image = new_image()
+        self.flt_image = new_image()
+
+        # Helps group events into frames
+        self.frames_this_second = 0
+
+        # Supports the -t (quit after specified time) option
+        self.total_time = 0
+
+        # Supports statistics reporting
+        self.raw_total = 0
+        self.flt_total = 0
+        self.raw_per_second = 0
+        self.flt_per_second = 0
+
+
 class PassThruFilter:
 
     def check(self, e):
