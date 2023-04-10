@@ -34,6 +34,44 @@ class Display:
         self.flt_per_second = 0
 
 
+    def show(self, args, video_out):
+        '''
+        Returns False on quit, True otherwise
+        '''
+
+        if not show_big_image(
+                args.filename, 
+                args.scaleup, 
+                self.raw_image, 
+                self.raw_per_second,
+                self.flt_image,
+                self.flt_per_second,
+                video_out):
+            return False
+
+        # Update events-per-second totals every second
+        self.frames_this_second += 1
+        if self.frames_this_second == args.fps:
+
+            # Quit after specified time if indicated
+            self.total_time += 1
+            if (args.maxtime is not None and
+                    self.total_time >= args.maxtime):
+                return False
+
+            # Update stats for reporting
+            self.raw_per_second = self.raw_total
+            self.flt_per_second = self.flt_total
+            self.raw_total = 0
+            self.flt_total = 0
+            self.frames_this_second = 0
+
+        # Quit after specified time if indicated
+        if args.maxtime is not None and time() - time_start >= args.maxtime:
+            return False
+
+        return True
+
 class PassThruFilter:
 
     def check(self, e):

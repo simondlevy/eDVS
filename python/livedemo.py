@@ -47,16 +47,17 @@ def run(edvs, args, denoise, video_out):
 
             e = edvs.next()
 
+            # Add event to unfiltered image
             display.raw_total += 1
-
             display.raw_image[e.x, e.y] = polarity2color(e, args)
-            raw_counts[e.x, e.y] = 1
 
             # Add event to filtered image if event passes the filter
             if denoise.check(e):
                 display.flt_image[e.x, e.y] = polarity2color(e, args)
-                flt_counts[e.x, e.y] = 1
                 display.flt_total += 1
+                flt_counts[e.x, e.y] = 1
+
+            raw_counts[e.x, e.y] = 1
 
         # Zero out events older than a certain time before now
         display.raw_image[raw_counts == ageout] = 0

@@ -52,32 +52,8 @@ def main():
 
                     time_prev = time()
 
-                    if not show_big_image(
-                            args.filename, 
-                            args.scaleup, 
-                            display.raw_image, 
-                            display.raw_per_second,
-                            display.flt_image,
-                            display.flt_per_second,
-                            video_out):
+                    if not display.show(args, video_out):
                         break
-
-                    # Update events-per-second totals every second
-                    display.frames_this_second += 1
-                    if display.frames_this_second == args.fps:
-
-                        # Quit after specified time if indicated
-                        display.total_time += 1
-                        if (args.maxtime is not None and
-                                display.total_time >= args.maxtime):
-                            break
-
-                        # Update stats for reporting
-                        display.raw_per_second = display.raw_total
-                        display.flt_per_second = display.flt_total
-                        display.raw_total = 0
-                        display.flt_total = 0
-                        display.frames_this_second = 0
 
                     # Start over with a new empty frame
                     display.raw_image = new_image()
