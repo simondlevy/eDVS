@@ -30,7 +30,7 @@ def main():
     args, video_out = parse_args(argparser)
 
     raw_image = new_image()
-    fltimage = new_image()
+    flt_image = new_image()
 
     time_prev = 0
 
@@ -48,9 +48,9 @@ def main():
 
     # Supports statistics reporting
     raw_total = 0
-    filt_total = 0
+    flt_total = 0
     raw_per_second = 0
-    filt_per_second = 0
+    flt_per_second = 0
 
     with AedatFile(args.filename) as f:
 
@@ -65,8 +65,8 @@ def main():
 
                 # Add event to filtered image if event passes the filter
                 if filt.check(e):
-                    fltimage[e.y, e.x] = polarity2color(e.x, e.y, e.polarity, args)
-                    filt_total += 1
+                    flt_image[e.y, e.x] = polarity2color(e.x, e.y, e.polarity, args)
+                    flt_total += 1
 
                 # Update images periodically
                 if time() - time_prev > 1./args.fps:
@@ -78,8 +78,8 @@ def main():
                             args.scaleup, 
                             raw_image, 
                             raw_per_second,
-                            fltimage,
-                            filt_per_second,
+                            flt_image,
+                            flt_per_second,
                             video_out):
                         break
 
@@ -95,14 +95,14 @@ def main():
 
                         # Update stats for reporting
                         raw_per_second = raw_total
-                        filt_per_second = filt_total
+                        flt_per_second = flt_total
                         raw_total = 0
-                        filt_total = 0
+                        flt_total = 0
                         frames_this_second = 0
 
                     # Start over with a new empty frame
                     raw_image = new_image()
-                    fltimage = new_image()
+                    flt_image = new_image()
 
             close_video(video_out)
 
