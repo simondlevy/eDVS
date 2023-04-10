@@ -12,11 +12,11 @@ from threading import Thread
 import cv2
 import numpy as np
 import argparse
-from time import time
 import traceback
 
-from utils import polarity2color, parse_args, show_big_image, close_video, new_image
+from utils import polarity2color, parse_args, close_video
 from utils import Display
+
 
 def run(edvs, args, denoise, video_out):
 
@@ -37,8 +37,6 @@ def run(edvs, args, denoise, video_out):
     thread = Thread(target=edvs.start)
     thread.daemon = True
     thread.start()
-
-    time_start = time()
 
     while True:
 
@@ -80,6 +78,7 @@ def run(edvs, args, denoise, video_out):
 
     thread.join()
 
+
 def main():
 
     argparser = argparse.ArgumentParser(
@@ -104,11 +103,10 @@ def main():
         run(edvs, args, denoise, video_out)
 
     # Stop streaming on error
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         edvs.reset()
         exit(0)
-
 
 
 if __name__ == '__main__':

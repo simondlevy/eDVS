@@ -8,13 +8,11 @@ MIT License
 '''
 
 from dv import AedatFile
-import numpy as np
 import argparse
-import cv2
 from time import time
 
-from utils import PassThruFilter, add_events_per_second, polarity2color
-from utils import parse_args, show_big_image, close_video, new_image
+from utils import polarity2color
+from utils import parse_args, close_video, new_image
 from utils import Display
 
 
