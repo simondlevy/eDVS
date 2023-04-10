@@ -16,6 +16,9 @@ from filters.knoise import OrderNbackgroundActivityFilter
 
 class Display:
 
+    # Not sure why we need this, but without it video output is slower
+    VIDEO_FPS_SCALE = 5
+
     def __init__(self, name, args):
 
         # For display window
@@ -32,9 +35,6 @@ class Display:
         # Helps group events into frames
         self.frames_this_second = 0
 
-        # Supports the -t (quit after specified time) option
-        self.total_time = 0
-
         # Supports statistics reporting
         self.raw_total = 0
         self.flt_total = 0
@@ -47,10 +47,7 @@ class Display:
                         if args.denoising == 'dvsnoise'
                         else self._PassThruFilter())
 
-        self.video_out = (cv2.VideoWriter(args.video,
-                                     cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
-                                     30,
-                                     (args.scaleup * 256, args.scaleup * 128))
+        self.video_out = (self._video_writer(args)
                           if args.video is not None else None)
 
         # Supports quitting after a specified time
@@ -95,15 +92,13 @@ class Display:
         if cv2.waitKey(1) == 27:
             return False
 
+        # Save current big image frame if indicated
+        if self.video_out is not None:
+            self.video_out.write(big_image)
+
         # Update events-per-second totals every second
         self.frames_this_second += 1
         if self.frames_this_second == self.fps:
-
-            # Quit after specified time if indicated
-            self.total_time += 1
-            if (self.maxtime is not None and
-                    self.total_time >= self.maxtime):
-                return False
 
             # Update stats for reporting
             self.raw_per_second = self.raw_total
@@ -128,15 +123,25 @@ class Display:
 
     def clear(self):
 
-        self.raw_image = new_image()
-        self.flt_image = new_image()
-
+        self.raw_image = self._new_image()
+        self.flt_image = self._new_image()
 
     class _PassThruFilter:
 
         def check(self, e):
 
             return True
+
+    def _video_writer(self, args):
+
+        return (cv2.VideoWriter(args.video,
+                                cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+                                self.VIDEO_FPS_SCALE * self.fps,
+                                (self.scaleup * 256, self.scaleup * 128)))
+
+    def _new_image(self):
+
+        return np.zeros((128, 128, 3), dtype=np.uint8)
 
     def _enlarge(self, image, factor):
 
@@ -159,7 +164,6 @@ class Display:
                         (0, 255, 255),  # color
                         1,              # thickness
                         2)              # line type
-
 
 
 def parse_args(argparser):
@@ -186,11 +190,3 @@ def parse_args(argparser):
     args = argparser.parse_args()
 
     return args
-
-
-
-def new_image():
-
-    return np.zeros((128, 128, 3), dtype=np.uint8)
-
-
