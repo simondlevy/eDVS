@@ -15,7 +15,9 @@ from filters.knoise import OrderNbackgroundActivityFilter
 
 class Display:
 
-    def __init__(self):
+    def __init__(self, name):
+
+        self.name = name
 
         # Start with empty images
         self.raw_image = new_image()
@@ -40,7 +42,7 @@ class Display:
         '''
 
         if not show_big_image(
-                args.filename, 
+                self.name,
                 args.scaleup, 
                 self.raw_image, 
                 self.raw_per_second,

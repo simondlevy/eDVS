@@ -20,7 +20,7 @@ from utils import Display
 
 def run(edvs, args, denoise, video_out):
 
-    display = Display()
+    display = Display('mini-eDVS')
 
     # Display firmware version
     print(edvs.version())
@@ -69,35 +69,7 @@ def run(edvs, args, denoise, video_out):
         raw_counts[raw_counts > 0] += 1
         flt_counts[flt_counts > 0] += 1
 
-        if not show_big_image(
-                'mini-eDVS', 
-                args.scaleup, 
-                display.raw_image, 
-                display.raw_per_second,
-                display.flt_image,
-                display.flt_per_second,
-                video_out):
-            break
-
-        # Update events-per-second totals every second
-        display.frames_this_second += 1
-        if display.frames_this_second == args.fps:
-
-            # Quit after specified time if indicated
-            display.total_time += 1
-            if (args.maxtime is not None and
-                    display.total_time >= args.maxtime):
-                break
-
-            # Update stats for reporting
-            display.raw_per_second = display.raw_total
-            display.flt_per_second = display.flt_total
-            display.raw_total = 0
-            display.flt_total = 0
-            display.frames_this_second = 0
-
-        # Quit after specified time if indicated
-        if args.maxtime is not None and time() - time_start >= args.maxtime:
+        if not display.show(args, video_out):
             break
 
     cv2.destroyAllWindows()

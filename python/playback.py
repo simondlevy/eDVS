@@ -27,7 +27,7 @@ def main():
 
     args, denoise, video_out = parse_args(argparser)
 
-    display = Display()
+    display = Display(args.filename)
 
     time_prev = 0
 
