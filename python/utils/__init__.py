@@ -9,12 +9,23 @@ MIT License
 import numpy as np
 import cv2
 
+from filters.dvsnoise import SpatioTemporalCorrelationFilter
+from filters.knoise import OrderNbackgroundActivityFilter
+
 
 class PassThruFilter:
 
     def check(self, e):
 
         return True
+
+def get_filter(args):
+
+    return (OrderNbackgroundActivityFilter()
+            if args.denoising == 'knoise'
+            else SpatioTemporalCorrelationFilter()
+            if args.denoising == 'dvsnoise'
+            else PassThruFilter())
 
 
 def parse_args(argparser):

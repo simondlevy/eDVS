@@ -13,11 +13,8 @@ import argparse
 import cv2
 from time import time
 
-from filters.dvsnoise import SpatioTemporalCorrelationFilter
-from filters.knoise import OrderNbackgroundActivityFilter
-
 from utils import PassThruFilter, add_events_per_second, polarity2color
-from utils import parse_args, show_big_image, close_video, new_image
+from utils import parse_args, show_big_image, close_video, new_image, get_filter
 
 
 def main():
@@ -34,11 +31,7 @@ def main():
 
     time_prev = 0
 
-    denoise = (OrderNbackgroundActivityFilter()
-               if args.denoising == 'knoise'
-               else SpatioTemporalCorrelationFilter()
-               if args.denoising == 'dvsnoise'
-               else PassThruFilter())
+    denoise = get_filter(args)
 
     # Helps group events into frames
     frames_this_second = 0
