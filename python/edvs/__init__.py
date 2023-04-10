@@ -57,8 +57,8 @@ class EDVS:
         # Specify event format 
         self._send('!E%d' % (self.event_format))
 
-        # We need an initial X coordinate to kick things off
-        x = 0
+        # We need an initial Y coordinate to kick things off
+        y = 0
 
         # We run a finite-state machine to parse the incoming bytes
         state = 0
@@ -79,15 +79,15 @@ class EDVS:
             if b0 == 0 and state == 0:
                 state = 1
 
-            # First byte; store X
+            # First byte; store Y
             if state == 0:
-                x = self._byte2coord(b)
+                y = self._byte2coord(b)
                 state = 1
 
             # Second byte; record event
             elif state == 1:
 
-                y = self._byte2coord(b)
+                x = self._byte2coord(b)
 
                 t = int((time() - time_start) * 1e6)
 
