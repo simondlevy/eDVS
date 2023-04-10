@@ -27,8 +27,7 @@ class Display:
         self.color = args.color
 
         # Start with empty images
-        self.raw_image = new_image()
-        self.flt_image = new_image()
+        self.clear()
 
         # Helps group events into frames
         self.frames_this_second = 0
@@ -46,7 +45,7 @@ class Display:
                         if args.denoising == 'knoise'
                         else SpatioTemporalCorrelationFilter()
                         if args.denoising == 'dvsnoise'
-                        else PassThruFilter())
+                        else self._PassThruFilter())
 
         self.video_out = (cv2.VideoWriter(args.video,
                                      cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
@@ -81,15 +80,15 @@ class Display:
         Returns False on quit, True otherwise
         '''
 
-        big_image = np.hstack((_enlarge(self.raw_image, self.scaleup),
-                               _enlarge(self.flt_image, self.scaleup)))
+        big_image = np.hstack((self._enlarge(self.raw_image, self.scaleup),
+                               self._enlarge(self.flt_image, self.scaleup)))
 
         # Draw a line down the middle of the big image to separate
         # raw from filtered
         big_image[:, 128*self.scaleup] = 255
 
-        add_events_per_second(big_image, 50, self.raw_per_second)
-        add_events_per_second(big_image, 300, self.flt_per_second)
+        self._add_events_per_second(big_image, 50, self.raw_per_second)
+        self._add_events_per_second(big_image, 300, self.flt_per_second)
 
         # Show big image, quitting on ESC
         cv2.imshow(self.name, big_image)
@@ -127,17 +126,40 @@ class Display:
         if self.video_out is not None:
             self.video_out.release()
 
+    def clear(self):
+
+        self.raw_image = new_image()
+        self.flt_image = new_image()
+
+
+    class _PassThruFilter:
+
+        def check(self, e):
+
+            return True
+
+    def _enlarge(self, image, factor):
+
+        return cv2.resize(image, (128*factor, 128*factor))
+
     def _polarity2color(self, e):
 
         return (((0, 0, 255) if e.polarity else (0, 255, 0))
                 if self.color else (255, 255, 255))
 
+    def _add_events_per_second(self, image, xpos, value):
 
-class PassThruFilter:
+        if value > 0:
 
-    def check(self, e):
+            cv2.putText(image,
+                        '%d events/second' % value,
+                        (xpos, 25),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5,            # scale
+                        (0, 255, 255),  # color
+                        1,              # thickness
+                        2)              # line type
 
-        return True
 
 
 def parse_args(argparser):
@@ -166,25 +188,9 @@ def parse_args(argparser):
     return args
 
 
-def add_events_per_second(image, xpos, value):
-
-    if value > 0:
-
-        cv2.putText(image,
-                    '%d events/second' % value,
-                    (xpos, 25),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,            # scale
-                    (0, 255, 255),  # color
-                    1,              # thickness
-                    2)              # line type
-
 
 def new_image():
 
     return np.zeros((128, 128, 3), dtype=np.uint8)
 
 
-def _enlarge(image, factor):
-
-    return cv2.resize(image, (128*factor, 128*factor))

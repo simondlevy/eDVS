@@ -11,7 +11,7 @@ from dv import AedatFile
 import argparse
 from time import time
 
-from utils import parse_args, new_image, Display
+from display import parse_args, Display
 
 
 def main():
@@ -44,8 +44,7 @@ def main():
                         break
 
                     # Start over with a new empty frame
-                    display.raw_image = new_image()
-                    display.flt_image = new_image()
+                    display.clear()
 
             display.close()
 

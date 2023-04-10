@@ -13,7 +13,7 @@ import numpy as np
 import argparse
 import traceback
 
-from utils import parse_args, Display
+from display import parse_args, Display
 
 
 def run(edvs, display, fps):
