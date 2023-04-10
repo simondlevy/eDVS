@@ -53,6 +53,9 @@ class Display:
         # Supports quitting after a specified time
         self.time_start = time()
 
+        self.total_denoise_time = 0
+        self.total_event_count = 0
+
     def addEvent(self, e):
         '''
         Returns True if event passed denoising filter, False otherwise
@@ -65,10 +68,15 @@ class Display:
         self.raw_total += 1
 
         # Add event to filtered image if event passes the filter
-        if self.denoise.check(e):
+        beg = time()
+        passed = self.denoise.check(e)
+        self.total_denoise_time += (time() - beg)
+        if passed:
             self.flt_image[e.y, e.x] = self._polarity2color(e)
             self.flt_total += 1
             passed = True
+
+        self.total_event_count += 1
 
         return passed
 
@@ -76,6 +84,9 @@ class Display:
         '''
         Returns False on quit, True otherwise
         '''
+
+        if (self.total_event_count > 1):
+            print('%3.3e' % (self.total_denoise_time / self.total_event_count))
 
         big_image = np.hstack((self._enlarge(self.raw_image, self.scaleup),
                                self._enlarge(self.flt_image, self.scaleup)))
