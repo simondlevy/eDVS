@@ -19,15 +19,6 @@ class PassThruFilter:
 
         return True
 
-def get_filter(args):
-
-    return (OrderNbackgroundActivityFilter()
-            if args.denoising == 'knoise'
-            else SpatioTemporalCorrelationFilter()
-            if args.denoising == 'dvsnoise'
-            else PassThruFilter())
-
-
 def parse_args(argparser):
 
     argparser.add_argument('-f', '--fps', type=int, default=30,
@@ -51,14 +42,19 @@ def parse_args(argparser):
 
     args = argparser.parse_args()
 
-    # Open video output file if indicated
+    denoise = (OrderNbackgroundActivityFilter()
+               if args.denoising == 'knoise'
+               else SpatioTemporalCorrelationFilter()
+               if args.denoising == 'dvsnoise'
+               else PassThruFilter())
+
     video_out = (cv2.VideoWriter(args.video,
                                  cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
                                  30,
                                  (args.scaleup * 256, args.scaleup * 128))
                  if args.video is not None else None)
 
-    return args, video_out
+    return args, denoise, video_out
 
 
 def add_events_per_second(image, xpos, value):

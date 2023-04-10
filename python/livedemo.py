@@ -16,9 +16,8 @@ from time import time
 import traceback
 
 from utils import polarity2color, parse_args, show_big_image, close_video, new_image
-from utils import get_filter
 
-def run(edvs, args, video_out):
+def run(edvs, args, denoise, video_out):
 
     # Display firmware version
     print(edvs.version())
@@ -33,8 +32,6 @@ def run(edvs, args, video_out):
 
     raw_per_second = 0
     flt_per_second = 0
-
-    denoise = get_filter(args)
 
     # Compute number of iterations before events should disappear, based on
     # 1msec display assumption
@@ -109,13 +106,13 @@ def main():
                            choices=(0, 2, 3, 4),
                            help='Event format')
 
-    args, video_out = parse_args(argparser)
+    args, denoise, video_out = parse_args(argparser)
 
     # Connect to sensor
     edvs = EDVS(args.port, args.baud, event_format=args.event_format)
 
     try:
-        run(edvs, args, video_out)
+        run(edvs, args, denoise, video_out)
 
     # Stop streaming on error
     except Exception as e:

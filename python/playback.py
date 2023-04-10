@@ -14,7 +14,7 @@ import cv2
 from time import time
 
 from utils import PassThruFilter, add_events_per_second, polarity2color
-from utils import parse_args, show_big_image, close_video, new_image, get_filter
+from utils import parse_args, show_big_image, close_video, new_image
 
 
 def main():
@@ -24,14 +24,12 @@ def main():
 
     argparser.add_argument('filename')
 
-    args, video_out = parse_args(argparser)
+    args, denoise, video_out = parse_args(argparser)
 
     raw_image = new_image()
     flt_image = new_image()
 
     time_prev = 0
-
-    denoise = get_filter(args)
 
     # Helps group events into frames
     frames_this_second = 0
