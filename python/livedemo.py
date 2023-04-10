@@ -16,14 +16,28 @@ import traceback
 from display import parse_args, Display
 
 
+def init_counts():
+    return np.zeros((128, 128)).astype('uint8')
+
+
+def update_counts(counts, e):
+    counts[e.y, e.x] = 1
+
+
+def update_image_from_counts(image, counts, ageout):
+    image[counts == ageout] = 0
+    counts[counts == ageout] = 0
+    counts[counts > 0] += 1
+
+
 def run(edvs, display, fps):
 
     # Display firmware version
     print(edvs.version())
 
     # Track time so we can stop displaying old events
-    raw_counts = np.zeros((128, 128)).astype('uint8')
-    flt_counts = np.zeros((128, 128)).astype('uint8')
+    raw_counts = init_counts()
+    flt_counts = init_counts()
 
     # Compute number of iterations before events should disappear, based on
     # 1msec display assumption
@@ -42,21 +56,15 @@ def run(edvs, display, fps):
             e = edvs.next()
 
             # Update event counts for fade-out
-            raw_counts[e.y, e.x] = 1
+            update_counts(raw_counts, e)
 
             # Display.addEvent() returns True iff event passed denoising filter
             if display.addEvent(e):
-                flt_counts[e.y, e.x] = 1
+                update_counts(flt_counts, e)
 
         # Zero out events older than a certain time before now
-        display.raw_image[raw_counts == ageout] = 0
-        raw_counts[raw_counts == ageout] = 0
-        display.flt_image[flt_counts == ageout] = 0
-        flt_counts[flt_counts == ageout] = 0
-
-        # Increase age for events
-        raw_counts[raw_counts > 0] += 1
-        flt_counts[flt_counts > 0] += 1
+        update_image_from_counts(display.raw_image, raw_counts, ageout)
+        update_image_from_counts(display.flt_image, flt_counts, ageout)
 
         if not display.show():
             break
