@@ -8,6 +8,7 @@ MIT License
 
 import numpy as np
 import cv2
+from time import time
 
 from filters.dvsnoise import SpatioTemporalCorrelationFilter
 from filters.knoise import OrderNbackgroundActivityFilter
@@ -17,6 +18,7 @@ class Display:
 
     def __init__(self, name):
 
+        # For display window
         self.name = name
 
         # Start with empty images
@@ -35,6 +37,8 @@ class Display:
         self.raw_per_second = 0
         self.flt_per_second = 0
 
+        # Supports quitting after a specified time
+        self.time_start = time()
 
     def show(self, args, video_out):
         '''
@@ -43,8 +47,8 @@ class Display:
 
         if not show_big_image(
                 self.name,
-                args.scaleup, 
-                self.raw_image, 
+                args.scaleup,
+                self.raw_image,
                 self.raw_per_second,
                 self.flt_image,
                 self.flt_per_second,
@@ -69,16 +73,19 @@ class Display:
             self.frames_this_second = 0
 
         # Quit after specified time if indicated
-        if args.maxtime is not None and time() - time_start >= args.maxtime:
+        if (args.maxtime is not None and
+                time() - self.time_start >= args.maxtime):
             return False
 
         return True
+
 
 class PassThruFilter:
 
     def check(self, e):
 
         return True
+
 
 def parse_args(argparser):
 
@@ -147,6 +154,7 @@ def _enlarge(image, factor):
 
     return cv2.resize(image, (128*factor, 128*factor))
 
+
 def show_big_image(name,
                    scaleup,
                    raw_image,
@@ -155,8 +163,8 @@ def show_big_image(name,
                    flt_per_second,
                    video_out):
 
-
-    big_image = np.hstack((_enlarge(raw_image, scaleup), _enlarge(flt_image, scaleup)))
+    big_image = np.hstack((_enlarge(raw_image, scaleup),
+                           _enlarge(flt_image, scaleup)))
 
     # Draw a line down the middle of the big image to separate
     # raw from filtered
