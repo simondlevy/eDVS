@@ -118,12 +118,6 @@ class OrderNbackgroundActivityFilter {
         {
             for (int8_t k=-_supporters; k<=_supporters; ++k) {
 
-                Serial.printf("e.t=%u  ts[coord+k]=%u  dt_usec%u  dt+ts=%u\n",
-                        (unsigned)e.t,
-                        (unsigned)ts[coord + k],
-                        (unsigned)_dt_usec,
-                        (unsigned)(_dt_usec + ts[coord + k]));
-
                 if (
                         // if there was event (ts!=DEFAULT_TIMESTAMP), and the timestamp
                         // is recent enough, and the column was adjacent, then filter in
