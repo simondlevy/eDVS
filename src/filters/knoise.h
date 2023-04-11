@@ -23,11 +23,13 @@ class OrderNbackgroundActivityFilter {
                 const uint8_t sx=128, 
                 const uint8_t sy=128, 
                 const uint32_t dt_msec=100,
-                const uint8_t supporters=10)
+                const uint8_t supporters=10,
+                const float noise_rate_hz = 0.1)
         {
             _sx = sx;
             _sy = sy;
             _supporters = supporters;
+            _noise_rate_hz = noise_rate_hz;
 
             _dt_usec = 1000 * dt_msec;
 
@@ -63,6 +65,7 @@ class OrderNbackgroundActivityFilter {
         uint8_t _sy;
         uint32_t _dt_usec;
         uint8_t _supporters;
+        float _noise_rate_hz;
 
         uint32_t _last_row_ts[128];
         uint32_t _last_col_ts[128];
@@ -70,9 +73,7 @@ class OrderNbackgroundActivityFilter {
         uint8_t _last_x_by_row[128];
         uint8_t _last_y_by_col[128];
 
-        void initialize_last_times_map_for_noise_rate(
-                const uint32_t last_timestamp_us,
-                const float noise_rate_hz = 0.1)
+        void initialize_last_times_map_for_noise_rate(const uint32_t last_timestamp_us)
         {
             /*
                Fills 1d arrays with random events with waiting times drawn from
@@ -85,10 +86,10 @@ class OrderNbackgroundActivityFilter {
              */
 
             initialize_row_or_col(_last_row_ts, _last_x_by_row, _sx, 
-                    noise_rate_hz, last_timestamp_us);
+                    _noise_rate_hz, last_timestamp_us);
 
             initialize_row_or_col(_last_col_ts, _last_y_by_col, _sy, 
-                    noise_rate_hz, last_timestamp_us);
+                    _noise_rate_hz, last_timestamp_us);
         }
 
         void initialize_row_or_col(

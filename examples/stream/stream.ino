@@ -12,8 +12,8 @@ MIT License
 
 static EDVS edvs; 
 
-static OrderNbackgroundActivityFilter filter;
-//static PassThruFilter filter;
+//static OrderNbackgroundActivityFilter filter;
+static PassThruFilter filter;
 
 void serialEvent1(void)
 {
