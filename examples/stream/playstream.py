@@ -67,6 +67,9 @@ def main():
                 if time() - time_prev > 1:
                     if time_prev > 0:
                         if frame_count > 0:
+
+
+
                             print(('%6d events per second; %d frames ' +
                                   'per second; %d events per frame') %
                                   (event_count, frame_count,
@@ -92,6 +95,15 @@ def main():
                     # Scale up the image for visibility
                     bigimage = cv2.resize(image,
                                           (128*args.scaleup, 128*args.scaleup))
+
+                    cv2.putText(bigimage,
+                                '%d events/second' % event_count,
+                                (50, 12),
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                0.5,            # scale
+                                (255, 255, 255),  # color
+                                1,              # thickness
+                                2)              # line type
 
                     # Display the upscaled image
                     cv2.imshow(args.port, bigimage)
