@@ -19,7 +19,7 @@ class OrderNbackgroundActivityFilter {
     public:
 
         OrderNbackgroundActivityFilter(
-                const uint32_t last_timestamp=4294967295,
+                const uint32_t last_timestamp=3600000000, // One hour of microseconds
                 const uint8_t sx=128, 
                 const uint8_t sy=128, 
                 const uint32_t dt_msec=100,
@@ -118,17 +118,17 @@ class OrderNbackgroundActivityFilter {
         {
             for (int8_t k=-_supporters; k<=_supporters; ++k) {
 
-                Serial.printf("e.t=%u  ts[coord+k]=%u  dt_usec%u  <=%d\n",
+                Serial.printf("e.t=%u  ts[coord+k]=%u  dt_usec%u  dt+ts=%u\n",
                         (unsigned)e.t,
                         (unsigned)ts[coord + k],
                         (unsigned)_dt_usec,
-                        e.t - ts[coord + k] < _dt_usec);
+                        (unsigned)(_dt_usec + ts[coord + k]));
 
                 if (
                         // if there was event (ts!=DEFAULT_TIMESTAMP), and the timestamp
                         // is recent enough, and the column was adjacent, then filter in
                         ts[coord + k] != DEFAULT_TIMESTAMP &&
-                        e.t - ts[coord + k] < _dt_usec &&
+                        e.t  < _dt_usec + ts[coord + k] &&
                         abs(x_or_y[coord + k] - other) <= 1) {
 
                     save_event(e);
