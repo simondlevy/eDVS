@@ -23,8 +23,8 @@ class OrderNbackgroundActivityFilter {
                 const uint8_t sx=128, 
                 const uint8_t sy=128, 
                 const uint32_t dt_msec=100,
-                const uint8_t supporters=10,
-                const float noise_rate_hz = 0.1)
+                const uint8_t supporters=4,
+                const float noise_rate_hz=0.1)
         {
             _sx = sx;
             _sy = sy;
