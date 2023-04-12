@@ -29,8 +29,9 @@ void loop(void)
         EDVS::event_t e = edvs.getCurrent();
 
         if (filter.check(e)) {
-            const uint8_t coords[2] = {e.x, e.y};
-            Serial.write(coords, 2);
+
+            Serial.write(e.x);
+            Serial.write(e.y);
         }
     }
 }
