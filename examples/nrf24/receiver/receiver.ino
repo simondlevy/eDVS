@@ -32,9 +32,9 @@ void loop()
     auto usec = micros();
     if (usec - usec_prev > 1000000) {
         if (usec_prev > 0) {
-            printf("%06d bytes / second:", count);
+            printf("%06d events / second:", count/2);
             for (uint8_t k=0; k<sizeof(buf); ++k) {
-                printf(" %02d", buf[k]);
+                printf(" %03d", buf[k]);
             }
             printf("\n");
         }
