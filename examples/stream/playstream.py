@@ -39,6 +39,7 @@ def main():
         time_prev = 0
         event_count = 0
         frame_count = 0
+        new_event_count = 0
 
         outfile = None if args.filename is None else open(args.filename, 'wb')
 
@@ -68,7 +69,7 @@ def main():
                     if time_prev > 0:
                         if frame_count > 0:
 
-
+                            new_event_count = event_count
 
                             print(('%6d events per second; %d frames ' +
                                   'per second; %d events per frame') %
@@ -97,7 +98,7 @@ def main():
                                           (128*args.scaleup, 128*args.scaleup))
 
                     cv2.putText(bigimage,
-                                '%d events/second' % event_count,
+                                '%d events/second' % new_event_count,
                                 (50, 12),
                                 cv2.FONT_HERSHEY_SIMPLEX,
                                 0.5,            # scale

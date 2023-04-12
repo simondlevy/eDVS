@@ -22,8 +22,8 @@ static RF24 radio(CE_PIN, SS, RADIO_FREQ); // use builtin chip-select pin SS
 
 static EDVS edvs = EDVS(Serial1); 
 
-//static OrderNbackgroundActivityFilter filter;
-static PassThruFilter filter;
+static OrderNbackgroundActivityFilter filter;
+// static PassThruFilter filter;
 
 static void startRadio(void)
 {
@@ -34,6 +34,24 @@ static void startRadio(void)
     radio.stopListening();
 }
 
+static uint32_t report(uint32_t count)
+{
+    static uint32_t usec_prev;
+
+    auto usec = micros();
+
+    if (usec - usec_prev > 1000000) {
+
+        if (usec_prev > 0) {
+            printf("%06d events / second\n", count);
+        }
+
+        usec_prev = usec;
+        count = 0;
+    }
+
+    return count;
+}
 
 void setup(void)
 {
@@ -47,22 +65,26 @@ void setup(void)
 void loop(void)
 {
     static uint8_t buf[32];
+    static uint8_t buf_index;
 
-    static uint8_t index;
+    static uint32_t event_count;
 
     if (edvs.update()) {
 
         EDVS::event_t e = edvs.getCurrent();
 
         if (filter.check(e)) {
-            buf[index] = e.x;
-            buf[index+1] = e.y;
-            index += 2;
+            buf[buf_index] = e.x;
+            buf[buf_index+1] = e.y;
+            buf_index += 2;
+            event_count++;
         }
     }
 
-    if (index == sizeof(buf)) {
+    if (buf_index == sizeof(buf)) {
         radio.write(buf, sizeof(buf));
-        index = 0;
+        buf_index = 0;
     }
+
+    event_count = report(event_count);
 }
