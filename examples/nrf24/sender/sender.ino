@@ -34,22 +34,6 @@ static void startRadio(void)
     radio.stopListening();
 }
 
-void serialEvent1(void)
-{
-    while (Serial1.available()) {
-
-        if (edvs.update(Serial1.read())) {
-
-            EDVS::event_t e = edvs.getCurrent();
-
-            if (filter.check(e)) {
-                const uint8_t coords[2] = {e.x, e.y};
-                Serial.write(coords, 2);
-            }
-        }
-    }
-}
-
 
 void setup(void)
 {
@@ -62,9 +46,33 @@ void setup(void)
 
 void loop(void)
 {
-    uint8_t buf[32] = {};
+    /*
+    static uint8_t buf[32];
     for (uint8_t k=0; k<sizeof(buf); ++k) {
         buf[k] = k;
     }
-    radio.write(buf, sizeof(buf));
+    radio.write(buf, sizeof(buf));*/
+
+    uint8_t nevents = 0;
+
+    uint8_t coords[2] = {};
+
+    while (Serial1.available()) {
+
+        if (edvs.update(Serial1.read())) {
+
+            EDVS::event_t e = edvs.getCurrent();
+
+            if (filter.check(e)) {
+                coords[0] = e.x;
+                coords[1] = e.y;
+                nevents++;
+            }
+        }
+    }
+
+    if (nevents > 0) {
+        Serial.write(coords, 2);
+        // Serial.println(nevents);
+    }
 }
