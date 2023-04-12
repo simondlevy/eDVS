@@ -26,15 +26,13 @@ static uint16_t qpos;
 
 OLED_GFX oled(CS, DC, RST);
 
-static EDVS edvs;
+static EDVS edvs = EDVS(Serial1);
 
 static bool ready;
 
 void serialEvent1(void)
 {
-    while (Serial1.available()) {
-        ready = edvs.update(Serial1.read());
-    }
+    ready = edvs.update();
 }
 
 void setup(void)
@@ -42,7 +40,7 @@ void setup(void)
 
     Serial1.begin(EDVS::BAUD);
 
-    edvs.begin(Serial1);
+    edvs.begin();
 
     oled.begin();
 
@@ -54,7 +52,6 @@ void setup(void)
 void loop(void)
 {
     // Get events from DVS
-    //if (edvs.hasNext()) {
     if (ready) {
 
         ready = false;

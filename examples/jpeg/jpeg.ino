@@ -13,14 +13,7 @@ MIT License
 
 #include <JPEGENC.h>
 
-static EDVS edvs;
-
-void serialEvent1(void)
-{
-    while (Serial1.available()) {
-        edvs.update(Serial1.read());
-    }
-}
+static EDVS edvs = EDVS(Serial1);
 
 static int32_t write(JPEGFILE *p, uint8_t *buffer, int32_t length) 
 {
@@ -33,10 +26,12 @@ void setup()
 {
     Serial.begin(115200);
 
-    edvs.begin(Serial1);
+    edvs.begin();
 } 
 
 void loop() 
 {
+    edvs.update();
+
     EdvsJpeg::step(edvs, write);
 }

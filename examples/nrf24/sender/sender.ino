@@ -20,7 +20,7 @@ static const byte RADIO_ADDRESS[6] = "00001";
 
 static RF24 radio(CE_PIN, SS, RADIO_FREQ); // use builtin chip-select pin SS
 
-static EDVS edvs; 
+static EDVS edvs = EDVS(Serial1); 
 
 static OrderNbackgroundActivityFilter filter;
 //static PassThruFilter filter;
@@ -41,7 +41,7 @@ void setup(void)
 
     startRadio();
 
-    edvs.begin(Serial1);
+    edvs.begin();
 }
 
 void loop(void)
@@ -57,22 +57,19 @@ void loop(void)
 
     uint8_t coords[2] = {};
 
-    while (Serial1.available()) {
+    if (edvs.update()) {
 
-        if (edvs.update(Serial1.read())) {
+        EDVS::event_t e = edvs.getCurrent();
 
-            EDVS::event_t e = edvs.getCurrent();
-
-            if (filter.check(e)) {
-                coords[0] = e.x;
-                coords[1] = e.y;
-                nevents++;
-            }
+        if (filter.check(e)) {
+            coords[0] = e.x;
+            coords[1] = e.y;
+            nevents++;
         }
     }
 
     if (nevents > 0) {
-        Serial.write(coords, 2);
-        // Serial.println(nevents);
+        //Serial.write(coords, 2);
+        Serial.println(nevents);
     }
 }

@@ -39,8 +39,9 @@ class EDVS {
 
         } format_e;
 
-        EDVS(const uint16_t qsize=1000)
+        EDVS(HardwareSerial & serial, const uint16_t qsize=1000)
         {
+            _serial = &serial;
             _qsize = qsize;
 
             for (uint16_t k=0; k<_qsize; ++k) {
@@ -55,63 +56,69 @@ class EDVS {
             _x = 0;
         }
 
-        void begin(HardwareSerial & serial)
+        void begin()
         {
-            serial.begin(BAUD);
+            _serial->begin(BAUD);
 
             // Reset board
-            send(serial, "R");
+            send("R");
 
             // Enable event sending
-            send(serial, "E+");
+            send("E+");
 
             // Use two-byte event format
-            send(serial, "!E0");
+            send("!E0");
 
             // Every other byte represents a completed event
             _x    = 0;
             _gotx = false;
         }
 
-        bool update(uint8_t b) 
+        bool update(void) 
         {
             auto retval = false;
 
-            // Value is in rightmost seven bits
-            uint8_t v = b & 0b01111111;
+            if (_serial->available()) {
 
-            // Isolate first bit
-            uint8_t f = b>>7;
+                auto b = _serial->read();
 
-            // Correct for misaligned bytes
-            if (f==0 && !_gotx) {
+
+                // Value is in rightmost seven bits
+                uint8_t v = b & 0b01111111;
+
+                // Isolate first bit
+                uint8_t f = b>>7;
+
+                // Correct for misaligned bytes
+                if (f==0 && !_gotx) {
+                    _gotx = !_gotx;
+                }
+
+                // Second byte; record event
+                if (_gotx) {
+
+                    _current.x = _x; 
+                    _current.y = v; 
+                    _current.p = 2*f-1; // Convert event polarity from 0,1 to -1,+1
+                    _current.t = micros();
+
+                    _queue[_qpos].x = _current.x;
+                    _queue[_qpos].y = _current.y;
+                    _queue[_qpos].p = _current.p;
+                    _queue[_qpos].t = _current.t;
+
+                    advance();
+
+                    retval = true;
+                }
+
+                // First byte; store X
+                else {
+                    _x = v;
+                }
+
                 _gotx = !_gotx;
             }
-
-            // Second byte; record event
-            if (_gotx) {
-
-                _current.x = _x; 
-                _current.y = v; 
-                _current.p = 2*f-1; // Convert event polarity from 0,1 to -1,+1
-                _current.t = micros();
-
-                _queue[_qpos].x = _current.x;
-                _queue[_qpos].y = _current.y;
-                _queue[_qpos].p = _current.p;
-                _queue[_qpos].t = _current.t;
-
-                advance();
-
-                retval = true;
-            }
-
-            // First byte; store X
-            else {
-                _x = v;
-            }
-
-            _gotx = !_gotx;
 
             return retval;
         }
@@ -141,9 +148,11 @@ class EDVS {
             advance();
 
             return event;
-         }
+        }
 
     private:
+
+        HardwareSerial * _serial;
 
         event_t _queue[MAX_QSIZE];
 
@@ -156,12 +165,12 @@ class EDVS {
         bool _gotx;
         uint8_t _x;
 
-        void send(HardwareSerial & serial, const char * cmd)
+        void send(const char * cmd)
         {
             for (auto * p=(char *)cmd; *p; p++) {
-                serial.write(*p);
+                _serial->write(*p);
             }
-            serial.write('\n');
+            _serial->write('\n');
             delay(10);
         }
 
