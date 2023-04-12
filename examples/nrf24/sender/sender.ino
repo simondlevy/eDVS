@@ -22,8 +22,8 @@ static RF24 radio(CE_PIN, SS, RADIO_FREQ); // use builtin chip-select pin SS
 
 static EDVS edvs = EDVS(Serial1); 
 
-static OrderNbackgroundActivityFilter filter;
-//static PassThruFilter filter;
+//static OrderNbackgroundActivityFilter filter;
+static PassThruFilter filter;
 
 static void startRadio(void)
 {
@@ -46,30 +46,23 @@ void setup(void)
 
 void loop(void)
 {
-    /*
     static uint8_t buf[32];
-    for (uint8_t k=0; k<sizeof(buf); ++k) {
-        buf[k] = k;
-    }
-    radio.write(buf, sizeof(buf));*/
 
-    uint8_t nevents = 0;
-
-    uint8_t coords[2] = {};
+    static uint8_t index;
 
     if (edvs.update()) {
 
         EDVS::event_t e = edvs.getCurrent();
 
         if (filter.check(e)) {
-            coords[0] = e.x;
-            coords[1] = e.y;
-            nevents++;
+            buf[index] = e.x;
+            buf[index+1] = e.y;
+            index += 2;
         }
     }
 
-    if (nevents > 0) {
-        //Serial.write(coords, 2);
-        Serial.println(nevents);
+    if (index == sizeof(buf)) {
+        radio.write(buf, sizeof(buf));
+        index = 0;
     }
 }
