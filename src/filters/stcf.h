@@ -17,11 +17,14 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
 
         SpatioTemporalCorrelationFilter(
                 uint8_t subsampleBy=0,
-                bool letFirstEventThrough=true
+                bool letFirstEventThrough=true,
+                bool filterHotPixels=false,
+                float correlationTimeS=25e-3
                 )
         {
             _subsampleBy = subsampleBy;
             _letFirstEventThrough = letFirstEventThrough;
+            _filterHotPixels = filterHotPixels;
 
             _ssx = SXM1 >> _subsampleBy;
             _ssy = SYM1 >> _subsampleBy;
@@ -31,6 +34,9 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
                     _timestampImage[j][k] = DEFAULT_TIMESTAMP;
                 }
             }
+
+            _dt = correlationTimeS * 1000000;
+
         }
 
         virtual bool check(const EDVS::event_t & e) override
@@ -59,39 +65,50 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
 
             (void)ncorrelated;
 
-            /*
-            nnbRange.compute(x, y, ssx, ssy);
-            outerloop:
-            for (int xx = nnbRange.x0; xx <= nnbRange.x1; xx++) {
-                final int[] col = timestampImage[xx];
-                for (int yy = nnbRange.y0; yy <= nnbRange.y1; yy++) {
-                    if (fhp && xx == x && yy == y) {
-                        continue; // like BAF, don't correlate with ourself
+            nnbRange.compute(x, y, _ssx, _ssy);
+
+            bool breakOuterLoop = false;
+
+            for (uint8_t xx = nnbRange.x0; xx <= nnbRange.x1; xx++) {
+
+                if (breakOuterLoop) {
+                    break;
+                }
+
+                const uint8_t * col = _timestampImage[xx];
+
+                for (uint8_t yy = nnbRange.y0; yy <= nnbRange.y1; yy++) {
+
+                    if (_filterHotPixels && xx == x && yy == y) {
+                        continue; // don't correlate with ourself
                     }
-                    final int lastT = col[yy];
+
+                    const auto lastT = col[yy];
+
                     // note deltaT will be very negative for DEFAULT_TIMESTAMP
                     // because of overflow
-                    final int deltaT = (ts - lastT); 
+                    const auto deltaT = ts - lastT; 
+
                     // ignore correlations for DEFAULT_TIMESTAMP that are
                     // neighbors which never got event so far
-                    if (deltaT < dt && lastT != DEFAULT_TIMESTAMP) { 
+                    if (deltaT < _dt && lastT != DEFAULT_TIMESTAMP) { 
                         ncorrelated++;
-                        if (ncorrelated >= numMustBeCorrelated) {
-                            break outerloop; // csn stop checking now
-                        }
+                        //if (ncorrelated >= numMustBeCorrelated) {
+                        //    break outerloop; // csn stop checking now
+                        //}
                     }
                 }
-            }*/
+            }
 
             bool filterIn = false;
 
             /*
-            if (ncorrelated < numMustBeCorrelated) {
-            } else {
-                if (testFilterOutShotNoiseOppositePolarity(x, y, e)) {
-                } else {
-                    filterIn = true;
-                }
+               if (ncorrelated < numMustBeCorrelated) {
+               } else {
+               if (testFilterOutShotNoiseOppositePolarity(x, y, e)) {
+               } else {
+               filterIn = true;
+               }
             }*/
 
             storeTimestampPolarity(x, y, e);
@@ -109,9 +126,14 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
         uint8_t _ssx;
         uint8_t _ssy;
 
+        uint32_t _dt;
+
         bool _letFirstEventThrough;
+        bool _filterHotPixels;
 
         uint8_t _timestampImage[128][1128];
+
+        NnbRange nnbRange;
 
         void storeTimestampPolarity(const uint8_t x, const uint8_t y, const EDVS::event_t e) 
         {
