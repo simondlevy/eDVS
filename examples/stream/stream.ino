@@ -7,13 +7,15 @@ MIT License
 */
 
 #include "edvs.h"
-#include "filters/knoise.h"
 #include "filters/passthru.h"
+#include "filters/knoise.h"
+#include "filters/stcf.h"
 
 static EDVS edvs = EDVS(Serial1); 
 
+//static PassThruFilter filter;
 //static OrderNbackgroundActivityFilter filter;
-static PassThruFilter filter;
+static SpatioTemporalCorrelationFilter filter;
 
 void setup(void)
 {
