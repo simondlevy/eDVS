@@ -1,5 +1,5 @@
 /*
-DVS Knoise event filtering. Runs filter in O(N), N = sensor resolution.
+ON(N) event filtering
 
 Adapted from Java code in
 https:#github.com/SensorsINI/jaer/tree/master/src/net/sf/jaer/eventprocessing/filter
