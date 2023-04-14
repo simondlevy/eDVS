@@ -6,9 +6,12 @@
    MIT License
  */
 
-#include "edvs.h"
+#pragma once
 
-class SpatioTemporalCorrelationFilter {
+#include "edvs.h"
+#include "filter.h"
+
+class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
 
     public:
 
@@ -20,7 +23,7 @@ class SpatioTemporalCorrelationFilter {
             _ssy = SYM1 >> _subsampleBy;
         }
 
-        bool check(const EDVS::event_t & e)
+        virtual bool check(const EDVS::event_t & e) override
         {
             const auto ts = e.t;
 
@@ -33,6 +36,18 @@ class SpatioTemporalCorrelationFilter {
             }
 
             (void)ts;
+
+            /*
+            if (timestampImage[x][y] == DEFAULT_TIMESTAMP) {
+                storeTimestampPolarity(x, y, e);
+                if (letFirstEventThrough) {
+                    filterIn(e);
+                    continue;
+                } else {
+                    filterOut(e);
+                    continue;
+                }
+            }*/
 
             return true;
         }

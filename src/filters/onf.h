@@ -10,11 +10,14 @@ Copyright (C) 2023 Simon D. Levy
 MIT License
  */
 
+#pragma once
+
 #include <limits.h>
 
 #include "edvs.h"
+#include "filter.h"
 
-class OrderNbackgroundActivityFilter {
+class OrderNbackgroundActivityFilter : public AbstractNoiseFilter {
 
     public:
 
@@ -43,7 +46,7 @@ class OrderNbackgroundActivityFilter {
             initialize_last_times_map_for_noise_rate(last_timestamp);
         }
 
-        bool check(const EDVS::event_t & e)
+        virtual bool check(const EDVS::event_t & e) override
         {
             // assume all edge events are noise and filter out
             if (e.x <= 0 || e.y <= 0 ||
@@ -58,8 +61,6 @@ class OrderNbackgroundActivityFilter {
         }
 
     private:
-
-        static const uint32_t DEFAULT_TIMESTAMP = 0;
 
         uint8_t _sx;
         uint8_t _sy;
