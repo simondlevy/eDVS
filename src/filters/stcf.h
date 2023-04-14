@@ -51,16 +51,52 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
 
                 storeTimestampPolarity(x, y, e);
 
-                if (_letFirstEventThrough) {
-                    //filterIn(e);
-                    //continue;
-                } else {
-                    //filterOut(e);
-                    //continue;
-                }
+                return _letFirstEventThrough;
             }
 
-            return true;
+            // the real denoising starts here
+            uint32_t ncorrelated = 0;
+
+            (void)ncorrelated;
+
+            /*
+            nnbRange.compute(x, y, ssx, ssy);
+            outerloop:
+            for (int xx = nnbRange.x0; xx <= nnbRange.x1; xx++) {
+                final int[] col = timestampImage[xx];
+                for (int yy = nnbRange.y0; yy <= nnbRange.y1; yy++) {
+                    if (fhp && xx == x && yy == y) {
+                        continue; // like BAF, don't correlate with ourself
+                    }
+                    final int lastT = col[yy];
+                    // note deltaT will be very negative for DEFAULT_TIMESTAMP
+                    // because of overflow
+                    final int deltaT = (ts - lastT); 
+                    // ignore correlations for DEFAULT_TIMESTAMP that are
+                    // neighbors which never got event so far
+                    if (deltaT < dt && lastT != DEFAULT_TIMESTAMP) { 
+                        ncorrelated++;
+                        if (ncorrelated >= numMustBeCorrelated) {
+                            break outerloop; // csn stop checking now
+                        }
+                    }
+                }
+            }*/
+
+            bool filterIn = false;
+
+            /*
+            if (ncorrelated < numMustBeCorrelated) {
+            } else {
+                if (testFilterOutShotNoiseOppositePolarity(x, y, e)) {
+                } else {
+                    filterIn = true;
+                }
+            }*/
+
+            storeTimestampPolarity(x, y, e);
+
+            return filterIn;
         }
 
     private:
@@ -77,12 +113,12 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
 
         uint8_t _timestampImage[128][1128];
 
-    void storeTimestampPolarity(const uint8_t x, const uint8_t y, const EDVS::event_t e) 
-    {
-        _timestampImage[x][y] = e.t;
+        void storeTimestampPolarity(const uint8_t x, const uint8_t y, const EDVS::event_t e) 
+        {
+            _timestampImage[x][y] = e.t;
 
-        //if (e instanceof PolarityEvent) {
-        //    polImage[x][y] = (byte) ((PolarityEvent) e).getPolaritySignum();
-        //}
-    }
+            //if (e instanceof PolarityEvent) {
+            //    polImage[x][y] = (byte) ((PolarityEvent) e).getPolaritySignum();
+            //}
+        }
 };
