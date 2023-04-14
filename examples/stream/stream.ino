@@ -14,8 +14,8 @@ MIT License
 static EDVS edvs = EDVS(Serial1); 
 
 //static PassThruFilter filter;
-static OrderNbackgroundActivityFilter filter;
-//static SpatioTemporalCorrelationFilter filter;
+//static OrderNbackgroundActivityFilter filter;
+static SpatioTemporalCorrelationFilter filter;
 
 void setup(void)
 {

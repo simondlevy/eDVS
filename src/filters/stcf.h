@@ -24,7 +24,7 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
                 uint8_t subsampleBy=0,
                 bool letFirstEventThrough=true,
                 bool filterHotPixels=false,
-                float correlationTimeS=25e-3,
+                float correlationTimeS=2.5e-2,
                 uint8_t numMustBeCorrelated=2
                 )
         {
@@ -79,7 +79,7 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
                     break;
                 }
 
-                const uint8_t * col = _timestampImage[xx];
+                const auto col = _timestampImage[xx];
 
                 for (uint8_t yy = nnbRange.y0; yy <= nnbRange.y1; yy++) {
 
@@ -93,6 +93,8 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
                     // because of overflow
                     const auto deltaT = ts - lastT; 
 
+                    // Serial.printf("(%d = %d - %d) < %d\n", deltaT, ts, lastT, _dt);
+
                     // ignore correlations for DEFAULT_TIMESTAMP that are
                     // neighbors which never got event so far
                     if (deltaT < _dt && lastT != DEFAULT_TIMESTAMP) { 
@@ -105,8 +107,8 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
                 }
             }
 
-            bool filterIn = ncorrelated >= _numMustBeCorrelated &&
-                !testFilterOutShotNoiseOppositePolarity(x, y, e);
+            bool filterIn = ncorrelated >= _numMustBeCorrelated /*&&
+                !testFilterOutShotNoiseOppositePolarity(x, y, e)*/;
 
             storeTimestampPolarity(x, y, e);
 
@@ -130,7 +132,7 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
         bool _letFirstEventThrough;
         bool _filterHotPixels;
 
-        uint8_t _timestampImage[128][1128];
+        uint32_t _timestampImage[128][128];
 
         NnbRange nnbRange;
 
