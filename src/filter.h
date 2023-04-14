@@ -1,9 +1,14 @@
 /*
-Abstract class for noise filtering
+  Abstract class for noise filtering
 
-Copyright (C) 2023 Simon D. Levy
+ Adapted from 
 
-MIT License
+  https://github.com/SensorsINI/jaer/blob/master/src/net/sf/jaer/eventprocessing/filter/
+    AbstractNoiseFilter.java
+
+  Copyright (C) 2023 Simon D. Levy
+
+  MIT License
  */
 
 #pragma once

@@ -1,13 +1,14 @@
 /*
-ON(N) event filtering
+  ON(N) event filtering
 
-Adapted from Java code in
-https:#github.com/SensorsINI/jaer/tree/master/src/net/sf/jaer/eventprocessing/filter
+  Adapted from 
 
+  https://github.com/SensorsINI/jaer/blob/master/src/net/sf/jaer/eventprocessing/filter/
+    OrderNBackgroundActivityFilter.java
 
-Copyright (C) 2023 Simon D. Levy
+  Copyright (C) 2023 Simon D. Levy
 
-MIT License
+  MIT License
  */
 
 #pragma once

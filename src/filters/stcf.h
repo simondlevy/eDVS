@@ -1,6 +1,11 @@
 /*
    Spatio-Temporal Correlation Filter
 
+   Adapted from 
+
+   https://github.com/SensorsINI/jaer/blob/master/src/net/sf/jaer/eventprocessing/filter/
+     SpatioTemporalCorrelationFilter.java
+
    Copyright (C) 2023 Simon D. Levy
 
    MIT License
@@ -19,12 +24,14 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
                 uint8_t subsampleBy=0,
                 bool letFirstEventThrough=true,
                 bool filterHotPixels=false,
-                float correlationTimeS=25e-3
+                float correlationTimeS=25e-3,
+                uint8_t numMustBeCorrelated=2
                 )
         {
             _subsampleBy = subsampleBy;
             _letFirstEventThrough = letFirstEventThrough;
             _filterHotPixels = filterHotPixels;
+            _numMustBeCorrelated = numMustBeCorrelated;
 
             _ssx = SXM1 >> _subsampleBy;
             _ssy = SYM1 >> _subsampleBy;
@@ -51,8 +58,6 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
                 return false;
             }
 
-            (void)ts;
-
             if (_timestampImage[x][y] == DEFAULT_TIMESTAMP) {
 
                 storeTimestampPolarity(x, y, e);
@@ -61,9 +66,8 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
             }
 
             // the real denoising starts here
-            uint32_t ncorrelated = 0;
 
-            (void)ncorrelated;
+            uint32_t ncorrelated = 0;
 
             nnbRange.compute(x, y, _ssx, _ssy);
 
@@ -93,23 +97,16 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
                     // neighbors which never got event so far
                     if (deltaT < _dt && lastT != DEFAULT_TIMESTAMP) { 
                         ncorrelated++;
-                        //if (ncorrelated >= numMustBeCorrelated) {
-                        //    break outerloop; // csn stop checking now
-                        //}
+                        if (ncorrelated >= _numMustBeCorrelated) {
+                            breakOuterLoop = true; // csn stop checking now
+                            break;
+                        }
                     }
                 }
             }
 
-            bool filterIn = false;
-
-            /*
-               if (ncorrelated < numMustBeCorrelated) {
-               } else {
-               if (testFilterOutShotNoiseOppositePolarity(x, y, e)) {
-               } else {
-               filterIn = true;
-               }
-            }*/
+            bool filterIn = ncorrelated >= _numMustBeCorrelated &&
+                !testFilterOutShotNoiseOppositePolarity(x, y, e);
 
             storeTimestampPolarity(x, y, e);
 
@@ -128,6 +125,8 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
 
         uint32_t _dt;
 
+        uint8_t _numMustBeCorrelated;
+
         bool _letFirstEventThrough;
         bool _filterHotPixels;
 
@@ -135,7 +134,8 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
 
         NnbRange nnbRange;
 
-        void storeTimestampPolarity(const uint8_t x, const uint8_t y, const EDVS::event_t e) 
+        void storeTimestampPolarity(
+                const uint8_t x, const uint8_t y, const EDVS::event_t e) 
         {
             _timestampImage[x][y] = e.t;
 
@@ -143,4 +143,45 @@ class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
             //    polImage[x][y] = (byte) ((PolarityEvent) e).getPolaritySignum();
             //}
         }
+
+        /**
+         * Tests if event is perhaps a shot noise event that is very recently after
+         * a previous event from this pixel and is the opposite polarity.
+         *
+         * @param x x address of event
+         * @param y y address of event
+         * @param e event
+         *
+         * @return true if noise event, false if signal
+         */
+        bool testFilterOutShotNoiseOppositePolarity(
+                const uint8_t x, const uint8_t y, EDVS::event_t e) 
+        {
+            return false;
+
+            /*
+               if (!filterAlternativePolarityShotNoiseEnabled) {
+               return false;
+               }
+               if (!(e instanceof PolarityEvent)) {
+               return false;
+               }
+               numShotNoiseTests++;
+               PolarityEvent p = (PolarityEvent) e;
+               if (p.getPolaritySignum() == polImage[x][y]) {
+               return false; // if same polarity, don't filter out
+               }
+               int prevT = timestampImage[x][y];
+               if (prevT == DEFAULT_TIMESTAMP) {
+               return false; // if there is no previous event, treat as signal event
+               }
+               float dt = 1e-6f * (e.timestamp - timestampImage[x][y]);
+               if (dt > shotNoiseCorrelationTimeS) {
+               return false; // if the previous event was too far in past, treat as signal event
+               }
+               numAlternatingPolarityShotNoiseEventsFilteredOut++;
+               return true; // opposite polarity and follows closely after previous event, filter out
+             */
+        }
+
 };
