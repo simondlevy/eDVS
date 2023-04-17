@@ -1,3 +1,11 @@
+/*
+   Microsecond timer-task helper class
+
+   Copyright (C) 2023 Simon D. Levy
+
+   MIT License
+ */
+
 class TimerTask {
 
     public:

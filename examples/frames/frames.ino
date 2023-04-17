@@ -1,10 +1,10 @@
 /*
-Single-event streaming program for Mini eDVS
+   Single-event streaming program for Mini eDVS
 
-Copyright (C) 2023 Simon D. Levy
+   Copyright (C) 2023 Simon D. Levy
 
-MIT License
-*/
+   MIT License
+ */
 
 #include "edvs.h"
 #include "filters/passthru.h"
