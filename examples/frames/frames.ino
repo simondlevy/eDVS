@@ -12,6 +12,10 @@ MIT License
 #include "filters/stcf.h"
 #include "timertask.h"
 
+static const uint32_t FRAME_SIZE = 4096;
+
+static const uint32_t FRAMES_PER_SECOND = 30;
+
 static EDVS edvs = EDVS(Serial1); 
 
 //static PassThruFilter filter;
@@ -27,7 +31,7 @@ void setup(void)
 
 void loop(void)
 {
-    static uint8_t frame[4096];
+    static uint8_t frame[FRAME_SIZE];
     static uint32_t index;
 
     static TimerTask task;
@@ -41,23 +45,13 @@ void loop(void)
             frame[index]   = e.x;
             frame[index+1] = e.y;
 
-            index = (index + 2) % 4096;
-
-            /*
-            index += 2;
-
-            if (index == 4096) {
-
-                Serial.write(frame, 4096);
-
-                memset(frame, 0, 4096);
-                index = 0;
-            }*/
+            index = (index + 2) % FRAME_SIZE;
         }
     }
 
-    if (task.ready(30)) {
-        Serial.write(frame, 4096);
-        memset(frame, 0, 4096);
+    if (task.ready(FRAMES_PER_SECOND)) {
+
+        Serial.write(frame, FRAME_SIZE);
+        memset(frame, 0, FRAME_SIZE);
     }
 }
