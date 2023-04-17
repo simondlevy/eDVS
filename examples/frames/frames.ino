@@ -10,6 +10,7 @@ MIT License
 #include "filters/passthru.h"
 #include "filters/onf.h"
 #include "filters/stcf.h"
+#include "timertask.h"
 
 static EDVS edvs = EDVS(Serial1); 
 
@@ -29,6 +30,8 @@ void loop(void)
     static uint8_t frame[4096];
     static uint32_t index;
 
+    static TimerTask task;
+
     if (edvs.update()) {
 
         EDVS::event_t e = edvs.getCurrent();
@@ -38,6 +41,9 @@ void loop(void)
             frame[index]   = e.x;
             frame[index+1] = e.y;
 
+            index = (index + 2) % 4096;
+
+            /*
             index += 2;
 
             if (index == 4096) {
@@ -46,7 +52,12 @@ void loop(void)
 
                 memset(frame, 0, 4096);
                 index = 0;
-            }
+            }*/
         }
+    }
+
+    if (task.ready(30)) {
+        Serial.write(frame, 4096);
+        memset(frame, 0, 4096);
     }
 }
