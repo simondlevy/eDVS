@@ -32,8 +32,21 @@ void loop(void)
 
         if (filter.check(e)) {
 
-            Serial.write(e.x);
-            Serial.write(e.y);
+            static uint8_t frame[4096];
+            static uint32_t index;
+
+            frame[index]   = e.x;
+            frame[index+1] = e.y;
+
+            index += 2;
+
+            if (index == 4096) {
+
+                Serial.write(frame, 4096);
+
+                memset(frame, 0, 4096);
+                index = 0;
+            }
         }
     }
 }

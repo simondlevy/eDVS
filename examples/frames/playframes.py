@@ -51,6 +51,9 @@ def main():
                 # eight-bit ints
                 data = np.frombuffer(port.read(args.maxbuf), dtype=np.int8)
 
+                if len(data) != 4096:
+                    continue
+
                 x = data[::2]
                 y = data[1::2]
 
