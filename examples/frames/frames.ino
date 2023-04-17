@@ -26,14 +26,14 @@ void setup(void)
 
 void loop(void)
 {
+    static uint8_t frame[4096];
+    static uint32_t index;
+
     if (edvs.update()) {
 
         EDVS::event_t e = edvs.getCurrent();
 
         if (filter.check(e)) {
-
-            static uint8_t frame[4096];
-            static uint32_t index;
 
             frame[index]   = e.x;
             frame[index+1] = e.y;
