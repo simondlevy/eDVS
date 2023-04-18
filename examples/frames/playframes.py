@@ -57,17 +57,16 @@ def main():
                 x = data[::2]
                 y = data[1::2]
 
-                # Keep X and Y arrays the same size
-                n = min(len(x), len(y))
+                nz = len(np.nonzero(x)[0])
 
                 # Record to file if indicated
                 if outfile is not None:
-                    for k in range(n):
+                    for k in range(nz):
                         outfile.write(x[k])
                         outfile.write(y[k])
 
                 # Report event count each second
-                event_count += n
+                event_count += nz
                 if time() - time_prev > 1:
                     if time_prev > 0:
                         if frame_count > 0:
@@ -86,11 +85,11 @@ def main():
                     frame_count = 0
 
                 # Avoid displaying empty buffer
-                if n > 0:
+                if nz > 0:
 
                     # Keep X and Y coordinates same size
-                    x = x[:n]
-                    y = y[:n]
+                    x = x[:nz]
+                    y = y[:nz]
 
                     # Fill image with white pixels at event locations
                     image = np.zeros((128, 128)).astype('uint8')
