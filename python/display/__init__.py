@@ -112,8 +112,8 @@ class Display:
         Returns False on quit, True otherwise
         '''
 
-        if (self.total_event_count > 1):
-            print('%3.3e' % (self.total_denoise_time / self.total_event_count))
+        #if (self.total_event_count > 1):
+        #    print('%3.3e' % (self.total_denoise_time / self.total_event_count))
 
         big_image = np.hstack((self._enlarge(self.raw_image, self.scaleup),
                                self._enlarge(self.flt_image, self.scaleup)))
