@@ -10,8 +10,8 @@ import numpy as np
 import cv2
 from time import time
 
-from filters.dvsnoise import SpatioTemporalCorrelationFilter
-from filters.knoise import OrderNbackgroundActivityFilter
+from filters.stcf import SpatioTemporalCorrelationFilter
+from filters.knoise import Knoise
 from filters.passthru import PassThruFilter
 
 
@@ -24,7 +24,7 @@ def parse_args(argparser):
                            help='Display in color')
 
     argparser.add_argument('-d', '--denoising', default='none',
-                           choices=('dvsknoise', 'knoise', 'none'),
+                           choices=('stcf', 'knoise', 'none'),
                            help='Denoising filter choice')
 
     argparser.add_argument('-t', '--maxtime', type=float,
@@ -68,10 +68,10 @@ class Display:
         self.raw_per_second = 0
         self.flt_per_second = 0
 
-        self.denoise = (OrderNbackgroundActivityFilter()
+        self.denoise = (Knoise()
                         if args.denoising == 'knoise'
                         else SpatioTemporalCorrelationFilter()
-                        if args.denoising == 'dvsnoise'
+                        if args.denoising == 'stcf'
                         else PassThruFilter())
 
         self.video_out = (self._video_writer(args)

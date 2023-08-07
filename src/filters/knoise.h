@@ -18,11 +18,11 @@
 #include "edvs.h"
 #include "filter.h"
 
-class OrderNbackgroundActivityFilter : public AbstractNoiseFilter {
+class KnoiseFilter : public AbstractNoiseFilter {
 
     public:
 
-        OrderNbackgroundActivityFilter(
+        KnoiseFilter(
                 const uint32_t last_timestamp=3600000000, // One hour of microseconds
                 const uint8_t sx=128, 
                 const uint8_t sy=128, 

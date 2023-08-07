@@ -22,7 +22,7 @@ static RF24 radio(CE_PIN, SS, RADIO_FREQ); // use builtin chip-select pin SS
 
 static EDVS edvs = EDVS(Serial1); 
 
-static OrderNbackgroundActivityFilter filter;
+static Knoise filter;
 // static PassThruFilter filter;
 
 static void startRadio(void)

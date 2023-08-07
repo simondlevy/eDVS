@@ -1,5 +1,5 @@
 '''
-DVS event filtering
+DVS event filtering via spatiotemporal correlation
 
 Adapted from Java code in
   https:#github.com/SensorsINI/jaer/tree/master/src/net/sf/jaer/eventprocessing/filter

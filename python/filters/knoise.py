@@ -12,7 +12,7 @@ MIT License
 import numpy as np
 
 
-class OrderNbackgroundActivityFilter:
+class Knoise:
 
     DEFAULT_TIMESTAMP = 0
 

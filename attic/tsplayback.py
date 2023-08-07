@@ -13,7 +13,7 @@ import argparse
 import cv2
 
 from filters.dvsnoise import SpatioTemporalCorrelationFilter
-from filters.knoise import OrderNbackgroundActivityFilter
+from filters.knoise import Knoise
 
 
 class PassThruFilter:
@@ -73,7 +73,7 @@ def main():
 
     image = new_image()
 
-    filt = (OrderNbackgroundActivityFilter() if args.denoising == 'knoise'
+    filt = (Knoise() if args.denoising == 'knoise'
             else SpatioTemporalCorrelationFilter() if args.denoising == 'dvsnoise' 
             else PassThruFilter())
 
