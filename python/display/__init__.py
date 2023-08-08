@@ -10,9 +10,14 @@ import numpy as np
 import cv2
 from time import time
 
-from filters.stcf import SpatioTemporalCorrelationFilter
-from filters.knoise import Knoise
-from filters.passthru import PassThruFilter
+try:
+    from dvs_filters.stcf import SpatioTemporalCorrelationFilter
+    from dvs_filters.knoise import Knoise
+    from dvs_filters.passthru import PassThruFilter
+
+except:
+    print('Please install https://github.com/simondlevy/dvs-filters')
+    exit(0)
 
 
 def parse_args(argparser):
