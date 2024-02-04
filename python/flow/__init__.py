@@ -125,9 +125,10 @@ class FlowDisplay:
                                self._enlarge(self.flo_image, self.scaleup),
                                ))
 
-        # Draw a line down the middle of the big image to separate
-        # raw from filtered
+        # Draw lines down the middle of the big image to separate
+        # sub-images
         big_image[:, 128*self.scaleup] = 255
+        big_image[:, 256*self.scaleup] = 255
 
         self._add_events_per_second(big_image, 50, self.raw_per_second)
         self._add_events_per_second(big_image, 300, self.flt_per_second)
