@@ -41,6 +41,9 @@ def parse_args(argparser):
     argparser.add_argument('-s', '--scaleup', type=int, default=2,
                            help='Scale-up factor for display')
 
+    argparser.add_argument('-f', '--flowtiles', type=int, default=None,
+                           help='n in 2^n x 2^n tiles for optical flow')
+
     args = argparser.parse_args()
 
     return args
