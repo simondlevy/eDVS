@@ -240,11 +240,19 @@ class Display:
 
             for c in range(self.flowtiles):
 
+                ctrx = int((c + 0.5) * self.tilesize)
+                ctry = int((r + 0.5) * self.tilesize)
+
                 count = self.count_per_tile[r][c]
 
                 if count > 0:
 
-                    ctrx = int(self.x_sum_per_tile[r][c] / count)
-                    ctry = int(self.y_sum_per_tile[r][c] / count)
+                    fx = int(self.x_sum_per_tile[r][c] / count)
+                    fy = int(self.y_sum_per_tile[r][c] / count)
 
-                    self.flo_image[ctry][ctrx] = (255, 255, 255)
+                    cv2.line(
+                            self.flo_image, (ctrx, ctry), 
+                            (fx, fy),
+                            (255, 255, 255))
+
+                    cv2.circle(self.flo_image, (fx, fy), 1, (0, 0, 255))
