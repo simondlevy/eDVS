@@ -121,7 +121,9 @@ class FlowDisplay:
         #    print('%3.3e' % (self.total_denoise_time / self.total_event_count))
 
         big_image = np.hstack((self._enlarge(self.raw_image, self.scaleup),
-                               self._enlarge(self.flt_image, self.scaleup)))
+                               self._enlarge(self.flt_image, self.scaleup),
+                               self._enlarge(self.flt_image, self.scaleup),
+                               ))
 
         # Draw a line down the middle of the big image to separate
         # raw from filtered
@@ -174,7 +176,7 @@ class FlowDisplay:
         return (cv2.VideoWriter(args.video,
                                 cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
                                 self.VIDEO_FPS_SCALE * self.fps,
-                                (self.scaleup * 256, self.scaleup * 128)))
+                                (self.scaleup * 384, self.scaleup * 128)))
 
     def _new_image(self):
 
