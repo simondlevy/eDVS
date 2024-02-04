@@ -121,14 +121,18 @@ class Display:
         #    print('%3.3e' % (self.total_denoise_time / self.total_event_count))
 
         big_image = np.hstack((self._enlarge(self.raw_image, self.scaleup),
-                               self._enlarge(self.flt_image, self.scaleup)))
+                               self._enlarge(self.flt_image, self.scaleup),
+                               self._enlarge(self.flo_image, self.scaleup),
+                               ))
 
-        # Draw a line down the middle of the big image to separate
-        # raw from filtered
-        big_image[:, 128*self.scaleup] = 255
+        # Draw lines down the middle of the big image to separate
+        # sub-images
+        self._draw_line(big_image, 1)
+        self._draw_line(big_image, 2)
 
         self._add_events_per_second(big_image, 50, self.raw_per_second)
         self._add_events_per_second(big_image, 300, self.flt_per_second)
+        self._add_title(big_image, 620, 'Flow')
 
         # Show big image, quitting on ESC
         cv2.imshow(self.name, big_image)
@@ -168,13 +172,14 @@ class Display:
 
         self.raw_image = self._new_image()
         self.flt_image = self._new_image()
+        self.flo_image = self._new_image()
 
     def _video_writer(self, args):
 
         return (cv2.VideoWriter(args.video,
                                 cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
                                 self.VIDEO_FPS_SCALE * self.fps,
-                                (self.scaleup * 256, self.scaleup * 128)))
+                                (self.scaleup * 384, self.scaleup * 128)))
 
     def _new_image(self):
 
@@ -193,11 +198,21 @@ class Display:
 
         if value > 0:
 
-            cv2.putText(image,
-                        '%d events/second' % value,
-                        (xpos, 25),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5,            # scale
-                        (0, 255, 255),  # color
-                        2,              # thickness
-                        2)              # line type
+            self._add_title(image, xpos, '%d events/second' % value)
+
+    def _add_title(self, image, xpos, title):
+
+        cv2.putText(image,
+                    title,
+                    (xpos, 25),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,            # scale
+                    (0, 255, 255),  # color
+                    2,              # thickness
+                    2)              # line type
+        
+
+    def _draw_line(self, big_image, k):
+
+        big_image[:, k * 128 * self.scaleup] = 255
+
