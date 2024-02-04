@@ -8,25 +8,22 @@ MIT License
 
 #include "edvs.h"
 
-// For ESP32
-static const uint8_t RX_PIN = 4;
-static const uint8_t TX_PIN = 14;
+static HardwareSerial * SERIAL_PORT = &Serial3;
 
 void setup(void)
 {
     Serial.begin(115200);
 
-    // Ordinary Arduino
-    Serial1.begin(EDVS::BAUD);
+    SERIAL_PORT->begin(EDVS::BAUD);
 }
 
 void loop(void)
 {
     while (Serial.available()) {
-        Serial1.write(Serial.read());
+        SERIAL_PORT->write(Serial.read());
     }
 
-    while (Serial1.available()) {
-        Serial.print((char)Serial1.read());
+    while (SERIAL_PORT->available()) {
+        Serial.print((char)SERIAL_PORT->read());
     }
 }

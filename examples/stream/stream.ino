@@ -11,7 +11,7 @@ MIT License
 #include "filters/knoise.h"
 #include "filters/stcf.h"
 
-static EDVS edvs = EDVS(Serial1); 
+static EDVS edvs = EDVS(Serial3); 
 
 //static PassThruFilter filter;
 //static Knoise filter;
