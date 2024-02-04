@@ -127,8 +127,8 @@ class FlowDisplay:
 
         # Draw lines down the middle of the big image to separate
         # sub-images
-        big_image[:, 128*self.scaleup] = 255
-        big_image[:, 256*self.scaleup] = 255
+        self._draw_line(big_image, 1)
+        self._draw_line(big_image, 2)
 
         self._add_events_per_second(big_image, 50, self.raw_per_second)
         self._add_events_per_second(big_image, 300, self.flt_per_second)
@@ -210,3 +210,9 @@ class FlowDisplay:
                     (0, 255, 255),  # color
                     2,              # thickness
                     2)              # line type
+        
+
+    def _draw_line(self, big_image, k):
+
+        big_image[:, k * 128 * self.scaleup] = 255
+
