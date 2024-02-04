@@ -122,7 +122,7 @@ class FlowDisplay:
 
         big_image = np.hstack((self._enlarge(self.raw_image, self.scaleup),
                                self._enlarge(self.flt_image, self.scaleup),
-                               self._enlarge(self.flt_image, self.scaleup),
+                               self._enlarge(self.flo_image, self.scaleup),
                                ))
 
         # Draw a line down the middle of the big image to separate
@@ -171,6 +171,7 @@ class FlowDisplay:
 
         self.raw_image = self._new_image()
         self.flt_image = self._new_image()
+        self.flo_image = self._new_image()
 
     def _video_writer(self, args):
 
