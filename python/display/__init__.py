@@ -66,8 +66,6 @@ class Display:
         self.flowtiles = 2 ** args.flowtiles
         self.tilesize = 128 // self.flowtiles
 
-        self.flowmap = np.zeros((self.flowtiles, self.flowtiles))
-
         # Start with empty images
         self.clear()
 
@@ -111,9 +109,11 @@ class Display:
         passed = self.denoise.check(e)
         self.total_denoise_time += (time() - beg)
         if passed and e.x < 64 and e.y < 64: # XXX stick to upper-left quadrant for now
-            col = e.x // self.tilesize
-            row = e.y // self.tilesize
-            print(row, col)
+            tile_col = e.x // self.tilesize
+            tile_row = e.y // self.tilesize
+            self.x_sum_per_tile[tile_row][tile_col] += e.x
+            self.y_sum_per_tile[tile_row][tile_col] += e.y
+            self.count_per_tile[tile_row][tile_col] += 1
             self.flt_image[e.y, e.x] = self._polarity2color(e)
             self.flt_total += 1
             passed = True
@@ -179,11 +179,26 @@ class Display:
         if self.video_out is not None:
             self.video_out.release()
 
+    def report(self):
+
+        count = self.count_per_tile[0][0]
+
+        if count > 0:
+
+            ctrx = int(self.x_sum_per_tile[0][0] / count)
+            ctry = int(self.y_sum_per_tile[0][0] / count)
+
+            print(ctrx, ctry)
+
     def clear(self):
 
         self.raw_image = self._new_image()
         self.flt_image = self._new_image()
         self.flo_image = self._new_image()
+
+        self.x_sum_per_tile = np.zeros((self.flowtiles, self.flowtiles))
+        self.y_sum_per_tile = np.zeros((self.flowtiles, self.flowtiles))
+        self.count_per_tile = np.zeros((self.flowtiles, self.flowtiles))
 
     def _video_writer(self, args):
 

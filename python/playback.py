@@ -43,6 +43,8 @@ def main():
                     if not display.show():
                         break
 
+                    display.report()
+
                     # Start over with a new empty frame
                     display.clear()
 
