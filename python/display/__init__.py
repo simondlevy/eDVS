@@ -127,6 +127,15 @@ class Display:
         Returns False on quit, True otherwise
         '''
 
+        count = self.count_per_tile[0][0]
+
+        if count > 0:
+
+            ctrx = int(self.x_sum_per_tile[0][0] / count)
+            ctry = int(self.y_sum_per_tile[0][0] / count)
+
+            self.flo_image[ctry][ctrx] = (255, 255, 255)
+
         #if (self.total_event_count > 1):
         #    print('%3.3e' % (self.total_denoise_time / self.total_event_count))
 
@@ -178,17 +187,6 @@ class Display:
 
         if self.video_out is not None:
             self.video_out.release()
-
-    def report(self):
-
-        count = self.count_per_tile[0][0]
-
-        if count > 0:
-
-            ctrx = int(self.x_sum_per_tile[0][0] / count)
-            ctry = int(self.y_sum_per_tile[0][0] / count)
-
-            print(ctrx, ctry)
 
     def clear(self):
 
