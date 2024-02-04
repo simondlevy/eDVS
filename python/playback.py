@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 '''
-Experiments with DVS filtering
+Plays back an AEDAT4 file with filtering and optical flow
 
 Copyright (C) 2023 Simon D. Levy
 
@@ -36,7 +36,7 @@ def main():
                 display.addEvent(e)
 
                 # Update images periodically
-                if time() - time_prev > 1./args.fps:
+                if time() - time_prev > 1./args.rate:
 
                     time_prev = time()
 

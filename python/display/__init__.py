@@ -22,7 +22,7 @@ except:
 
 def parse_args(argparser):
 
-    argparser.add_argument('-f', '--fps', type=int, default=30,
+    argparser.add_argument('-r', '--rate', type=int, default=30,
                            help='Frame rate per second for display')
 
     argparser.add_argument('-c', '--color', action='store_true',
@@ -57,7 +57,7 @@ class Display:
         self.name = name
 
         self.scaleup = args.scaleup
-        self.fps = args.fps
+        self.fps = args.rate
         self.maxtime = args.maxtime
         self.color = args.color
 
