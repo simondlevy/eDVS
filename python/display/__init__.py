@@ -64,6 +64,7 @@ class Display:
         self.maxtime = args.maxtime
         self.color = args.color
         self.flowtiles = 2 ** args.flowtiles
+        self.tilesize = 128 // self.flowtiles
 
         self.flowmap = np.zeros((self.flowtiles, self.flowtiles))
 
@@ -109,7 +110,10 @@ class Display:
         beg = time()
         passed = self.denoise.check(e)
         self.total_denoise_time += (time() - beg)
-        if passed:
+        if passed and e.x < 64 and e.y < 64: # XXX stick to upper-left quadrant for now
+            col = e.x // self.tilesize
+            row = e.y // self.tilesize
+            print(row, col)
             self.flt_image[e.y, e.x] = self._polarity2color(e)
             self.flt_total += 1
             passed = True
@@ -132,10 +136,11 @@ class Display:
                                ))
 
         # Draw lines down the middle of the big image to separate
-        # sub-images
+        # panels
         self._draw_line(big_image, 1)
         self._draw_line(big_image, 2)
 
+        # Add panel titles
         self._add_events_per_second(big_image, 50, self.raw_per_second)
         self._add_events_per_second(big_image, 300, self.flt_per_second)
         self._add_title(big_image, 620, 'Flow')
