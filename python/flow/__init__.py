@@ -131,6 +131,7 @@ class FlowDisplay:
 
         self._add_events_per_second(big_image, 50, self.raw_per_second)
         self._add_events_per_second(big_image, 300, self.flt_per_second)
+        self._add_title(big_image, 620, 'Flow')
 
         # Show big image, quitting on ESC
         cv2.imshow(self.name, big_image)
@@ -195,11 +196,15 @@ class FlowDisplay:
 
         if value > 0:
 
-            cv2.putText(image,
-                        '%d events/second' % value,
-                        (xpos, 25),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5,            # scale
-                        (0, 255, 255),  # color
-                        2,              # thickness
-                        2)              # line type
+            self._add_title(image, xpos, '%d events/second' % value)
+
+    def _add_title(self, image, xpos, title):
+
+        cv2.putText(image,
+                    title,
+                    (xpos, 25),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,            # scale
+                    (0, 255, 255),  # color
+                    2,              # thickness
+                    2)              # line type
