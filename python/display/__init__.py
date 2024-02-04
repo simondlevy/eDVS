@@ -41,7 +41,7 @@ def parse_args(argparser):
     argparser.add_argument('-s', '--scaleup', type=int, default=2,
                            help='Scale-up factor for display')
 
-    argparser.add_argument('-f', '--flowtiles', type=int, default=None,
+    argparser.add_argument('-f', '--flowtiles', type=int, default=3,
                            help='n in 2^n x 2^n tiles for optical flow')
 
     args = argparser.parse_args()
@@ -63,6 +63,9 @@ class Display:
         self.fps = args.rate
         self.maxtime = args.maxtime
         self.color = args.color
+        self.flowtiles = 2 ** args.flowtiles
+
+        self.flowmap = np.zeros((self.flowtiles, self.flowtiles))
 
         # Start with empty images
         self.clear()
@@ -211,7 +214,7 @@ class Display:
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.5,            # scale
                     (0, 255, 255),  # color
-                    2,              # thickness
+                    1,              # thickness
                     2)              # line type
         
 
