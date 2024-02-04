@@ -41,7 +41,7 @@ def parse_args(argparser):
     argparser.add_argument('-s', '--scaleup', type=int, default=2,
                            help='Scale-up factor for display')
 
-    argparser.add_argument('-f', '--flowtiles', type=int, default=1, # XXX stick to 2x2 for now
+    argparser.add_argument('-f', '--flowtiles', type=int, default=3,
                            help='n in 2^n x 2^n tiles for optical flow')
 
     args = argparser.parse_args()
@@ -108,7 +108,7 @@ class Display:
         beg = time()
         passed = self.denoise.check(e)
         self.total_denoise_time += (time() - beg)
-        if passed and e.x < 64 and e.y < 64: # XXX stick to upper-left quadrant for now
+        if passed:
             tile_col = e.x // self.tilesize
             tile_row = e.y // self.tilesize
             self.x_sum_per_tile[tile_row][tile_col] += e.x
@@ -127,14 +127,8 @@ class Display:
         Returns False on quit, True otherwise
         '''
 
-        count = self.count_per_tile[0][0]
-
-        if count > 0:
-
-            ctrx = int(self.x_sum_per_tile[0][0] / count)
-            ctry = int(self.y_sum_per_tile[0][0] / count)
-
-            self.flo_image[ctry][ctrx] = (255, 255, 255)
+        # Display optical flow
+        self._show_flow()
 
         #if (self.total_event_count > 1):
         #    print('%3.3e' % (self.total_denoise_time / self.total_event_count))
@@ -240,3 +234,17 @@ class Display:
 
         big_image[:, k * 128 * self.scaleup] = 255
 
+    def _show_flow(self):
+
+        for r in range(self.flowtiles):
+
+            for c in range(self.flowtiles):
+
+                count = self.count_per_tile[r][c]
+
+                if count > 0:
+
+                    ctrx = int(self.x_sum_per_tile[r][c] / count)
+                    ctry = int(self.y_sum_per_tile[r][c] / count)
+
+                    self.flo_image[ctry][ctrx] = (255, 255, 255)
