@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include "edvs.h"
+#include "edvs.hpp"
 
 class AbstractNoiseFilter {
 

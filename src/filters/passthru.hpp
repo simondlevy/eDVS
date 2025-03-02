@@ -6,8 +6,8 @@
    MIT License
  */
 
-#include "edvs.h"
-#include "filter.h"
+#include "edvs.hpp"
+#include "filter.hpp"
 
 class PassThruFilter : public AbstractNoiseFilter {
 

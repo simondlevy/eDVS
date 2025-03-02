@@ -6,7 +6,7 @@ Copyright (C) 2023 Simon D. Levy
 MIT License
 */
 
-#include "edvs.h"
+#include "edvs.hpp"
 
 static HardwareSerial * SERIAL_PORT = &Serial3;
 

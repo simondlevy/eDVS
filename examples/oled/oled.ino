@@ -8,7 +8,7 @@ Copyright (C) 2020 Simon D. Levy
 MIT License
 */
 
-#include "edvs.h"
+#include <edvs.hpp>
 #include <OLED_GFX.h>
 
 // End-Of-Message byte

@@ -15,8 +15,8 @@
 
 #include <limits.h>
 
-#include "edvs.h"
-#include "filter.h"
+#include "edvs.hpp"
+#include "filter.hpp"
 
 class KnoiseFilter : public AbstractNoiseFilter {
 

@@ -13,8 +13,8 @@
 
 #pragma once
 
-#include "edvs.h"
-#include "filter.h"
+#include "edvs.hpp"
+#include "filter.hpp"
 
 class SpatioTemporalCorrelationFilter : public AbstractNoiseFilter {
 

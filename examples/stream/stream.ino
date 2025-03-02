@@ -6,10 +6,10 @@ Copyright (C) 2023 Simon D. Levy
 MIT License
 */
 
-#include "edvs.h"
-#include "filters/passthru.h"
-#include "filters/knoise.h"
-#include "filters/stcf.h"
+#include <edvs.hpp>
+#include <filters/passthru.hpp>
+#include <filters/knoise.hpp>
+#include <filters/stcf.hpp>
 
 static EDVS edvs = EDVS(Serial3); 
 
