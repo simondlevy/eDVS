@@ -91,6 +91,9 @@ def main():
                            choices=(0, 2, 3, 4),
                            help='Event format')
 
+    argparser.add_argument('-k', '--kfps', default=30, type=int,
+                           help='Frames Per Second')
+
     args = parse_args(argparser)
 
     # Connect to sensor
@@ -100,7 +103,7 @@ def main():
     display = Display('mini-eDVS', args)
 
     try:
-        run(edvs, display, args.fps)
+        run(edvs, display, args.kfps)
 
     # Stop streaming on error
     except Exception:
