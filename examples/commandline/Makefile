@@ -1,6 +1,6 @@
 SKETCH = commandline
 
-BOARD = teensy:avr:teensy40
+BOARD = teensy:avr:teensy41
 
 PORT = /dev/ttyACM0
 

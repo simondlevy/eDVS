@@ -8,7 +8,7 @@ MIT License
 
 #include "edvs.hpp"
 
-static HardwareSerial * SERIAL_PORT = &Serial3;
+static HardwareSerial * SERIAL_PORT = &Serial1;
 
 void setup(void)
 {
