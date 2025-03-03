@@ -8,7 +8,10 @@ MIT License
 
 #pragma once
 
-#include <Arduino.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "serial.hpp"
 
 class EDVS {
 
@@ -39,7 +42,7 @@ class EDVS {
 
         } format_e;
 
-        EDVS(HardwareSerial & serial, const uint16_t qsize=1000)
+        EDVS(MySerial & serial, const uint16_t qsize=1000)
         {
             _serial = &serial;
             _qsize = qsize;
@@ -80,8 +83,7 @@ class EDVS {
 
             if (_serial->available()) {
 
-                auto b = _serial->read();
-
+                auto b = _serial->read_byte();
 
                 // Value is in rightmost seven bits
                 uint8_t v = b & 0b01111111;
@@ -100,7 +102,7 @@ class EDVS {
                     _current.x = _x; 
                     _current.y = v; 
                     _current.p = 2*f-1; // Convert event polarity from 0,1 to -1,+1
-                    _current.t = micros();
+                    _current.t = _serial->time_usec();
 
                     _queue[_qpos].x = _current.x;
                     _queue[_qpos].y = _current.y;
@@ -152,7 +154,7 @@ class EDVS {
 
     private:
 
-        HardwareSerial * _serial;
+        MySerial * _serial;
 
         event_t _queue[MAX_QSIZE];
 
@@ -168,10 +170,10 @@ class EDVS {
         void send(const char * cmd)
         {
             for (auto * p=(char *)cmd; *p; p++) {
-                _serial->write(*p);
+                _serial->write_byte(*p);
             }
-            _serial->write('\n');
-            delay(10);
+            _serial->write_byte('\n');
+            _serial->delay_msec(10);
         }
 
         void advance(void)

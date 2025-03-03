@@ -6,12 +6,15 @@ Copyright (C) 2023 Simon D. Levy
 MIT License
 */
 
+#include <arduino_serial.hpp>
 #include <edvs.hpp>
 #include <filters/passthru.hpp>
 #include <filters/knoise.hpp>
 #include <filters/stcf.hpp>
 
-static EDVS edvs = EDVS(Serial3); 
+static ArduinoSerial serial = ArduinoSerial(Serial1);
+
+static EDVS edvs = EDVS(serial);
 
 //static PassThruFilter filter;
 //static Knoise filter;
